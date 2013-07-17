@@ -55,6 +55,7 @@ grails.project.dependency.resolution = {
 		runtime ":resources:1.1.6"
 		runtime ":spring-security-core:1.2.7.3"
 		runtime ":quartz:1.0-RC2"
+		runtime ":prototype:1.0"
 		compile ":rdc-rmodules:0.2", {
 			/* depends on quartz 0.4.2. Even though ivy says it's evicted, when
 			 * grails refresh-dependencies is run, it tries to "upgrade" 1.0-RC2
