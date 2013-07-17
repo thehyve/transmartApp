@@ -37,14 +37,12 @@ grails.project.dependency.resolution = {
         grailsHome()
         grailsCentral()
 
-        // uncomment the below to enable remote dependency resolution
-        // from public Maven repositories
         //mavenLocal()
-        //mavenCentral()
-        //mavenRepo "http://snapshots.repository.codehaus.org"
-        //mavenRepo "http://repository.codehaus.org"
-        //mavenRepo "http://download.java.net/maven/2/"
-        //mavenRepo "http://repository.jboss.com/maven2/"
+        mavenCentral()
+        mavenRepo([
+                name: 'repo.theyve.nl-public',
+                root: 'http://repo.thehyve.nl/content/repositories/public/',
+        ])
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
@@ -57,7 +55,12 @@ grails.project.dependency.resolution = {
 		runtime ":resources:1.1.6"
 		runtime ":spring-security-core:1.2.7.3"
 		runtime ":quartz:1.0-RC2"
-		compile ":rdc-rmodules:0.2"
+		compile ":rdc-rmodules:0.2", {
+			/* depends on quartz 0.4.2. Even though ivy says it's evicted, when
+			 * grails refresh-dependencies is run, it tries to "upgrade" 1.0-RC2
+			 * to this 0.4.2 version gotten from the plugin */
+			exclude 'quartz'
+		}
 		build ":tomcat:$grailsVersion"
 	}
 }
