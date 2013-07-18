@@ -33,7 +33,7 @@ class PluginModule {
 	long id
 	String name
 	String moduleName
-	Clob params
+	String params
 	String version
 	Boolean active
 	Boolean hasForm
@@ -63,18 +63,5 @@ class PluginModule {
 		formLink(nullable:true)
 		formPage(nullable:true)
 	}
-	
-	def private setParamsStr(moduleParams) {
-		if (moduleParams?.trim()) {
-			def jsonObject = JSON.parse(moduleParams)
-			params = Hibernate.createClob(jsonObject?.toString())
-		}
-	}
-	
-	def private getParamsStr() {
-		def InputStream textStream = params?.getAsciiStream()
-		def paramsAsStr = ''
-		if (null != textStream) paramsAsStr = pluginService.convertStreamToString(textStream)
-		return paramsAsStr
-	}
+
 }

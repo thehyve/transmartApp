@@ -116,7 +116,7 @@
                                     <label for="params">Params:</label>
                                 </td>
                                 <td valign="top" class="value ${hasErrors(bean:pluginModuleInstance,field:'params','errors')}">
-                                    <textarea id="paramsStr" name="paramsStr">${fieldValue(bean:pluginModuleInstance,field:'params')}</textarea>
+                                    <textarea id="params" name="params">${fieldValue(bean:pluginModuleInstance,field:'params')}</textarea>
                                 </td>
                             </tr> 
                         

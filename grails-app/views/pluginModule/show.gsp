@@ -100,7 +100,7 @@
                         <tr class="prop">
                             <td valign="top" class="name">Params:</td>
                             
-                            <td valign="top" class="value"><textarea id="paramsStr" name="paramsStr" rows="15" cols="80" readonly="readonly">${paramsStr}</textarea></td>
+                            <td valign="top" class="value"><textarea id="params" name="params" rows="15" cols="80" readonly="readonly">${params}</textarea></td>
                             
                         </tr>
                     

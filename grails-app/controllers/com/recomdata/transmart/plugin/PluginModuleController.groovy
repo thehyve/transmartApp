@@ -48,7 +48,7 @@ class PluginModuleController {
             flash.message = "PluginModule not found with id ${params.id}"
             redirect(action:list)
         }
-        else { return [ pluginModuleInstance : pluginModuleInstance, 'paramsStr' : pluginModuleInstance.getParamsStr() ] }
+        else { return [ pluginModuleInstance : pluginModuleInstance, 'params' : pluginModuleInstance.params ] }
     }
 
     def delete = {
@@ -78,7 +78,7 @@ class PluginModuleController {
             redirect(action:list)
         }
         else {
-            return [ pluginModuleInstance : pluginModuleInstance, 'paramsStr' : pluginModuleInstance.getParamsStr() ]
+            return [ pluginModuleInstance : pluginModuleInstance, 'params' : pluginModuleInstance.params ]
         }
     }
 	
@@ -86,7 +86,7 @@ class PluginModuleController {
 		def jsonResponse = new JSONObject()
 		
 		try {
-			def jsonObject = JSON.parse(params.paramsStr)
+			def jsonObject = JSON.parse(params.params)
 			jsonResponse.put('status', true)
 			jsonResponse.put('message', 'Plugin Module has valid parameters')
 		} catch (ConverterException e) {
@@ -109,18 +109,18 @@ class PluginModuleController {
                     return
                 }
             }
-            pluginModuleInstance.properties = params
 			try {
-				pluginModuleInstance.setParamsStr(params.paramsStr)
+                JSON.parse(params.params)
 			} catch (ConverterException e) {
 				pluginModuleInstance.errors.rejectValue("params", 'Parameters should be a well formed JSON string : '+e.message+' : '+e.cause?.message?.substring(0, 50)+'...')
 			}
+            pluginModuleInstance.properties = params
             if(!pluginModuleInstance.hasErrors() && pluginModuleInstance.save()) {
                 flash.message = "PluginModule ${params.id} updated"
                 redirect(action:show,id:pluginModuleInstance.id)
             }
             else {
-                render(view:'edit',model:[pluginModuleInstance:pluginModuleInstance, paramsStr:params.paramsStr])
+                render(view:'edit',model:[pluginModuleInstance:pluginModuleInstance, params:params.params])
             }
         }
         else {
@@ -132,12 +132,11 @@ class PluginModuleController {
     def create = {
         def pluginModuleInstance = new PluginModule()
         pluginModuleInstance.properties = params
-        return ['pluginModuleInstance':pluginModuleInstance, 'paramsStr' : pluginModuleInstance.getParamsStr()]
+        return ['pluginModuleInstance':pluginModuleInstance, 'params' : pluginModuleInstance.params]
     }
 
     def save = {
         def pluginModuleInstance = new PluginModule(params)
-		pluginModuleInstance.setParamsStr(params.paramsStr)
         if(!pluginModuleInstance.hasErrors() && pluginModuleInstance.save()) {
             flash.message = "PluginModule ${pluginModuleInstance.id} created"
             redirect(action:show,id:pluginModuleInstance.id)

@@ -36,7 +36,7 @@ class PluginModuleControllerTests extends GrailsUnitTestCase {
 		pmc.params.id = 3
 		pmc.params.formPage = 'BoxPlot'
 		//Note: See ANOVAData.build in the below string ... JSON.parse is throwing errors if there are new-line chars within ""
-		pmc.params.paramsStr = """
+		pmc.params.params = """
 		{
 		"id":"boxPlot",
 		"converter":{
@@ -102,6 +102,6 @@ class PluginModuleControllerTests extends GrailsUnitTestCase {
 		println 'Message :: '+pmc.flash?.message
 		
 		def model = pmc.show()
-		println model.paramsStr
+		println model.params
     }
 }
