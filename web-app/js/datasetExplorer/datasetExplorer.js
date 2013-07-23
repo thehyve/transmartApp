@@ -843,6 +843,7 @@ Ext.onReady(function()
 		resultsTabPanel.add(dataAssociationPanel);
 		resultsTabPanel.add(analysisPanel);
 		resultsTabPanel.add(analysisGridPanel);
+		resultsTabPanel.add(analysisDataExportPanel);
 		if (GLOBAL.EnableGP=='true')	{
 			resultsTabPanel.add(analysisJobsPanel);
 		}
