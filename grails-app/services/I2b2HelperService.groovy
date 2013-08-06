@@ -12,7 +12,7 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
  * 
  *
  ******************************************************************/
@@ -88,7 +88,7 @@ import com.recomdata.export.*;
 import com.recomdata.i2b2.SurvivalConcepts;
 
 /**
- * ResNetService that will provide an .rnef file for Jubilant data
+ * i2b2HelperService
  *
  * @author $Author: mkapoor $
  * @version $Revision: 11303 $
@@ -123,7 +123,6 @@ class I2b2HelperService {
 		}
 		return returnvalues;
 	}
-	
 	
 	/**
 	 * Converts a concept key to a path
@@ -259,7 +258,10 @@ class I2b2HelperService {
 		sql.eachRow("select dgi.marker_type from concept_dimension cd, de_gpl_info dgi where cd.concept_path like('%'||dgi.title||'%') "+
 				"and cd.concept_cd = ?",[conceptCd], {row ->
 					markerType = row.marker_type
-		})
+		})		
+		if(markerType==""){
+			log.error("No marker type defined for concept cd "+conceptCd+" in DE_GPL_INFO");
+		}
 		//return "Gene Expression"
 		//return "SNP"
 		return markerType
@@ -401,9 +403,10 @@ class I2b2HelperService {
 		log.trace("Getting patient set size with id:" + result_instance_id);
 		Integer i=0;
 		groovy.sql.Sql sql = new groovy.sql.Sql(dataSource);
-		String sqlt = """select count(*) as patcount FROM (select distinct patient_num
-		        from qt_patient_set_collection
-				where result_instance_id = ?) as t""";
+
+		String sqlt = """select count(distinct(patient_num)) as patcount FROM qt_patient_set_collection
+				where result_instance_id = ?""";
+
 		log.trace(sqlt);
 		sql.eachRow(sqlt, [result_instance_id], {row ->
 			log.trace("inrow");
@@ -4725,13 +4728,13 @@ class I2b2HelperService {
 			    pw.write("<tr><th>${title}</th></tr>")
 			    pw.write("<tr>")
 			    pw.write("<td>")
-				log.debug("Integrating over the nodes...")
+				log.debug("Interating over the nodes...")
 			    for (int p = 0; p < panels.getLength(); p++) {
 					panel=panels.item(p)
 				    Node panelnumber=(Node)xpath.evaluate("panel_number", panel, XPathConstants.NODE)
 				    
-					if(panelnumber.getTextContent().equalsIgnoreCase("21"))	{
-						log.debug("Skipping the security panel in printing the output")
+					if(panelnumber?.getTextContent()?.equalsIgnoreCase("21")) {
+                        log.debug("Skipping the security panel in printing the output")
 						continue
 					}
 				    
@@ -4740,7 +4743,7 @@ class I2b2HelperService {
 				    }
 				    
 					Node invert=(Node)xpath.evaluate("invert", panel, XPathConstants.NODE)
-				    if(invert.getTextContent().equalsIgnoreCase("1")) {
+				    if(invert?.getTextContent()?.equalsIgnoreCase("1")) {
 					    pw.write("<br><b>NOT</b><br>")
 	  			    } 
 				   
@@ -4805,8 +4808,6 @@ class I2b2HelperService {
  		sql.eachRow(mlevelsql, {row ->	
  		rootlevel=row.mlevel;	
      		})
-		//int i=getLevelFromKey(concept_key)+1;
-	
 		String sqlt = "SELECT C_FULLNAME, SECURE_OBJ_TOKEN FROM i2b2metadata.i2b2_SECURE WHERE c_hlevel = ? ORDER BY C_FULLNAME";
 		sql.eachRow(sqlt, [rootlevel], {row ->
 			String fullname=row.c_fullname;
@@ -5204,4 +5205,8 @@ class I2b2HelperService {
 			return trials;
 		}
 	}
+}
+
+class SurvivalConcepts {
+	Concept conceptSurvivalTime, conceptCensoring, conceptEvent;
 }

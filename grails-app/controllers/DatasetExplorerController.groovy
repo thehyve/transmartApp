@@ -12,7 +12,7 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
  * 
  *
  ******************************************************************/
@@ -44,8 +44,8 @@ class DatasetExplorerController {
 				if(s!=null)
 				{
 					restorecomparison=true;
-					qid1=s.queryID1;
-					qid2=s.queryID2;
+					qid1=s.queryResultId1;
+					qid2=s.queryResultId2;
 				}
 			}
 			

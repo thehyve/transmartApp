@@ -12,7 +12,7 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
  * 
  *
  ******************************************************************/
@@ -29,6 +29,7 @@ function gatherHighDimensionalData(divId){
 	
 	if(!variableDivEmpty(divId)
 			&& ((GLOBAL.CurrentSubsetIDs[1]	== null) ||	(multipleSubsets() && GLOBAL.CurrentSubsetIDs[2]== null))){
+		spinnerMask.hide();
 		runAllQueriesForSubsetId(function(){gatherHighDimensionalData(divId);}, divId);
 		return;
 	}
@@ -220,7 +221,7 @@ function runQueryForSubsetId(subset, callback, divId)
 	queryPanel.el.mask('Getting subset ' + subset + '...', 'x-mask-loading');
 	Ext.Ajax.request(
 			{
-				url : pageInfo.basePath+"/proxy?url=" + GLOBAL.CRCUrl + "request",
+				url : pageInfo.basePath + "/queryTool/runQueryFromDefinition",
 				method : 'POST',
 				xmlData : query,
 				// callback : callback,
@@ -248,7 +249,7 @@ function runQueryForSubsetidSingleSubset(callback, divId){
 	var query = getCRCRequestSingleSubset(divId);
 	Ext.Ajax.request(
 			{
-				url : pageInfo.basePath+"/proxy?url=" + GLOBAL.CRCUrl + "request",
+				url : pageInfo.basePath + "/queryTool/runQueryFromDefinition",
 				method : 'POST',
 				xmlData : query,
 				// callback : callback,
@@ -286,13 +287,7 @@ function getCRCRequest(subset, queryname, divId){
 		var d=new Date();
 		queryname=GLOBAL.Username+"'s Query at "+ d.toString();
 		}
-	var query=getCRCRequestHeader()+ '<user group="'+GLOBAL.ProjectID+'" login="'+GLOBAL.Username+'">'+GLOBAL.Username+'</user>\
-	            <patient_set_limit>0</patient_set_limit>\
-	            <estimated_time>0</estimated_time>\
-	            <request_type>CRC_QRY_runQueryInstance_fromQueryDefinition</request_type>\
-	        </ns4:psmheader>\
-	        <ns4:request xsi:type="ns4:query_definition_requestType" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\
-					<query_definition>\
+	var query= '<ns4:query_definition xmlns:ns4="http://www.i2b2.org/xsd/cell/crc/psm/1.1/">\
 	                <query_name>'+queryname+'</query_name>\
 	                <specificity_scale>0</specificity_scale>';
 	
@@ -312,7 +307,7 @@ function getCRCRequest(subset, queryname, divId){
 		}
 	}
 	
-	query=query+getSecurityPanel()+"</query_definition>"+getCRCRequestFooter();
+	query=query+getSecurityPanel()+"</ns4:query_definition>";
 	//query=query+"</query_definition>"+getCRCRequestFooter();
 	return query;
 }
@@ -322,15 +317,9 @@ function getCRCRequestSingleSubset(divId, queryname){
 		var d=new Date();
 		queryname=GLOBAL.Username+"'s Query at "+ d.toString();
 		}
-	var query=getCRCRequestHeader()+ '<user group="'+GLOBAL.ProjectID+'" login="'+GLOBAL.Username+'">'+GLOBAL.Username+'</user>\
-	            <patient_set_limit>0</patient_set_limit>\
-	            <estimated_time>0</estimated_time>\
-	            <request_type>CRC_QRY_runQueryInstance_fromQueryDefinition</request_type>\
-	        </ns4:psmheader>\
-	        <ns4:request xsi:type="ns4:query_definition_requestType" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\
-					<query_definition>\
-	                <query_name>'+queryname+'</query_name>\
-	                <specificity_scale>0</specificity_scale>';
+	var query= '<ns4:query_definition xmlns:ns4="http://www.i2b2.org/xsd/cell/crc/psm/1.1/">\
+        <query_name>'+queryname+'</query_name>\
+        <specificity_scale>0</specificity_scale>';
 	
 	var qcd=Ext.get(divId);
 	
@@ -339,7 +328,7 @@ function getCRCRequestSingleSubset(divId, queryname){
 		query=query+getCRCRequestPanel(qcd.dom, 1);
 	}
 	
-	query=query+getSecurityPanel()+"</query_definition>"+getCRCRequestFooter();
+	query=query+getSecurityPanel()+"</ns4:query_definition>";
 	//query=query+"</query_definition>"+getCRCRequestFooter();
 	return query;
 }

@@ -12,30 +12,29 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
  * 
  *
  ******************************************************************/
-  
+
 
 package i2b2
+
 class Comparison {
-	Long id
-	Long queryID1;
-	Long queryID2;
+    Long id
+    Long queryResultId1;
+    Long queryResultId2;
 
 
-static mapping = {
- table 'DE_SAVED_COMPARISON'
- version false
- id generator:'sequence', params:[sequence:'SEQ_SEARCH_DATA_ID']
- columns {
-	id column:'COMPARISON_ID'
-	queryID1 column:'QUERY_ID1'
-	queryID2 column:'QUERY_ID2'
- }
-}
-static constraints = {
+    static mapping = {
+        table 'DE_SAVED_COMPARISON'
+        version false
+        id generator: 'sequence', params: [sequence: 'SEQ_SEARCH_DATA_ID']
+        columns {
+            id column: 'COMPARISON_ID'
+            queryResultId1 column: 'QUERY_ID1'
+            queryResultId2 column: 'QUERY_ID2'
+        }
+    }
 
-}
 }

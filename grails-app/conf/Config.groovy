@@ -12,7 +12,7 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
  * 
  *
  ******************************************************************/
@@ -27,7 +27,17 @@
  * - dataSource location set path by system environment variable '<APP_NAME>_DATASOURCE_LOCATION'
  */
 
-import grails.plugins.springsecurity.SecurityConfigType
+
+grails.plugins.springsecurity.successHandler.defaultTargetUrl = "/transmart"
+
+//grails.plugins.springsecurity.rejectIfNoRule = true
+grails.plugins.springsecurity.securityConfigType = SecurityConfigType.InterceptUrlMap
+grails.plugins.springsecurity.interceptUrlMap = [
+        '/js/**':        ['IS_AUTHENTICATED_ANONYMOUSLY'],
+        '/css/**':       ['IS_AUTHENTICATED_ANONYMOUSLY'],
+        '/images/**':    ['IS_AUTHENTICATED_ANONYMOUSLY'],
+        '/static/**':    ['IS_AUTHENTICATED_ANONYMOUSLY']
+]
 
 grails.config.locations = []
 def defaultConfigFiles = [
@@ -42,7 +52,7 @@ defaultConfigFiles.each { filePath ->
 	} else {
 	}
 }
-String bashSafeEnvAppName = appName.toUpperCase(Locale.ENGLISH).replaceAll(/-/, '_')
+String bashSafeEnvAppName = appName.toString().toUpperCase(Locale.ENGLISH).replaceAll(/-/, '_')
 
 def externalConfig = System.getenv("${bashSafeEnvAppName}_CONFIG_LOCATION")
 if (externalConfig) {
@@ -89,6 +99,7 @@ grails.mime.types = [ html: [
 grails.views.default.codec="none" // none, html, base64
 grails.views.gsp.encoding="UTF-8"
 grails.converters.encoding="UTF-8"
+grails.converters.default.pretty.print=true
 
 // enabled native2ascii conversion of i18n properties files
 grails.enable.native2ascii = true
@@ -112,6 +123,10 @@ com.recomdata.i2b2.sample.domain = 'i2b2demo'
 com.recomdata.i2b2.sample.projectid = 'i2b2demo'
 com.recomdata.i2b2.sample.username = 'sample'
 com.recomdata.i2b2.sample.password = 'manager'
+
+//core-db settings
+org.transmartproject.i2b2.user_id = 'i2b2'
+org.transmartproject.i2b2.group_id = 'Demo'
 //**************************
 
 
@@ -134,6 +149,13 @@ com.recomdata.transmart.data.export.dataTypesMap=[
 	'ADDITIONAL':'Additional Data'
 	//,'GSEA':'Gene Set Enrichment Analysis (GSEA)'
 ];
+
+// Data export FTP settings is Rserve running remote in relation to transmartApp
+com.recomdata.transmart.data.export.ftp.server=''
+com.recomdata.transmart.data.export.ftp.serverport=''
+com.recomdata.transmart.data.export.ftp.username=''
+com.recomdata.transmart.data.export.ftp.password=''
+com.recomdata.transmart.data.export.ftp.remote.path=''
 
 // Control which gene/pathway search is used in Dataset Explorer
 // A value of "native" forces Dataset Explorer's native algorithm.
@@ -158,10 +180,10 @@ com.recomdata.analysis.genepattern.file.dir = "data"; // Relative to the app roo
 
 com.recomdata.analysis.data.file.dir = "data"; // Relative to the app root "web-app"
 
-// Disclaimer
-StringBuilder disclaimer = new StringBuilder()
-disclaimer.append("<p></p>")
-com.recomdata.disclaimer=disclaimer.toString()
+//StringBuilder disclaimer = new StringBuilder()
+//disclaimer.append("<p></p>")
+//com.recomdata.disclaimer=disclaimer.toString()
+
 
 // customization views
 //com.recomdata.view.studyview='_clinicaltrialdetail'

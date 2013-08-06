@@ -12,16 +12,13 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
  * 
  *
  ******************************************************************/
   
 
 package com.recomdata.transmart.data.export
-
-import java.util.HashMap
-import i2b2.PatientTrial;
 
 class I2b2ExportHelperService {
 
@@ -39,12 +36,11 @@ def  findStudyAccessions( result_instance_ids){
 		}
 		
 		groovy.sql.Sql sql = new groovy.sql.Sql(dataSource)
-			StringBuilder sqltb=new StringBuilder("select DISTINCT b.TRIAL FROM QT_PATIENT_SET_COLLECTION a ").
-			append("INNER JOIN PATIENT_TRIAL b").
+			StringBuilder sqltb=new StringBuilder("select DISTINCT b.TRIAL FROM i2b2demodata.QT_PATIENT_SET_COLLECTION a ").
+			append("INNER JOIN i2b2demodata.PATIENT_TRIAL b").
 		    	append(" ON a.PATIENT_NUM=b.PATIENT_NUM WHERE RESULT_INSTANCE_ID IN(").
 				append(rids.join(", ")).append(")");
 			def trials =[]
-		//	println(sqltb.toString())
 			sql.eachRow(sqltb.toString(), 
 				{row ->
 					trials.add(row.TRIAL);

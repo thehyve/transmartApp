@@ -12,7 +12,7 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
  * 
  *
  ******************************************************************/
@@ -28,10 +28,10 @@ import i2b2.SnpProbeSortedDef;
 /**
  * $Id: I2b2HelperService.groovy 11303 2011-12-23 06:05:17Z mkapoor $
  */
-import groovy.sql.*;
+
 import i2b2.Concept;
 import i2b2.GeneWithSnp
-import i2b2.SnpDataByPatient;
+
 import i2b2.SnpDataByProbe;
 import i2b2.SnpDataset;
 import i2b2.SnpDatasetByPatient;
@@ -40,26 +40,10 @@ import i2b2.SnpInfo
 import i2b2.StringLineReader;
 import i2b2.SampleInfo;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.Writer;
-import java.sql.Clob;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -67,9 +51,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.sql.*;
 
-import org.jfree.util.Log;
-import org.json.JSONArray;
-import org.json.JSONObject;
+
 import org.transmart.CohortInformation;
 import org.transmart.searchapp.AuthUser;
 import org.transmart.searchapp.AuthUserSecureAccess;
@@ -78,9 +60,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import oracle.jdbc.driver.OracleTypes
-
-import org.Hibernate.*;
 
 import com.recomdata.db.DBHelper;
 import com.recomdata.export.*;
@@ -401,9 +380,10 @@ class PostgresI2b2HelperService {
 		log.trace("Getting patient set size with id:" + result_instance_id);
 		Integer i=0;
 		groovy.sql.Sql sql = new groovy.sql.Sql(dataSource);
-		String sqlt = """select count(*) as patcount FROM (select distinct patient_num
-		        from qt_patient_set_collection
-				where result_instance_id = ?) as t""";
+		String sqlt = """select count(distinct(patient_num)) as patcount 
+						 FROM qt_patient_set_collection
+						 WHERE result_instance_id = ?""";
+
 		log.trace(sqlt);
 		sql.eachRow(sqlt, [result_instance_id], {row ->
 			log.trace("inrow");
@@ -527,6 +507,7 @@ class PostgresI2b2HelperService {
 	 */
 	def  HashMap<String,Integer> getConceptDistributionDataForConcept(String concept_key, String result_instance_id) throws SQLException {
 		String fullname=concept_key.substring(concept_key.indexOf("\\",2), concept_key.length());
+        fullname = fullname.toString().replace("\\", "\\\\");   // postgresql does not support single backslash
 		HashMap<String,Integer> results = new LinkedHashMap<String, Integer>();
 		
 		// check to see if there is a mapping from this concept_key to a concept_key for the results
@@ -633,6 +614,7 @@ class PostgresI2b2HelperService {
 	def Integer getObservationCountForConceptForSubset(String concept_key, String result_instance_id) {
 		log.trace("Getting observation count for concept:"+concept_key+" and instance:"+result_instance_id);
 		String fullname=concept_key.substring(concept_key.indexOf("\\",2), concept_key.length());
+        fullname = fullname.toString().replace("\\", "\\\\"); // postgresql does not support single backslash
 		int i=0;
 		groovy.sql.Sql sql = new groovy.sql.Sql(dataSource);
 		String sqlt = """select count (*) as obscount FROM i2b2demodata.observation_fact
@@ -4167,7 +4149,7 @@ class PostgresI2b2HelperService {
 					"WHERE a.probeset_id = b.probeset_id AND a.trial_name IN ("+trialNames+") " +
 					"AND a.assay_id IN ("+assayIds+")";
 					
-			sql.eachRow (rawCountQuery,, {row-> goodPct=row[0]})
+			sql.eachRow (rawCountQuery, {row-> goodPct=row[0]})
 			
 			if(goodPct==0) throw new Exception("No raw data for Comparative Marker Selection.");
 		}
@@ -4730,8 +4712,8 @@ class PostgresI2b2HelperService {
 					panel=panels.item(p)
 				    Node panelnumber=(Node)xpath.evaluate("panel_number", panel, XPathConstants.NODE)
 				    
-					if(panelnumber.getTextContent().equalsIgnoreCase("21"))	{
-						log.debug("Skipping the security panel in printing the output")
+					if(panelnumber?.getTextContent()?.equalsIgnoreCase("21")) {
+                        log.debug("Skipping the security panel in printing the output")
 						continue
 					}
 				    
@@ -4740,7 +4722,7 @@ class PostgresI2b2HelperService {
 				    }
 				    
 					Node invert=(Node)xpath.evaluate("invert", panel, XPathConstants.NODE)
-				    if(invert.getTextContent().equalsIgnoreCase("1")) {
+				    if(invert?.getTextContent()?.equalsIgnoreCase("1")) {
 					    pw.write("<br><b>NOT</b><br>")
 	  			    } 
 				   
