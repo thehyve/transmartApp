@@ -48,7 +48,7 @@ class AuthUserDetailsService implements GrailsUserDetailsService {
 	@Autowired
     @Qualifier('grailsApplication')
     def grailsApplication
-
+	
 	def conf = SpringSecurityUtils.securityConfig
 	
 	/**
@@ -56,7 +56,7 @@ class AuthUserDetailsService implements GrailsUserDetailsService {
      * one role, so we give a user with no granted roles this one which gets
      * past that restriction but doesn't grant anything. */
 	static final List NO_ROLES = [new GrantedAuthorityImpl(SpringSecurityUtils.NO_ROLE)]
-
+	
     @Override
     UserDetails loadUserByUsername(String username,
                                    boolean loadRoles = true) throws UsernameNotFoundException {
@@ -80,7 +80,7 @@ class AuthUserDetailsService implements GrailsUserDetailsService {
         }
         def authorities = []
 
-        if (!user) {
+			if (!user) {
             log.warn "User not found with $property = $value"
             throw new UsernameNotFoundException("User not found",
                     "$property = $value")
@@ -95,11 +95,36 @@ class AuthUserDetailsService implements GrailsUserDetailsService {
         if (loadRoles && log.isDebugEnabled()) {
             log.debug("Roles for user ${user.username} are: " +
                     authorities.join(', ') ?: '(none)')
-        }
-
+			}		
+			
         new AuthUserDetails(user.username, user.passwd, user.enabled,
-            !user.accountExpired, !user.passwordExpired, !user.accountLocked,
-            authorities ?: NO_ROLES, user.id, user.userRealName)
-	}
+				!user.accountExpired, !user.passwordExpired, !user.accountLocked,
+				authorities ?: NO_ROLES, user.id, user.userRealName)
+		}
 
+	
+	/**
+	* This is used by the Identity Vault authentication process
+	*
+	* @param wwid - The ID from the Identity Vault
+	*
+	* @return the valid UserDetails for the given WWID or a WWIDNotFoundException is thrown
+	*/
+   UserDetails loadUserByWWID(String wwid) throws WWIDNotFoundException	{
+	   log.info "Attempting to find user for WWID: $wwid"
+	   log.debug "Use withTransaction to avoid lazy loading initialization error when accessing the authorities collection"
+	   Class<?> User = application.getDomainClass(conf.userLookup.userDomainClassName).clazz
+	   User.withTransaction { status ->
+		   def user = User.findById(wwid)
+		   if (!user) {
+			   log.warn "User not found for WWID: $wwid"
+			   throw new WWIDNotFoundException('User not found', wwid)
+		   }
+		   def authorities = user.authorities.collect {new GrantedAuthorityImpl(it.authority)}
+
+		   return new AuthUserDetails(user.username, user.passwd, user.enabled,
+			   !user.accountExpired, !user.passwordExpired, !user.accountLocked,
+			   authorities ?: NO_ROLES, user.id, user.userRealName)
+	   }
+   }
 }

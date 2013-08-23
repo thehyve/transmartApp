@@ -37,6 +37,20 @@ Ext.layout.BorderLayout.Region.prototype.getCollapsedEl = Ext.layout.BorderLayou
 		}
 );
 
+/* 
+ * Unfortunately this is available from Ext JS v 3.x, and we are still on 2.2.1
+ * Adding the data type floatOrString to fix the sorting issue in Grid View
+Ext.data.Types.FLOATORSTRING = {
+    convert: function(v, n) {
+        return n;
+    },
+    sortType: function(v) {
+        v = Ext.isNumber(v) ? v : parseFloat(String(v), 10);
+        return isNaN(v) ? -999999 : v;
+    },
+    type: 'floatOrString'
+};*/
+
 var runner = new Ext.util.TaskRunner();
 
 var wfsWindow = null;
@@ -944,7 +958,7 @@ Ext.onReady(function()
                 pluginName: 'jbrowse-plugin'
             }
         });
-
+		
         // DALLIANCE
         // =======
         Ext.Ajax.request ({
@@ -1655,14 +1669,14 @@ function login(domain, username, password)
 
 function loginComplete()
 {
-    if(loginform.isVisible())
-    {
-        loginform.el.unmask();
-        loginwin.hide();
-    }
+		if(loginform.isVisible())
+		{
+			loginform.el.unmask();
+			loginwin.hide();
+		}
 
     projectDialogComplete();
-	
+
 	// Login GenePattern server. The login process should be completed by the time a user starts GenePattern tasks.
 	genePatternLogin();
 }
@@ -1800,8 +1814,8 @@ function getCategoriesComplete(ontresponse){
 	getSubCategories('navigateTermsPanel', 'Navigate Terms', ontresponse);
 
 	if(GLOBAL.hideAcrossTrialsPanel != 'true') {
-        getSubCategories('crossTrialsPanel', 'Across Trials', ontresponse);
-    }
+		getSubCategories('crossTrialsPanel', 'Across Trials', ontresponse);
+		}
 	setActiveTab();
 }
 
@@ -1825,15 +1839,15 @@ function setActiveTab(){
 function createTree(includeExcludeFlag, ontresponse, treePanel){
 	// shorthand
 	var Tree = Ext.tree;
-
-    var treeRoot = new Tree.TreeNode(
-        {
-            text      : 'root',
-            draggable : false,
-            id        : 'root',
-            qtip      : 'root'
-        }
-    );
+	
+	var treeRoot = new Tree.TreeNode(
+			{
+				text : 'root',
+				draggable : false,
+				id : 'root',
+				qtip : 'root'
+			}
+	);
     treePanel.setRootNode(treeRoot);
 
 	for (var c = 0; c < ontresponse.length; c ++ )
@@ -2127,35 +2141,35 @@ function getPreviousQueryFromIDComplete(subset, result) {
         return;
     }
 
-    var doc = result.responseXML;
+	var doc = result.responseXML;
 
-    //resetQuery();  //if i do this now it wipes out the other subset i just loaded need to make it subset specific
+	//resetQuery();  //if i do this now it wipes out the other subset i just loaded need to make it subset specific
 
-    var panels = doc.selectNodes("//panel");
+	var panels = doc.selectNodes("//panel");
 
     panel:
     for (var p = 0; p < panels.length; p++) {
         var panelnumber = p + 1;
 
-        showCriteriaGroup(panelnumber); //in case its hidden;
+		showCriteriaGroup(panelnumber); //in case its hidden;
         var panel = document.getElementById("queryCriteriaDiv" + subset + "_" + panelnumber);
-        var invert = panels[p].selectSingleNode("invert").firstChild.nodeValue;
+		var invert = panels[p].selectSingleNode("invert").firstChild.nodeValue;
         if (invert == "1") {
             excludeGroup(null, subset, panelnumber);
         } //set the invert for the panel
 
-        var items = panels[p].selectNodes("item")
+		var items = panels[p].selectNodes("item")
         for (var it = 0; it < items.length; it++) {
-            var item = items[it];
+			var item = items[it];
 
-            var key = item.selectSingleNode("item_key").firstChild.nodeValue;
+			var key = item.selectSingleNode("item_key").firstChild.nodeValue;
 
             if (key == "\\\\Public Studies\\Public Studies\\SECURITY\\")
                 continue panel;
 
-            /*need all this information for reconstruction but not all is available*/
+			/*need all this information for reconstruction but not all is available*/
             var valuetype = getValue(item.selectSingleNode("constrain_by_value/value_type"), "");
-            var mode;
+			var mode;
 
             if (valuetype == "FLAG") {
                 mode = "highlow";
@@ -2168,22 +2182,22 @@ function getPreviousQueryFromIDComplete(subset, result) {
             }
 
             var valuenode = item.selectSingleNode("contrain_by_value");
-            var oktousevalues;
+			var oktousevalues;
             if (valuenode != null && typeof(valuenode) != undefined) {
                 oktousevalues = "Y";
             }
 
             var operator = getValue(item.selectSingleNode("constrain_by_value/value_operator"), "");
             var numvalue = getValue(item.selectSingleNode("constrain_by_value/value_constraint"), "");
-            var lowvalue;
-            var highvalue;
+			var lowvalue;
+			var highvalue;
             if (operator == "BETWEEN") {
                 lowvalue = numvalue.substring(0, numvalue.indexOf("and"));
                 highvalue = numvalue.substring(numvalue.indexOf("and") + 3);
-            }
+			}
             else {
                 lowvalue = numvalue;
-            }
+			}
             var highlowselect = "";
             if (mode == "highlow") {
                 highlowselect = numvalue;
@@ -2195,11 +2209,11 @@ function getPreviousQueryFromIDComplete(subset, result) {
              * which is good because we don't have that information...
              */
             var myConcept = new Concept('', key, -1, '', '', '', '', '', oktousevalues, value);
-            createPanelItemNew(panel, myConcept);
-        }
-    }
+			createPanelItemNew(panel, myConcept);
+		}
+	}
 
-    queryPanel.el.unmask();
+	queryPanel.el.unmask();
 }
 
 function createExportItem(name, setid)
@@ -2652,30 +2666,30 @@ function runAllQueries(callback, panel)
 
 function runQuery(subset, callback) {
     if (Ext.get('analysisPanelSubset1') == null) {
-        // analysisPanel.body.update("<table border='1' width='100%' height='100%'><tr><td width='50%'><div id='analysisPanelSubset1'></div></td><td><div id='analysisPanelSubset2'></div></td></tr>");
-    }
+		// analysisPanel.body.update("<table border='1' width='100%' height='100%'><tr><td width='50%'><div id='analysisPanelSubset1'></div></td><td><div id='analysisPanelSubset2'></div></td></tr>");
+	}
 
-    var query = getCRCQueryRequest(subset);
-    // first subset
-    queryPanel.el.mask('Getting subset ' + subset + '...', 'x-mask-loading');
-    Ext.Ajax.request(
-        {
+	var query = getCRCQueryRequest(subset);
+	// first subset
+	queryPanel.el.mask('Getting subset ' + subset + '...', 'x-mask-loading');
+	Ext.Ajax.request(
+			{
             url: pageInfo.basePath + "/queryTool/runQueryFromDefinition",
             method: 'POST',
             xmlData: query,
             success: function (result, request) {
-                runQueryComplete(result, subset, callback);
+				runQueryComplete(result, subset, callback);
             },
             failure: function (result, request) {
-                runQueryComplete(result, subset, callback);
+				runQueryComplete(result, subset, callback);
             },
             timeout: '600000'
-        }
-    );
+			}
+	);
 
     if (GLOBAL.Debug) {
-        resultsPanel.setBody("<div style='height:400px;width500px;overflow:auto;'>" + Ext.util.Format.htmlEncode(query) + "</div>");
-    }
+		resultsPanel.setBody("<div style='height:400px;width500px;overflow:auto;'>" + Ext.util.Format.htmlEncode(query) + "</div>");
+	}
 }
 
 function runQueryComplete(result, subset, callback) {
@@ -2686,13 +2700,13 @@ function runQueryComplete(result, subset, callback) {
         error = jsonRes.message;
     } else if (jsonRes.errorMessage !== null) {
         error = jsonRes.errorMessage;
-    }
+	}
 
     queryPanel.el.unmask();
 
     if (error) {
         Ext.Msg.show(
-            {
+	{
                 title: 'Error generating patient set',
                 msg: error,
                 buttons: Ext.Msg.OK,
@@ -2700,9 +2714,9 @@ function runQueryComplete(result, subset, callback) {
                     Ext.Msg.hide();
                 },
                 icon: Ext.MessageBox.ERROR
-            }
+	}
         );
-    }
+	}
 
     // Current code requires us to set CurrentSubsetIDs regardless of error status...
     GLOBAL.CurrentSubsetIDs[subset] = jsonRes.id ? jsonRes.id : -1;
@@ -2717,11 +2731,11 @@ function runQueryComplete(result, subset, callback) {
 
     if (STATE.QueryRequestCounter > 0) { // I'm in a chain of requests so decrement
         STATE.QueryRequestCounter = --STATE.QueryRequestCounter;
-    }
+				}
     if (STATE.QueryRequestCounter == 0) {
-        callback();
-    }
-    /* I'm the last request outstanding in this chain*/
+		callback();
+	}
+	/* I'm the last request outstanding in this chain*/
 }
 
 // takes a patientset node

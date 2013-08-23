@@ -414,8 +414,13 @@ function addSearchAutoComplete()	{
 	jQuery("#search-ac").autocomplete({
 		source: sourceURL,
 		minLength:0,
-		select: function(event, ui) {  
-			searchParam={id:ui.item.id,categoryDisplay:ui.item.category,keyword:ui.item.label,categoryId:ui.item.categoryId, categorySOLR:ui.item.categoryId.toString().replace(/ /g,'_')};
+		select: function(event, ui) {
+            if (ui.item.categoryId == 'DATA_TYPE') {
+                searchParam = {id: ui.item.label, display: 'Data Types', keyword: ui.item.label, category: ui.item.categoryId};
+            }
+            else {
+                searchParam={id:ui.item.id,categoryDisplay:ui.item.category,keyword:ui.item.label,categoryId:ui.item.categoryId, categorySOLR:ui.item.categoryId.toString().replace(/ /g,'_')};
+            }
 			addSearchTerm(searchParam);
 			return false;
 		}
@@ -444,7 +449,7 @@ function addSearchAutoComplete()	{
 
 
 function showIEWarningMsg(){
-	
+	//GWAS branch: jQuery.browser.version.substr(0, 1) < 9
 	if (jQuery.browser.msie && jQuery.browser.version<9) {
 
 		var msg = "<div id='IEwarningBox'>Your browser is not supported. Please use the latest version of Chrome. <br /><br />";
@@ -476,6 +481,25 @@ function showSearchResults(initialLoad)	{
 	// clear stored analysis results
 	jQuery('body').removeData();	
 	
+    /*TODO GWAS
+    jQuery('#results-div').empty();
+    jQuery('#table-results-div').empty();
+
+    jQuery('#analysisViewHelp').hide();
+    jQuery('#tableViewHelp').hide();
+    jQuery('#' + tabToShow + 'ViewHelp').show();
+
+    // work out which tab is open and needs updating, if we don't have a specific one
+    if (tabToShow == null) {
+        if (jQuery('#analysisViewTab.ui-state-active').size() > 0) {
+            tabToShow = 'analysis'
+        }
+        else {
+            tabToShow = 'table'
+        }
+    }
+    */
+
 	// call method which retrieves facet counts and search results
 	showFacetResults(initialLoad);
 	
@@ -612,68 +636,82 @@ function showFacetResults(initialLoad)	{
     
    	queryString = queryString + "&showSignificantResults=" + document.getElementById('cbShowSignificantResults').checked
     
-	jQuery.ajax({
-			url:facetResultsURL,
-			data:queryString,
-			success: function(response) {
-				    // make sure the active keywords haven't changed since we issued query -- if they have, don't update tree with results or results panel 
-				    if (compareKeywordArrays(savedKeywords, activeKeywords) == false)  { 
-				    	return false;
-				    }
-				
-					var facetCounts = response['facetCounts'];
-					var html = response['html'];
-					var errorMsg = response['errorMsg'];
-					
-					if (errorMsg != '')  {
-						alert(errorMsg);
-					}
-					
-					// set html for results panel
-					jQuery('#results-div').html(html);
-					
-					if(!showHomePageFirst)
-				    {
-						hideHomePage();
-						showResultsPage();
-				    }
-					else
-				    {
-						hideResultsPage();
-						showHomePage();
-						showHomePageFirst=false;
-				    }
+	//Only do one of these depending on the highlighted tab. If the table results div is hidden, do the tree view
+    if (tabToShow == "analysis") {
+        jQuery.ajax({
+        url: facetResultsURL,
+        data: queryString,
+        success: function (response) {
+            // make sure the active keywords haven't changed since we issued query -- if they have, don't update tree with results or results panel
+            if (compareKeywordArrays(savedKeywords, activeKeywords) == false) {
+                return false;
+            }
 
-					if (!initialLoad)  {
-						// assign counts that were returned in json object to the tree
-						tree.visit(  function(node) {
-							           if (!node.data.isCategory && node.data.id)  {
-							        	   var id = node.data.id.toString();
-							        	   var cat = node.data.categorySOLR;
-	
-							        	   var catArray = facetCounts[cat];
-							        	   var count = catArray[id];
-							        	   
-							        	   // no count returned for this node means it isn't in solr index because no records exist
-							        	   if (!count)  {
-							        		   count = 0;
-							        	   }
-							        	   
-							        	   updateNodeIndividualFacetCount(node, count);   
-							           }
-						             }
-					                 , false
-					               );
-											
-						 // redraw entire tree after counts updated
-						 tree.redraw();
-					 }
-				//}
-			},
-			error: function(xhr) {
-				console.log('Error!  Status = ' + xhr.status + xhr.statusText);
-			}
-		});
+            var facetCounts = response['facetCounts'];
+            var html = response['html'];
+            var errorMsg = response['errorMsg'];
+
+            if (errorMsg != '') {
+                alert(errorMsg);
+            }
+
+            // set html for results panel
+            jQuery('#results-div').html(html);
+
+            if (!showHomePageFirst) {
+                hideHomePage();
+                showResultsPage();
+            }
+            else {
+                hideResultsPage();
+                showHomePage();
+                showHomePageFirst = false;
+            }
+
+            if (!initialLoad) {
+                // assign counts that were returned in json object to the tree
+                tree.visit(function (node) {
+                        if (!node.data.isCategory && node.data.id) {
+                            var id = node.data.id.toString();
+                            var cat = node.data.categorySOLR;
+
+                            var catArray = facetCounts[cat];
+                            var count = catArray[id];
+
+                            // no count returned for this node means it isn't in solr index because no records exist
+                            if (!count) {
+                                count = 0;
+                            }
+
+                            updateNodeIndividualFacetCount(node, count);
+                        }
+                    }
+                    , false
+                );
+
+                // redraw entire tree after counts updated
+                tree.redraw();
+            }
+            //}
+        },
+        error: function (xhr) {
+            console.log('Error!  Status = ' + xhr.status + xhr.statusText);
+        }
+    });
+    } else {
+        //GWAS
+        jQuery.ajax({
+            url: facetTableResultsURL,
+            data: queryString,
+            success: function (response) {
+                jQuery('#table-results-div').html(response);
+                loadTableResultsGrid({'max': 100, 'offset': 0, 'cutoff': 0, 'search': "", 'sortField': "", "order": "asc"});
+            },
+            error: function (xhr) {
+                console.log('Error!  Status = ' + xhr.status + xhr.statusText);
+            }
+        });
+    }
    	
 
 }
@@ -757,6 +795,27 @@ function addSearchTerm(searchTerm)	{
 	}
 }
 
+//GWAS
+function updateSearch() {
+    showSearchTemplate();
+    showSearchResults();
+}
+
+//GWAS Add the search term to the array that the user has added to filter tree.
+function addFilterTreeSearchTerm(searchTerm) {
+    var category = searchTerm.display == undefined ? "TEXT" : searchTerm.display;
+    var text = searchTerm.keyword == undefined ? searchTerm : searchTerm.keyword;
+    var id = searchTerm.id == undefined ? -1 : searchTerm.id;
+    var key = category + ":" + text + ":" + id;
+    if (currentSearchTerms.indexOf(key) < 0) {
+        currentSearchTerms.push(key);
+        if (currentCategories.indexOf(category) < 0) {
+            currentCategories.push(category);
+        }
+    }
+
+}
+
 // Remove the search term that the user has clicked.
 function removeSearchTerm(ctrl)	{
 	
@@ -832,12 +891,14 @@ function exportLinePlotData(analysisId, exportType)
 		var data = jQuery('body').data("LineplotData:" + analysisId);
 
 		//redraw the plot with the legend so that it appears in the exported image
+        //GWAS uses drawLinePlot
 		drawLinePlotD3('lineplotAnalysis_'+analysisId, data, analysisId, true, false, null);
 
 		var svgID=  "#lineplotAnalysis_"+analysisId;
 		
 		exportCanvas(svgID);		
 		
+        //GWAS uses drawLinePlot
 		drawLinePlotD3('lineplotAnalysis_'+analysisId, data, analysisId, false, false, null);
 		
 		break;
@@ -876,12 +937,14 @@ function exportBoxPlotData(analysisId, exportType)
 		
 		var data = jQuery('body').data("BoxplotData:" + analysisId);
 		
+        //GWAS uses drawBoxPlot
 		drawBoxPlotD3('boxplotAnalysis_'+analysisId, data, analysisId, true, false, null);
 		
 		var svgID=  "#boxplotAnalysis_"+analysisId;
 		
-		exportCanvas(svgID);		
+		exportCanvas(svgID);
 
+        //GWAS uses drawBoxPlot
 		drawBoxPlotD3('boxplotAnalysis_'+analysisId, data, analysisId, false, false, null);
 		
 		break;
@@ -994,6 +1057,10 @@ function exportHeatmapData(analysisId, exportType)
 		drawHeatmapD3(divID, jQuery('body').data(analysisId), analysisId, false);
 		
 		break;
+    //GWAS case
+    case 'btnResultsExport':
+            jQuery('#resultsExportOpts_' + analysisID).toggle();
+            break;
 		
 	default:
 		console.log('Error - invalid Export option');
@@ -1548,6 +1615,7 @@ function showVisualization(analysisID, changedPaging)	{
 		    }
 
 			jQuery(loadingDiv).mask("Loading...");
+            //TODO GWAS loadAnalysisResultsGrid(analysisID, {'max': 10, 'offset': 0, 'cutoff': 0, 'search': "", 'sortField': "", "order": "asc"});
 			loadHeatmapPaginator(divID2, analysisID, 1);			
 		}		
 		jQuery(hmFlagDiv).val("1");
@@ -4376,3 +4444,1262 @@ function formatPaginator(type) {
     }      
 }
 
+//****GWAS functions (to the end of file) ***
+//Draw the line plot
+function drawLinePlot(divId, linePlotJSON, analysisID, forExport) {
+
+
+    var cohortArray = new Array();   // array of cohort ids
+    var cohortDesc = new Array();    // array of cohort descriptions
+    var cohortDisplayStyles = new Array();    // array of cohort display styles
+
+    var gene_id = parseInt(linePlotJSON['gene_id']);   // gene_id will be null if this is a protein since first char is alpha for proteins
+
+    // loop through and get the cohort ids and description into arrays in the order they should be displayed
+    for (var key in linePlotJSON) {
+        // the "order" of the json objects starts with 1, so subtract 1 so it doesn't leave gap at start of array
+        var arrayIndex = linePlotJSON[key]['order'] - 1;
+        cohortArray[arrayIndex] = key;
+        cohortDesc[arrayIndex] = linePlotJSON[key]['desc'];
+        cohortDisplayStyles[arrayIndex] = linePlotJSON[key]['order'] % cohortBGColors.length;
+
+    }
+
+    var statMapping = cohortArray.map(function (i) {
+        var data = linePlotJSON[i]['data'];
+
+        // retrieve mean and standard error- round to 4 decimal places
+        var mean = data['mean'];
+        var stdError = data['stdError'];
+        var min = mean - stdError;
+        var max = mean + stdError;
+        var desc = linePlotJSON[i]['desc'].replace(/_/g, ', ');
+        var sampleCount = linePlotJSON[i]['sampleCount'];
+
+        var meanFormatted = parseFloat(mean);
+        meanFormatted = meanFormatted.toFixed(4);
+
+        var stdErrorFormatted = parseFloat(stdError);
+        stdErrorFormatted = stdErrorFormatted.toFixed(4);
+
+        var cohortDisplayStyle = linePlotJSON[i]['order'] % cohortBGColors.length;
+
+        return {
+            id: i,
+            desc: desc,
+            sampleCount: sampleCount,
+            mean: mean,
+            stdError: stdError,
+            meanFormatted: meanFormatted,
+            stdErrorFormatted: stdErrorFormatted,
+            min: min,
+            max: max,
+            cohortDisplayStyle: cohortDisplayStyle
+        };
+    });
+
+
+    //if the user is setting the range manually:
+    if (jQuery('#lineplotRangeRadio_Manual_' + analysisID).is(':checked')) {
+
+        var yMin = parseFloat(jQuery('#lineplotRangeMin_' + analysisID).val());
+        var yMax = parseFloat(jQuery('#lineplotRangeMax_' + analysisID).val());
+
+
+    } else {
+
+        var yMin = statMapping[0].min;
+        var yMax = statMapping[0].max;
+        for (var idx = 1; idx < statMapping.length; idx++) {
+            yMin = statMapping[idx].min < yMin ? statMapping[idx].min : yMin;
+            yMax = statMapping[idx].max > yMax ? statMapping[idx].max : yMax;
+        }
+
+        // Put in a rough switch so things can scale on the y axis somewhat dynamically
+        if (yMax - yMin < 2) {
+            // round down to next 0.1
+            yMin = Math.floor((yMin - 0.1) * 10) / 10;
+
+            // round up to next 0.1
+            // and add another 0.01 to ensure that the highest tenths line gets included
+            yMax = Math.ceil((yMax + 0.1) * 10) / 10 + 0.01;
+        } else {
+            yMin = Math.floor(yMin);
+            yMax = Math.ceil(yMax);
+        }
+
+
+        //set the manual value textboxes with the current yMin and yMax
+        jQuery('#lineplotRangeMin_' + analysisID).val(roundNumber(yMin, 2));
+        jQuery('#lineplotRangeMax_' + analysisID).val(roundNumber(yMax, 2));
+
+    }
+
+
+    var w = cohortArray.length * 150;//generate the width dynamically using the cohort count
+    h = 300,
+        margin = 55,
+        widthErrorBarBottomAndTopLines = 6,
+        radiusDot = 3,
+        h_legend = 0;//used to draw the legend for export
+
+
+    if (forExport) {
+        h_legend = 35 + 30 * (cohortArray.length); //h_legend is the extra space required for the legend
+    }
+
+
+    var x = pv.Scale.ordinal(statMapping,function (e) {
+        return e.id
+    }).splitBanded(0, w, 1 / 2);
+    var y = pv.Scale.linear(yMin, yMax).range(0, h)
+
+    var numCohorts = cohortArray.length;
+
+    // need to add a blank entry at the beginning of the arrays for use by drawCohortLegend
+    cohortArray = [''].concat(cohortArray);
+    cohortDesc = [''].concat(cohortDesc);
+    cohortDisplayStyles = [''].concat(cohortDisplayStyles);
+
+    if (forExport) {
+        cohortDesc = highlightCohortDescriptions(cohortDesc, true);
+    }
+
+
+    var vis = new pv.Panel().canvas(document.getElementById(divId))
+        .width(w)
+        .height(h + h_legend)
+        .margin(margin);
+
+    /* Add the y-axis rules */
+    vis.add(pv.Rule)
+        .data(y.ticks())
+        .strokeStyle("#ccc")
+        .bottom(y)
+        .anchor("left").add(pv.Label)
+        .font("14px sans-serif")
+        .text(y.tickFormat);
+
+    vis.add(pv.Label)
+        .data(statMapping)
+        .left(function (d) {
+            return x(d.id)
+        })
+        .bottom(-20)
+        .textAlign("center")
+        .font("14px sans-serif")
+        .events("all")
+        .title(function (d) {
+            return d.desc
+        })
+        .text(function (d) {
+            return d.id + "(n=" + d.sampleCount + ")"
+        });
+
+    /* Add the log2 label */
+    vis.add(pv.Label)
+        .left(-40)
+        .bottom(h / 2)
+        .textAlign("center")
+        .textAngle(-Math.PI / 2)
+        .font("14px sans-serif")
+        .text("log2 intensity");
+
+    if (gene_id) {
+        /* Add the title with link to gene info*/
+        vis.add(pv.Label)
+            .font("bold 16px sans-serif")
+            .textStyle("#065B96")
+            .left(w / 2)
+            .bottom(300)
+            .textAlign("center")
+
+            /*Add link in title to gene info */
+            .cursor("pointer")
+            .event("mouseover", function () {
+                self.status = "Gene Information"
+            })
+            .event("mouseout", function () {
+                self.status = ""
+            })
+            .event("click", function (d) {
+                self.location = "javascript:showGeneInfo('" + gene_id + "');"
+            })
+            .events("all")
+            .title("View gene information")
+            .text(getGeneforDisplay(analysisID, getActiveProbe(analysisID)));
+    }
+    else {
+        /* Add the title without link to gene info*/
+        vis.add(pv.Label)
+            .font("bold 16px sans-serif")
+            .textStyle("#065B96")
+            .left(w / 2)
+            .bottom(300)
+            .textAlign("center")
+            .text(getGeneforDisplay(analysisID, getActiveProbe(analysisID)));
+    }
+    // create line
+    var line = vis.add(pv.Line)
+        .data(statMapping)
+        .strokeStyle("#000000")
+        .bottom(function (d) {
+            return y(d.mean)
+        })
+        .left(function (d) {
+            return x(d.id)
+        });
+
+    // add dots at each point in line
+    line.add(pv.Dot)
+        .radius(radiusDot)
+        .strokeStyle("#000000")
+        .fillStyle("#000000")
+        .title(function (d) {
+            return d.meanFormatted + " +/- " + d.stdErrorFormatted
+        });
+
+    // Add error bars
+    // vertical line
+    line.add(pv.Rule)
+        .left(function (d) {
+            return x(d.id)
+        })
+        .bottom(function (d) {
+            return y(d.mean - Math.abs(d.stdError))
+        })
+        .top(function (d) {
+            return y(yMax) - y(d.mean + Math.abs(d.stdError)) + h_legend
+        });
+
+
+    // bottom horizontal line
+    line.add(pv.Rule)
+        .left(function (d) {
+            return x(d.id) - widthErrorBarBottomAndTopLines / 2
+        })
+        .bottom(function (d) {
+            return y(d.mean - d.stdError)
+        })
+        .width(widthErrorBarBottomAndTopLines);
+    // top horizontal line
+    line.add(pv.Rule)
+        .left(function (d) {
+            return x(d.id) - widthErrorBarBottomAndTopLines / 2
+        })
+        .bottom(function (d) {
+            return y(d.mean + d.stdError)
+        })
+        .width(widthErrorBarBottomAndTopLines);
+
+    /*add legend if export */
+    if (forExport) {
+
+        /*		Legend	     */
+        var legend = vis.add(pv.Bar)
+            .data(statMapping)
+            .height(25)
+            .top(function () {
+                return (this.index * 30) - 20
+            })
+            .antialias(false)
+            .left(-30)
+            .strokeStyle("#000")
+            .lineWidth(1)
+            .width(30)
+            .fillStyle(function (d) {
+                return cohortBGColors[d.cohortDisplayStyle]
+            });
+
+        legend.anchor("center").add(pv.Label)
+            .textStyle("#000")
+            .font("12px  sans-serif")
+            .text(function (d) {
+                return d.id
+            });
+
+        vis.add(pv.Label)
+            .data(statMapping)
+            .top(function () {
+                return this.index * 30
+            })
+            .antialias(false)
+            .left(5)
+            .textStyle("#000")
+            .font("12px  sans-serif")
+            //	.text(function(d){return d.desc});
+            .text(function () {
+                return cohortDesc[this.index + 1].replace(/_/g, ', ')
+            });
+    }
+
+
+    vis.root.render();
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    jQuery("#lineplotLegend_" + analysisID).html(drawCohortLegend(numCohorts, cohortArray, cohortDesc, cohortDisplayStyles));
+
+}
+
+function collapseAllStudies() {
+    collapseAllAnalyses();
+    //For each open study, toggleDetailDiv
+    var openstudyelements = jQuery(".analysesopen");
+    for (var i = 0; i < openstudyelements.length; i++) {
+        var studyelement = openstudyelements[i];
+        var studyId = jQuery(studyelement).attr('name');
+        toggleDetailDiv(studyId, ''); //No URL needed when collapsing
+    }
+}
+
+function expandAllStudies() {
+    //For each closed study, toggleDetailDiv
+    var closedstudyelements = jQuery(".detailexpand").not(".analysesopen");
+    for (var i = 0; i < closedstudyelements.length; i++) {
+        var studyelement = jQuery(closedstudyelements[i]);
+        var studyId = studyelement.attr('name');
+        var key = new Date().getTime(); //Key to prevent AJAX caching
+        toggleDetailDiv(studyId, getStudyAnalysesUrl + "?id=" + studyId + "&trialNumber=" + studyId + "&unqKey=" + key);
+    }
+}
+
+// Draw the box plot
+function drawBoxPlot(divId, boxPlotJSON, analysisID, forExport) {
+    // boxPlotJSON should be a map of cohortID:[desc:cohort description, order:display order for the cohort, data:sorted log2 intensities]
+
+
+    var cohortArray = new Array();   // array of cohort ids
+    var cohortDesc = new Array();    // array of cohort descriptions
+    var cohortDisplayStyles = new Array();    // array of cohort display styles (i.e. number from 0..4)
+
+    var gene_id = parseInt(boxPlotJSON['gene_id']);   // gene_id will be null if this is a protein since first char is alpha for proteins
+
+    // loop through and get the cohort ids and description into arrays in the order they should be displayed
+    for (var key in boxPlotJSON) {
+        // the "order" of the json objects starts with 1, so subtract 1 so it doesn't leave gap at start of array
+        var arrayIndex = boxPlotJSON[key]['order'] - 1;
+        cohortArray[arrayIndex] = key;
+        cohortDesc[arrayIndex] = boxPlotJSON[key]['desc'];
+        cohortDisplayStyles[arrayIndex] = boxPlotJSON[key]['order'] % cohortBGColors.length;
+    }
+
+    // Map the all four quartiles to the key (e.g. C1)
+    var statMapping = cohortArray.map(function (i) {
+        var data = boxPlotJSON[i]['data'];
+        var cohortDisplayStyle = boxPlotJSON[i]['order'] % cohortBGColors.length;
+        var desc = boxPlotJSON[i]['desc'].replace(/_/g, ', ');
+        var sampleCount = boxPlotJSON[i]['sampleCount'];
+
+        return {
+            id: i,
+            cohortDisplayStyle: cohortDisplayStyle,
+            desc: desc,
+            sampleCount: sampleCount,
+            min: data[getRank(5, data.length) - 1],
+            max: data[getRank(95, data.length) - 1],
+            median: data[getRank(50, data.length) - 1],
+            lq: data[getRank(25, data.length) - 1],
+            uq: data[getRank(75, data.length) - 1]
+        };
+    });
+
+
+    //if the user is setting the range manually:
+    if (jQuery('#boxplotRangeRadio_Manual_' + analysisID).is(':checked')) {
+
+        var yMin = parseFloat(jQuery('#boxplotRangeMin_' + analysisID).val());
+        var yMax = parseFloat(jQuery('#boxplotRangeMax_' + analysisID).val());
+
+
+    } else {
+        //auto set range otherwise
+        var yMin = statMapping[0].min;
+        var yMax = statMapping[0].max;
+        for (var idx = 1; idx < statMapping.length; idx++) {
+            yMin = statMapping[idx].min < yMin ? statMapping[idx].min : yMin;
+            yMax = statMapping[idx].max > yMax ? statMapping[idx].max : yMax;
+        }
+
+        // Put in a rough switch so things can scale on the y axis somewhat dynamically
+        if (yMax - yMin < 2) {
+            // round down to next 0.1
+            yMin = Math.floor((yMin - 0.2) * 10) / 10;
+
+            // round up to next 0.1
+            // and add another 0.01 to ensure that the highest tenths line gets included
+            yMax = Math.ceil((yMax + 0.2) * 10) / 10 + 0.01;
+        } else {
+            yMin = Math.floor(yMin);
+            yMax = Math.ceil(yMax);
+        }
+
+        //set the manual value textboxes with the current yMin and yMax
+        jQuery('#boxplotRangeMin_' + analysisID).val(roundNumber(yMin, 2));
+        jQuery('#boxplotRangeMax_' + analysisID).val(roundNumber(yMax, 2));
+
+    }
+
+    var title = getGeneforDisplay(analysisID, getActiveProbe(analysisID));
+
+    var w = cohortArray.length * 140;//generate the width dynamically using the cohort count
+    var h = 300,
+        x = pv.Scale.ordinal(statMapping,function (e) {
+            return e.id
+        }).splitBanded(0, w, 1 / 2),
+        y = pv.Scale.linear(yMin, yMax).range(0, h - 15),
+        s = x.range().band / 2;
+
+
+    var numCohorts = cohortArray.length;
+
+    // need to add a blank entry at the beginning of the arrays for use by drawCohortLegend
+    cohortArray = [''].concat(cohortArray);
+    cohortDesc = [''].concat(cohortDesc);
+    cohortDisplayStyles = [''].concat(cohortDisplayStyles);
+
+    if (forExport) {
+        h = 320 + 30 * (cohortArray.length);
+        cohortDesc = highlightCohortDescriptions(cohortDesc, true);
+    }
+
+    var vis = new pv.Panel().canvas(document.getElementById(divId))
+        .width(w)
+        .height(h)
+        .margin(55);
+
+    if (gene_id) {
+        /* Add the title with link to gene info*/
+        vis.add(pv.Label)
+            .font("bold 16px sans-serif")
+            .left(w / 2)
+            .bottom(300)
+            .textStyle("#065B96")
+            .textAlign("center")
+            /*Add link in title to gene info */
+            .cursor("pointer")
+            .event("mouseover", function () {
+                self.status = "Gene Information"
+            })
+            .event("mouseout", function () {
+                self.status = ""
+            })
+            .event("click", function (d) {
+                self.location = "javascript:showGeneInfo('" + gene_id + "');"
+            })
+            .events("all")
+            .title("View gene information")
+            .text(title);
+    }
+    else {
+        /* Add the title without link to gene info*/
+        vis.add(pv.Label)
+            .font("bold 16px sans-serif")
+            .left(w / 2)
+            .bottom(300)
+            .textStyle("#065B96")
+            .textAlign("center")
+            .text(title);
+
+    }
+
+    /* Add the y-axis rules */
+    vis.add(pv.Rule)
+        .data(y.ticks())
+        .strokeStyle("#ccc")
+        .bottom(y)
+        .anchor("left").add(pv.Label)
+        .font("14px sans-serif")
+        .text(y.tickFormat);
+
+    /* Add the log2 label */
+    vis.add(pv.Label)
+        .left(-40)
+        .bottom(300 / 2) //300 is the height of the boxplot
+        .textAlign("center")
+        .textAngle(-Math.PI / 2)
+        .font("14px sans-serif")
+        .text("log2 intensity");
+
+    /* Add a panel for each data point */
+    var points = vis.add(pv.Panel)
+        .def("showValues", false)
+        .data(statMapping)
+        .left(function (d) {
+            return x(d.id)
+        })
+        .width(s * 2)
+        .events("all");
+
+    /* Add the experiment id label */
+    vis.add(pv.Label)
+        .data(statMapping)
+        .left(function (d) {
+            return x(d.id) + s
+        })
+        .bottom(-20)
+        .textAlign("center")
+        .font("14px sans-serif")
+        .events("all")
+        .title(function (d) {
+            return d.desc
+        })
+        .text(function (d) {
+            return d.id + "(n=" + d.sampleCount + ")"
+        });
+
+    /*add legend if export */
+    if (forExport) {
+
+        /*		Legend	     */
+        var legend = vis.add(pv.Bar)
+            .data(statMapping)
+            .height(25)
+            .top(function () {
+                return (this.index * 30) - 20
+            })
+            .antialias(false)
+            .left(-30)
+            .strokeStyle("#000")
+            .lineWidth(1)
+            .width(30)
+            .fillStyle(function (d) {
+                return cohortBGColors[d.cohortDisplayStyle]
+            });
+
+        legend.anchor("center").add(pv.Label)
+            .textStyle("#000")
+            .font("12px  sans-serif")
+            .text(function (d) {
+                return d.id
+            });
+
+        vis.add(pv.Label)
+            .data(statMapping)
+            .top(function () {
+                return this.index * 30
+            })
+            .antialias(false)
+            .left(5)
+            .textStyle("#000")
+            .font("12px  sans-serif")
+            //	.text(function(d){return d.desc});
+            .text(function () {
+                return cohortDesc[this.index + 1].replace(/_/g, ', ')
+            });
+    }
+
+
+    /* Add the range line */
+    points.add(pv.Rule)
+        .left(s)
+        .bottom(function (d) {
+            return y(d.min)
+        })
+        .height(function (d) {
+            return y(d.max) - y(d.min)
+        });
+
+    /* Add the min and max indicators */
+    var minLine = points.add(pv.Rule)
+        .data(function (d) {
+            return [d.min]
+        })
+        .bottom(y)
+        .left(s / 2)
+        .width(s)
+        .anchor("bottom").add(pv.Label)
+        .visible(function () {
+            return this.parent.showValues()
+        })
+        .text(function (d) {
+            return d.toFixed(2)
+        });
+
+    var maxLine = points.add(pv.Rule)
+        .data(function (d) {
+            return [d.max]
+        })
+        .bottom(y)
+        .left(s / 2)
+        .width(s)
+        .anchor("top").add(pv.Label)
+        .visible(function () {
+            return this.parent.showValues()
+        })
+        .text(function (d) {
+            return d.toFixed(2)
+        });
+
+    /* Add the upper/lower quartile ranges */
+    var quartileBar = points.add(pv.Bar)
+        .fillStyle(function (d) {
+            return cohortBGColors[d.cohortDisplayStyle]
+        })
+        .bottom(function (d) {
+            return y(d.lq)
+        })
+        .height(function (d) {
+            return y(d.uq) - y(d.lq)
+        })
+        .strokeStyle("black")
+        .lineWidth(1)
+        .event("mouseover", function () {
+            return this.parent.showValues(true)
+        })
+        .event("mouseout", function () {
+            return this.parent.showValues(false)
+        })
+        .antialias(false);
+
+    var lqLabel = quartileBar.add(pv.Label)
+        .visible(function () {
+            return this.parent.showValues()
+        })
+        .text(function (d) {
+            return d.lq.toFixed(2)
+        })
+        .textAlign("right")
+        .textBaseline("top");
+
+    var uqLabel = quartileBar.anchor("top").add(pv.Label)
+        .visible(function () {
+            return this.parent.showValues()
+        })
+        .left(-15)
+        .text(function (d) {
+            return d.uq.toFixed(2)
+        })
+        .textMargin(-10);
+
+    /* Add the median line */
+    points.add(pv.Rule)
+        .bottom(function (d) {
+            return y(d.median)
+        })
+        .anchor("right").add(pv.Label)
+        .visible(function () {
+            return this.parent.showValues()
+        })
+        .text(function (d) {
+            return d.median.toFixed(2)
+        });
+
+    vis.render();
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    jQuery("#boxplotLegend_" + analysisID).html(drawCohortLegend(numCohorts, cohortArray, cohortDesc, cohortDisplayStyles));
+
+}
+
+//This function will kick off the webservice that generates the QQ plot.
+function loadQQPlot(analysisID) {
+    jQuery('#qqplot_results_' + analysisID).empty().addClass('ajaxloading');
+    jQuery.ajax({
+        "url": getQQPlotURL,
+        bDestroy: true,
+        bServerSide: true,
+        data: {analysisId: analysisID, pvalueCutoff: jQuery('#analysis_results_table_' + analysisID + '_cutoff').val(), search: jQuery('#analysis_results_table_' + analysisID + '_search').val()},
+        "success": function (json) {
+            jQuery('#analysis_holder_' + analysisID).unmask();
+            jQuery('#qqplot_results_' + analysisID).prepend("<img src='" + json.imageURL + "' />").removeClass('ajaxloading');
+            jQuery('#qqplot_export_' + analysisID).attr('href', json.imageURL);
+        },
+        "error": function (json) {
+            jQuery('#qqplot_results_' + analysisID).prepend(json).removeClass('ajaxloading');
+            jQuery('#analysis_holder_' + analysisID).unmask();
+        },
+        "dataType": "json"
+    });
+}
+
+// This function will load the analysis data into a GRAILS template.
+function loadAnalysisResultsGrid(analysisID, paramMap) {
+    paramMap.analysisId = analysisID
+    jQuery('#analysis_results_table_' + analysisID + '_wrapper').empty().addClass('ajaxloading');
+    jQuery.ajax({
+        "url": getAnalysisDataURL,
+        bDestroy: true,
+        bServerSide: true,
+        data: paramMap,
+        "success": function (jqXHR) {
+            jQuery('#analysis_holder_' + analysisID).unmask();
+            jQuery('#analysis_results_table_' + analysisID + '_wrapper').html(jqXHR).removeClass('ajaxloading');
+        },
+        "error": function (jqXHR, error, e) {
+            jQuery('#analysis_results_table_' + analysisID + '_wrapper').html(jqXHR).removeClass('ajaxloading');
+            jQuery('#analysis_holder_' + analysisID).unmask();
+        },
+        "dataType": "html"
+    });
+}
+
+//This function will load all filtered analysis data into a GRAILS template.
+function loadTableResultsGrid(paramMap) {
+    jQuery('#table-results-div').empty().addClass('ajaxloading');
+    jQuery.ajax({
+        "url": getTableDataURL,
+        bDestroy: true,
+        bServerSide: true,
+        data: paramMap,
+        "success": function (jqXHR) {
+            jQuery('#table-results-div').html(jqXHR).removeClass('ajaxloading');
+        },
+        "dataType": "html"
+    });
+}
+
+// Take the heatmap data in the second parameter and show it in the Protovis panel
+function drawHeatmap(divID, heatmapJSON, analysisID, forExport) {
+
+
+    // set up arrays to be used to populating drop down boxes for line/box plots
+    // do this first since we need this for determining max probe string length
+    var probesList = new Array()
+    var selectList = new Array()
+    var hasFoldChange = false; //true if the data contains fold change values
+    var hasTPvalue = false;
+    var hasPvalue = false;
+    var hasNullValues = false; //checks if there are null in the heatmap; null legend should only be displayed if so
+    var maxProbeLength = 0;
+    for (var i = 0; i < heatmapJSON.length; i++) {
+        probesList.push(heatmapJSON[i].PROBE);
+        selectList.push(heatmapJSON[i].GENE + " (" + heatmapJSON[i].PROBE + ")");
+        if (heatmapJSON[i].PROBE.visualLength("10px Verdana, Tahoma, Arial") > maxProbeLength) {
+            //maxProbeLength = heatmapJSON[i].PROBE.length;
+            maxProbeLength = heatmapJSON[i].PROBE.visualLength("10px Verdana, Tahoma, Arial");
+        }
+        if (heatmapJSON[i].FOLD_CHANGE != null) {
+            hasFoldChange = true;
+        }
+        if (heatmapJSON[i].TEA_P_VALUE != null) {
+            hasTPvalue = true;
+        }
+        if (heatmapJSON[i].PREFERRED_PVALUE != null) {
+            hasPvalue = true;
+        }
+        //check if any of the heatmapJSON values are undefined. The legend for null values will
+        //only display if 'hasNullValues' is true
+        //"key.indexOf(':') > 0" <- this is used to only check the chohorts (ex, 'C1:3432'). Other key values are ignored
+        for (var key in (heatmapJSON[i])) {
+            if (heatmapJSON[i][key] == undefined && key.indexOf(':') > 0) {
+                hasNullValues = true;
+            }
+        }
+
+    }
+
+    var analysisIndex = getAnalysisIndex(analysisID);
+
+    analysisProbeIds[analysisIndex].probeIds = probesList;
+    analysisProbeIds[analysisIndex].selectList = selectList;
+
+    // reset the active probe for the other plots to be the first on this page
+    setActiveProbe(analysisID, probesList[0]);
+
+    //store the max probe length for this analysis
+    jQuery('body').data("maxProbeLength:" + analysisID, maxProbeLength);
+
+    // First, we need to get the subject IDs that we will use for mapping the color range
+    // We also need the two cohort prefixes and when the cohort first subset ends as these will be used for the legend
+
+    var cellID = "#heatmapSlider_" + analysisID;
+    var colorSliderID = "#heatmapColorSlider_" + analysisID;
+
+    var cellSize = parseInt(jQuery(cellID).slider("option", "value"));
+
+    var w_probe = 6 + parseInt(jQuery('body').data("maxProbeLength:" + analysisID));
+
+
+    var rangeMax = parseInt(jQuery(colorSliderID).slider("values", 1)) / 100.0;
+    var rangeMin = parseInt(jQuery(colorSliderID).slider("values", 0)) / 100.0;
+    var rangeMid = (rangeMax + rangeMin) / 2;
+
+    //set the header font size depending on the cell size
+    var headerfont = "12px  sans-serif";
+    if (cellSize < 12) {
+        headerfont = "8px  sans-serif";
+    } else if (cellSize > 19) {
+        headerfont = "16px  sans-serif";
+    }
+
+    var columns = new Array();
+
+
+    // create an array for cohorts, their descriptions, and their switch positions
+    var cohorts = new Array();
+    var cohortDescriptions = new Array();
+    var cohortSwitches = new Array();
+    var cohortDisplayStyles = new Array();
+
+    var idx = 0;
+
+    var firstRowData = heatmapJSON[0];
+    for (var key in firstRowData) {
+        // We have two types of values in the first row of the array
+        // Metadata values: GENE, PROBE, FOLD_CHANGE, TEA_P_VALUE and the N cohort descriptions
+        // Normalized values: The data given by the key Cohort:Subject
+        // First, we see if the cohort is cohort:subject unless it is Gene
+        var keyArray = key.split(':');
+        if (keyArray.length == 1) {
+            // OK, so we have metdata, ignore everything except the cohort info
+
+            // add key to appropriate array, depending upon what it starts with
+            if (key.indexOf('SWITCH_') == 0) {
+                cohortSwitches[key.slice(7)] = firstRowData[key]
+            }
+            else if (key.indexOf('DESC_') == 0) {
+                cohortDescriptions[key.slice(5)] = firstRowData[key]
+            }
+            else if (key.indexOf('COHORT_') == 0) {
+                cohorts[key.slice(7)] = firstRowData[key]
+            }
+
+
+        } else {
+            // We have data, save the key (e.g. C19:C0525T0300023) as the column metadata
+            columns[idx] = key;
+            idx++;
+        }
+    }
+
+    // The fill variable will have a map of the columns array as the key and a color range as the value
+
+    fill = pv.dict(columns, function (f) {
+        return pv.Scale.linear()
+            .domain(rangeMin, rangeMid, rangeMid, rangeMax)
+            .range("#4400BE", "#D7D5FF", "#ffe2f2", "#D70C00");
+    });
+
+
+    /*	This code is for the "local" heatmap shading option, but is incomplete
+
+     var x = pv.dict(columns, function(f) { return pv.mean(heatmapJSON, function(d){return d[f]}) }),
+     s = pv.dict(columns, function(f) { return pv.deviation(heatmapJSON, function(d){ return d[f] })}),
+     fill = pv.dict(columns, function(f) { return pv.Scale.linear()
+     .domain(-3 * s[f] + x[f], x[f], x[f], 3 * s[f] + x[f])
+     .range("#4400BE", "#D7D5FF","#ffe2f2", "#D70C00")});
+     */
+
+
+    // Hardcode the size of the cell and the labels
+    var w_sample = 75, w_gene = 75, h_header = 6, w_fold_change = 75, w_Tpvalue = 75, w_pvalue = 75;			// Label dimensions
+    var w = cellSize, h = cellSize;									    							// Cell dimensions
+
+    if (!hasFoldChange) {
+        w_fold_change = 0; //if there is no fold change data, we need no space for it
+    }
+
+    if (!hasTPvalue) {
+        w_Tpvalue = 0;
+    }
+
+    if (!hasPvalue) {
+        w_pvalue = 0;
+    }
+    var numCohorts = cohorts.size() - 1;   // there is no cohort at index 0
+
+
+    // need to add a blank entry at the beginning of the arrays for use by drawCohortLegend
+//	cohortArray = [''].concat(cohortArray);
+//	cohortDesc = [''].concat(cohortDesc);
+//	cohortDisplayStyles = [''].concat(cohortDisplayStyles);
+
+    var height;
+    if (forExport) {
+        height = 4 * h + h_header + (heatmapJSON.length * h) + (cohorts.size() - 1) * 35;
+        cohortDescriptions = highlightCohortDescriptions(cohortDescriptions, true);
+    } else {
+        height = 4 * h + h_header + (heatmapJSON.length * h);
+    }
+
+    var vis = new pv.Panel().canvas(document.getElementById(divID)) 				    					// First panel is the canvas where everything is drawn
+        .width(w_probe + columns.length * w + w_gene + w_fold_change + w_pvalue + w_Tpvalue)				    		// Width of the entire panel
+        .height(height)			    									// Height of the entire panel
+
+    vis.add(pv.Panel)
+        .data(columns)
+        .left(function () {
+            return w_probe + this.index * w;
+        })
+        .width(w)
+        .add(pv.Panel)
+        .data(heatmapJSON)
+        .top(function () {
+            return h + (this.index * h) + h_header;
+        })
+        .height(h)
+        .fillStyle(function (d, f) {
+            if (d[f] == undefined) {
+                return "#FFFF00";
+            } else {
+                return fill[f](d[f]);
+
+            }
+        })
+
+
+        .strokeStyle("#333333")
+        .lineWidth(1)
+        .antialias(false)
+        .title(function (d, f) {			// title is the tooltip
+            var cohort = f.split(':')[0];
+            if (d[f] == undefined) {
+                return cohort + ":" + d["PROBE"] + ":" + d["GENE"] + "=" + d[f];
+            } else {
+                return cohort + ":" + d["PROBE"] + ":" + d["GENE"] + "=" + d[f].toFixed(2);
+            }
+        });
+
+    // create array of cohort widths
+    var cohortWidths = new Array();
+    for (var i = 1; i <= numCohorts; i++) {
+        if (i == numCohorts) {
+            cohortWidths[i] = w * (columns.length - cohortSwitches[i]);
+        }
+        else {
+            cohortWidths[i] = w * (cohortSwitches[i + 1] - cohortSwitches[i]);
+        }
+    }
+
+    var leftPosition = w_probe;
+    for (var i = 1; i <= numCohorts; i++) {
+        var classIndex;
+
+        cohortDisplayStyles[i] = i % cohortBGColors.length;
+
+        var dataColor = cohortBGColors[i % cohortBGColors.length];
+        var strokeStyleColor = "#000";
+        var textStyleColor = "#000";
+
+        /* cohort header */
+        var barC = vis.add(pv.Bar)
+            .data([dataColor])
+            .height(h)
+            .top(2)
+            .antialias(false)
+            .left(leftPosition)
+            .strokeStyle(strokeStyleColor)
+            .title(cohortDescriptions[i].replace(/_/g, ', '))
+            .lineWidth(1)
+            .width(cohortWidths[i])
+            .fillStyle(function (d) {
+                return d;
+            }
+        );
+
+        barC.anchor("center").add(pv.Label)
+            .textStyle(textStyleColor)
+            .font(headerfont)
+            .text(cohorts[i]);
+
+
+        //only draw the legend if the result is being exported as an image
+        if (forExport) {
+
+            /*		Legend	     */
+            var legend = vis.add(pv.Bar)
+                .data([dataColor])
+                .height(25)
+                .top(2 * h + (heatmapJSON.length * h) + h_header + i * 30)
+                .antialias(false)
+                .left(0)
+                .strokeStyle(strokeStyleColor)
+                .lineWidth(1)
+                .width(30)
+                .fillStyle(function (d) {
+                    return d;
+                });
+
+            legend.anchor("center").add(pv.Label)
+                .textStyle(textStyleColor)
+                .font(headerfont)
+                .text(cohorts[i]);
+
+            vis.add(pv.Label)
+                .top(2 * h + (heatmapJSON.length * h) + h_header + i * 30 + 20)
+                .antialias(false)
+                .left(35)
+                .textStyle(textStyleColor)
+                .font("12px  sans-serif")
+                .text(cohortDescriptions[i].replace(/_/g, ', '));
+
+        }
+
+        // determine left position for next cohort
+        leftPosition = leftPosition + cohortWidths[i];
+    }
+
+    //only do this if the data contains fold change values
+    if (hasFoldChange) {
+        // Show the fold change table header
+        vis.add(pv.Label)
+            .width(w_fold_change)
+            .top(h_header + 11)
+            .left(w_probe + columns.length * w + w_gene)
+            .textAlign("left")
+            .font("bold 11px sans-serif")
+            .text("Fold change");
+
+
+        // Show the fold change
+        vis.add(pv.Label)
+            .data(heatmapJSON)
+            .top(function () {
+                return (h + (this.index * h + h / 2) + h_header);
+            })
+            .width(w_fold_change)
+            .strokeStyle("#333333")
+            .lineWidth(1)
+            .antialias(false)
+            .left(w_probe + columns.length * w + w_gene)
+            .textAlign("left")
+            .textBaseline("middle")
+            .text(function (d) {
+                return d.FOLD_CHANGE;
+            });
+    }
+
+    if (hasTPvalue) {
+        // Show the tea p value header
+        vis.add(pv.Label)
+            .width(w_Tpvalue)
+            .top(h_header + 11)
+            .left(w_probe + columns.length * w + w_gene + w_fold_change)
+            .textAlign("left")
+            .font("bold 11px sans-serif")
+            .text("TEA p-value");
+
+        // Show the tea p value
+        vis.add(pv.Label)
+            .data(heatmapJSON)
+            .top(function () {
+                return (h + (this.index * h + h / 2) + h_header);
+            })
+            .width(w_pvalue)
+            .left(w_probe + columns.length * w + w_gene + w_fold_change)
+            .textAlign("left")
+            .textBaseline("middle")
+            .text(function (d) {
+                if (d.TEA_P_VALUE == 0) {
+                    return "< 0.00001"
+                }
+                else {
+                    return d.TEA_P_VALUE;
+                }
+            });
+    }
+
+    if (hasPvalue) {
+
+        //show the p-value header
+        vis.add(pv.Label)
+            .width(w_pvalue)
+            .top(h_header + 11)
+            .left(w_probe + (columns.length * w) + w_gene + w_fold_change + w_Tpvalue)
+            .textAlign("left")
+            .font("bold 11px sans-serif")
+            .text("p-value");
+
+        // Show the p value
+        vis.add(pv.Label)
+            .data(heatmapJSON)
+            .top(function () {
+                return (h + (this.index * h + h / 2) + h_header);
+            })
+            .width(w_pvalue)
+            .left(w_probe + (columns.length * w) + w_gene + w_fold_change + w_Tpvalue)
+            .textAlign("left")
+            .textBaseline("middle")
+
+            .text(function (d) {
+                if (d.PREFERRED_PVALUE == 0) {
+                    return "< 0.00001"
+                }
+                else {
+                    return d.PREFERRED_PVALUE;
+                }
+            });
+    }
+
+
+    // Show the Gene labels
+    vis.add(pv.Label)
+        .data(heatmapJSON)
+        .top(function () {
+            return (h + (this.index * h + h / 2) + h_header);
+        })
+        .width(w_gene)
+        .left(w_probe + columns.length * w)
+
+        //add hyperlink to gene label that opens pop-up
+        .cursor(function (d) {
+            if (parseInt(d.GENE_ID)) {
+                return "pointer"
+            }
+        })
+        .event("mouseover", function (d) {
+            if (parseInt(d.GENE_ID)) {
+                self.status = "Gene Information"
+            }
+        })
+        .event("mouseout", function (d) {
+            self.status = ""
+        })
+        .event("click", function (d) {
+            if (parseInt(d.GENE_ID)) {
+                self.location = "javascript:showGeneInfo('" + d.GENE_ID + "');"
+            }
+        })
+
+        .textAlign("left")
+        .textBaseline("middle")
+        .events("all")
+        .title(function (d) {
+            return d.GENELIST;
+        })
+        .text(function (d) {
+            return d.GENE;
+        });
+
+    // Show the Probe labels
+    vis.add(pv.Label)
+        .data(heatmapJSON)
+        .top(function () {
+            return (h + (this.index * h + h / 2) + h_header);
+        })
+        .width(w_probe)
+
+        //add link to view boxplot of values
+        .cursor("pointer")
+
+        .event("mouseout", function () {
+            self.status = ""
+        })
+        .event("click", function (d) {
+            self.location = "javascript:openBoxPlotFromHeatmap(" + analysisID + ", '" + d.PROBE + "');"
+        })
+
+        .events("all")
+        .textAlign("left")
+        .font("10px Verdana, Tahoma, Arial")
+        .textBaseline("middle")
+        .title("View in boxplot")
+        .text(function (d) {
+            return d.PROBE;
+        });
+
+
+    vis.add(pv.Bar)
+        .data(["#4400BE"])
+        .height(15)
+        .left(w_probe)
+        .width(55)
+        .top(2 * h + (heatmapJSON.length * h) + h_header)
+        .fillStyle(function (d) {
+            return d;
+        })
+        .anchor("left")
+        .add(pv.Label)
+        .textStyle("white")
+        .text("min: " + Math.round((rangeMin) * 100) / 100);//Math.round get nearest integer
+
+    vis.add(pv.Bar)
+        .data(["#D70C00"])
+        .height(15)
+        .width(55)
+        .left(w_probe + 85)
+        .top(2 * h + (heatmapJSON.length * h) + h_header)
+        .fillStyle(function (d) {
+            return d;
+        })
+        .anchor("left")
+        .add(pv.Label)
+        .textStyle("white")
+        .text("max: " + Math.round((rangeMax) * 100) / 100); //Math.round get nearest integer
+
+
+    //draw legend for null values only if they exist in the current heatmap
+    if (hasNullValues) {
+        vis.add(pv.Bar)
+            .data(["#FFFF00"])
+            .height(15)
+            .width(55)
+            .left(w_probe + 170)
+            .top(2 * h + (heatmapJSON.length * h) + h_header)
+            .fillStyle(function (d) {
+                return d;
+            })
+            .anchor("left")
+            .add(pv.Label)
+            .textStyle("black")
+            .text("null");
+
+    }
+
+
+    vis.root.render();					// Need root panel for the canvas call to work
+    jQuery("#heatmapLegend_" + analysisID).html(drawCohortLegend(numCohorts, cohorts, cohortDescriptions, cohortDisplayStyles));
+}
+
+// Helper function to draw the legend for the cohorts in the visualization panel
+function drawCohortLegend(numCohorts, cohorts, cohortDescriptions, cohortDisplayStyles) {
+
+    cohortDescriptions = highlightCohortDescriptions(cohortDescriptions);
+
+    var pCohortAll = "<table class='cohort_table'>"
+    var classIndex = null;
+    var pCohort = "";
+    for (var i = 1; i <= numCohorts; i++) {
+        pCohort = "<tr><td style='width:40px'><p class='cohort' style='background-color:" + cohortBGColors[cohortDisplayStyles[i]] + "'>" + cohorts[i] + "</p></td><td><p class='cohortDesc'>" + cohortDescriptions[i].replace(/_/g, ', ') + '</p></td>';
+        pCohortAll = pCohortAll + pCohort;
+    }
+    return pCohortAll + "</table>	";
+}
+
+function startPlotter() {
+    var selectedboxes = jQuery(".analysischeckbox:checked");
+    if (selectedboxes.length == 0) {
+        alert("No analyses are selected! Please select analyses to plot.");
+    }
+    else {
+        var analysisIds = "";
+        analysisIds += jQuery(selectedboxes[0]).attr('name');
+        for (var i = 1; i < selectedboxes.length; i++) {
+            analysisIds += "," + jQuery(selectedboxes[i]).attr('name');
+        }
+
+        var snpSource = jQuery('#plotSnpSource').val();
+        var geneSource = jQuery('#plotGeneSource').val();
+        var pvalueCutoff = jQuery('#plotPvalueCutoff').val();
+
+        window.location = webStartURL + "?analysisIds=" + analysisIds + "&snpSource=" + snpSource + "&geneSource=GRCh37&pvalueCutoff=" + pvalueCutoff;
+        jQuery('#divPlotOptions').dialog("destroy");
+    }
+}
+
+function openPlotOptions() {
+    var selectedboxes = jQuery(".analysischeckbox:checked");
+    if (selectedboxes.length == 0) {
+        alert("No analyses are selected! Please select analyses to plot.");
+    }
+    else {
+        jQuery('#divPlotOptions').dialog("destroy");
+        jQuery('#divPlotOptions').dialog(
+            {
+                modal: false,
+                height: 250,
+                width: 400,
+                title: "Manhattan Plot Options",
+                show: 'fade',
+                hide: 'fade',
+                resizable: false,
+                buttons: {"Plot": startPlotter}
+            });
+    }
+}
+
+//Globally prevent AJAX from being cached (mostly by IE)
+//jQuery.ajaxSetup({
+//    cache: false
+//})

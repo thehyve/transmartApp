@@ -29,6 +29,11 @@
 		      <link rel="stylesheet" href="${resource(dir:'css', file:'main.css')}"/>
         <link rel="stylesheet" href="${resource(dir:'css/jquery/cupertino', file:'jquery-ui-1.8.18.custom.css')}"/>
 		
+        <!-- jQuery JS libraries -->
+        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery-1.7.1.min.js')}"></script>
+        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery.dataTables.js')}"></script>   
+	    <script>jQuery.noConflict();</script> 		
+		
 	<!--[if IE 7]>
 		<style type="text/css">
 			 div#gfilterresult,div#ptfilterresult, div#jubfilterresult, div#dqfilterresult {

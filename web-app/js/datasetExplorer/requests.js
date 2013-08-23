@@ -136,7 +136,7 @@ function getONTRequestFooter(){ return "</message_body>\
                    }
 
 function getCategories()
-{
+{  
     jQuery.ajax(pageInfo.basePath + '/concepts/getCategories', {
             dataType : 'json'
         })
@@ -213,7 +213,7 @@ return '<result_output_list>\
  		</ns4:request>\
  		</message_body>\
  		</ns6:request>';
-}
+}    
 
 
 function getCRCQueryRequest(subset, queryname)
@@ -221,18 +221,18 @@ function getCRCQueryRequest(subset, queryname)
     if (queryname == "" || queryname == undefined) {
         var d = new Date();
         queryname = GLOBAL.Username+"'s Query at "+ d.toString();
-    }
+	}
 
     var query =
         '<ns4:query_definition xmlns:ns4="http://www.i2b2.org/xsd/cell/crc/psm/1.1/">\
-          <query_name>'+queryname+'</query_name>\
-          <specificity_scale>0</specificity_scale>';
+                <query_name>'+queryname+'</query_name>\
+                <specificity_scale>0</specificity_scale>';
 
     for (var i = 1; i <= GLOBAL.NumOfQueryCriteriaGroups; i++) {
         var qcd = Ext.get("queryCriteriaDiv" + subset + '_' + i.toString());
         if(qcd.dom.childNodes.length>0) {
             query = query + getCRCRequestPanel(qcd.dom, i);
-        }
+	}
     }
     query = query + getSecurityPanel() + "</ns4:query_definition>";
 
@@ -403,11 +403,11 @@ var request=getCRCpdoRequestHeader()+
      request=request+getCRCpdoRequestFooter();
      return request;
   }
-
+         
 function getPreviousQueryFromID(subset, queryMasterID) {
-    queryPanel.el.mask('Rebuilding query...', 'x-mask-loading');
-    Ext.Ajax.request(
-        {
+	queryPanel.el.mask('Rebuilding query...', 'x-mask-loading');
+	Ext.Ajax.request(
+    	    {
             url: pageInfo.basePath + "/queryTool/getQueryDefinitionFromResultId",
             params: {
                 result_id: queryMasterID
@@ -418,11 +418,11 @@ function getPreviousQueryFromID(subset, queryMasterID) {
             failure: function (result, request) {
                 getPreviousQueryFromIDComplete(subset, result);
             },
-            timeout: '300000'
-        });
+    	        timeout: '300000'
+    	    }); 
 }
 
-
+ 	
 function getSecurityPanel() {
 		if(!GLOBAL.IsAdmin)
 		{

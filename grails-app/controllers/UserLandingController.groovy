@@ -58,6 +58,7 @@ class UserLandingController {
                       accesstime:   new Date()).save()
                   def skip_disclaimer = grailsApplication.config.com.recomdata?.skipdisclaimer?:false;
         if (skip_disclaimer) {
+//TODO GWAS: /RWG/index
                         redirect(uri:'/search');     
         } else {
                   redirect(uri: '/userLanding/disclaimer.gsp')
@@ -65,7 +66,8 @@ class UserLandingController {
       }
 	def agree = {
         new AccessLog(username: username, event:"Disclaimer accepted",
-			accesstime:new Date()).save()				
+			accesstime:new Date()).save()
+//TODO GWAS: /RWG/index
 		redirect(uri: '/search')
 	}
 	
@@ -75,7 +77,12 @@ class UserLandingController {
 	    redirect(uri: '/logout')
 	}
 
+	/**
+	* Returns ALIVE to ensure that the session does not timeout
+	*/
     def checkHeartBeat = {
+        //TODO GWAS: ALIVE
         render(text:"OK")
     }
+
 }

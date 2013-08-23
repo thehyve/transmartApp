@@ -50,7 +50,7 @@ class TrialQueryService {
 		if(filter == null || filter.globalFilter.isTextOnly()){
 			return 0
 		}
-		
+
 		////////////////////////////////////////////////////////////////////////
 		// Hack to get bind variable in the query
 		////////////////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ class TrialQueryService {
 		if(filter == null || filter.globalFilter.isTextOnly()){
 			return 0
 		}
-		
+
 		////////////////////////////////////////////////////////////////////////
 		// Hack to get bind variable in the query
 		////////////////////////////////////////////////////////////////////////
@@ -356,7 +356,7 @@ class TrialQueryService {
 				bFirstWhereItem = false
 			} else {
 				s.append(" AND (baad.preferredPvalue <= ").append(trialfilter.pValue).append(")")
-			}			
+			}
 		}
 		//		 rvalue on BioAssayAnalysisData
 		if(trialfilter.hasRValue()){

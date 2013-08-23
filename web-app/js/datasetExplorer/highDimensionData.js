@@ -291,12 +291,13 @@ function getCRCRequest(subset, queryname, divId){
 	                <query_name>'+queryname+'</query_name>\
 	                <specificity_scale>0</specificity_scale>';
 	
+
 	var qcd=Ext.get(divId);
-	
 	if(qcd.dom.childNodes.length>0)
 	{
 		query=query+getCRCRequestPanel(qcd.dom, 1);
 	}
+	
 	
 	for(var i=1;i<=GLOBAL.NumOfQueryCriteriaGroups;i++)
 	{
@@ -318,11 +319,11 @@ function getCRCRequestSingleSubset(divId, queryname){
 		queryname=GLOBAL.Username+"'s Query at "+ d.toString();
 		}
 	var query= '<ns4:query_definition xmlns:ns4="http://www.i2b2.org/xsd/cell/crc/psm/1.1/">\
-        <query_name>'+queryname+'</query_name>\
-        <specificity_scale>0</specificity_scale>';
+	                <query_name>'+queryname+'</query_name>\
+	                <specificity_scale>0</specificity_scale>';
 	
+
 	var qcd=Ext.get(divId);
-	
 	if(qcd.dom.childNodes.length>0)
 	{
 		query=query+getCRCRequestPanel(qcd.dom, 1);

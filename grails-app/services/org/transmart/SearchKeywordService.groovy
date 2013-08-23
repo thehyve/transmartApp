@@ -18,9 +18,11 @@ package org.transmart
  *
  ******************************************************************/
   
+
 import org.transmart.searchapp.AuthUser;
 
 
+import org.transmart.biomart.BioDataExternalCode
 import org.transmart.searchapp.SearchKeyword
 import org.transmart.searchapp.SearchKeywordTerm
 import org.transmart.searchapp.GeneSignature
@@ -62,84 +64,100 @@ public class SearchKeywordService {
 	}
 	
 	/** Searches for all keywords for a given term (like %il%) */
-	def findSearchKeywords(category, term)	{
-		log.info "Finding matches for ${term} in ${category}"
-		
-		def user = AuthUser.findByUsername(springSecurityService.getPrincipal().username)
-		
-		def c = SearchKeywordTerm.createCriteria()
-		def results = c.list 	{
-			if (term.size() > 0)	{
-				ilike("keywordTerm", '%' + term + '%')
-			}
-			if (category.class.name.toLowerCase() == 'java.util.arraylist') {
-				searchKeyword	{
-					inList("dataCategory", category)
-				}
-			}
-			else  {
-				if ("ALL".compareToIgnoreCase(category) != 0)	{
-					searchKeyword	{
-						eq("dataCategory", category, [ignoreCase: true])
-					}
-				}
-			}			
-			
-			if (!user.isAdmin())	{
-				log.info("User is not an admin so filter out gene lists or signatures that are not public")
-				or	{
-					isNull("ownerAuthUserId")
-					eq("ownerAuthUserId", user.id)
-				}
-			}
-			maxResults(20)
-			order("rank", "asc")
-			order("termLength", "asc")
-			order("keywordTerm", "asc")
-		}
-		log.info("Search keywords found: " + results.size())
-		
-		def keywords = []
-		def dupeList = []			// store category:keyword for a duplicate check until DB is cleaned up
-		
-		for (result in results)	{
-			def m = [:]
-			def sk = result
-			//////////////////////////////////////////////////////////////////////////////////
-			// HACK:  Duplicate check until DB is cleaned up
-			def dupeKey = sk.searchKeyword.displayDataCategory + ":" +sk.searchKeyword.keyword
-			if (dupeKey in dupeList)	{
-				log.info "Found duplicate: " + dupeKey
-				continue
-			} else	{
-				log.info "Found new entry, adding to the list: " + dupeList
-				dupeList << dupeKey
-			}
-			///////////////////////////////////////////////////////////////////////////////////
-			m.put("label", sk.searchKeyword.keyword)
-			m.put("id", , sk.searchKeyword.id)
-			m.put("category", sk.searchKeyword.displayDataCategory)
-			m.put("categoryId", sk.searchKeyword.dataCategory)
-			if ("TEXT".compareToIgnoreCase(sk.searchKeyword.dataCategory) != 0)	{
-				def synonyms = BioDataExternalCode.findAllWhere(bioDataId: sk.searchKeyword.bioDataId, codeType: "SYNONYM")
-				def synList = new StringBuilder()
-				for (synonym in synonyms)	{
-					if (synList.size() > 0)	{
-						synList.append(", ")
-					} else	{
-						synList.append("(")
-					}
-					synList.append(synonym.code)
-				}
-				if (synList.size() > 0)	{
-					synList.append(")")
-				}
-				m.put("synonyms", synList.toString())
-			}
-			keywords.add(m)
-		}
-		return keywords
-	 }
+def findSearchKeywords(category, term, max = 20) {
+    log.info "Finding matches for ${term} in ${category}"
+
+    def user = AuthUser.findByUsername(springSecurityService.getPrincipal().username)
+
+    def c = SearchKeywordTerm.createCriteria()
+    def results = c.list {
+        if (term.size() > 0) {
+            ilike("keywordTerm", '%' + term + '%')
+        }
+        //TODO Special case for gene or SNP - rework to support multiple categories!
+        if ("GENE_OR_SNP".equals(category)) {
+            //or {
+            //	eq("dataCategory", "GENE")
+            //	like("keywordTerm", 'RS%')
+            //}
+            'in'("dataCategory", ["GENE", "SNP"])
+        } else if ("SNP".equals(category)) {
+            //like("keywordTerm", 'RS%')
+            eq("dataCategory", "SNP")
+        } else if (category.class.name.toLowerCase() == 'java.util.arraylist') {
+            searchKeyword {
+                inList("dataCategory", category)
+            }
+        } else if ("ALL".compareToIgnoreCase(category) != 0) {
+            searchKeyword {
+                eq("dataCategory", category, [ignoreCase: true])
+            }
+        }
+
+        if (!user.isAdmin()) {
+            log.info("User is not an admin so filter out gene lists or signatures that are not public")
+            or {
+                isNull("ownerAuthUserId")
+                eq("ownerAuthUserId", user.id)
+            }
+        }
+        maxResults(max)
+        order("rank", "asc")
+        order("termLength", "asc")
+        order("keywordTerm", "asc")
+    }
+    log.info("Search keywords found: " + results.size())
+
+    def keywords = []
+    def dupeList = []
+    // store category:keyword for a duplicate check until DB is cleaned up
+
+    for (result in results) {
+        def m = [:]
+        def sk = result
+        //////////////////////////////////////////////////////////////////////////////////
+        // HACK:  Duplicate check until DB is cleaned up
+        def dupeKey = sk.searchKeyword.displayDataCategory + ":" + sk.searchKeyword.keyword
+        if (dupeKey in dupeList) {
+            log.info "Found duplicate: " + dupeKey
+            continue
+        } else {
+            log.info "Found new entry, adding to the list: " + dupeList
+            dupeList << dupeKey
+        }
+        ///////////////////////////////////////////////////////////////////////////////////
+        m.put("label", sk.searchKeyword.keyword)
+        m.put("category", sk.searchKeyword.displayDataCategory)
+        //Further hack: Alter fields depending on the category
+        if (sk.searchKeyword.dataCategory.equals("DISEASE") || sk.searchKeyword.dataCategory.equals("OBSERVATION")) {
+            m.put("categoryId", sk.searchKeyword.dataCategory)
+            m.put("id", sk.searchKeyword.keyword)
+        } else {
+            m.put("categoryId", sk.searchKeyword.dataCategory)
+            m.put("id", sk.searchKeyword.id)
+        }
+        if ("TEXT".compareToIgnoreCase(sk.searchKeyword.dataCategory) != 0) {
+            def synonyms = BioDataExternalCode.findAllWhere(bioDataId: sk.searchKeyword.bioDataId, codeType: "SYNONYM")
+            def synList = new StringBuilder()
+            for (synonym in synonyms) {
+                if (synList.size() > 0) {
+                    synList.append(", ")
+                } else {
+                    synList.append("(")
+                }
+                synList.append(synonym.code)
+            }
+            if (synList.size() > 0) {
+                synList.append(")")
+            }
+            m.put("synonyms", synList.toString())
+        }
+        keywords.add(m)
+    }
+    return keywords
+}
+
+
 
 
 	/**
@@ -269,6 +287,7 @@ public class SearchKeywordService {
 		SearchKeywordTerm term = new SearchKeywordTerm()
 		term.properties.keywordTerm = gs.name.toUpperCase()
 		term.properties.rank = 1
+		term.properties.dataCategory = domainKey
 		term.properties.termLength = gs.name.length()
 		if(!gs.publicFlag) term.properties.ownerAuthUserId = gs.createdByAuthUser?.id
 
