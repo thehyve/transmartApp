@@ -35,16 +35,19 @@ class DataExportController {
 	def getMetaData =
 	{
 		response.setContentType("text/json")
-		render exportService.getMetaData(params)
-	}
-	
-	def downloadFileExists = {
+		render exportService.getMetaData(
+                params.result_instance_id1 as Long,
+                params.result_instance_id2 as Long)
+    }
+
+    def downloadFileExists = {
 		def InputStream inputStream = exportService.downloadFile(params);
 		response.setContentType("text/json")
 		JSONObject result = new JSONObject()
 		
 		if(null != inputStream){
 			result.put("fileStatus", true)
+            inputStream.close()
 		} else {
 		   	result.put("fileStatus", false)
 			result.put("message", "Download failed as file could not be found on the server")
