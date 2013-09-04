@@ -216,7 +216,7 @@ class I2b2HelperService {
 		sql.eachRow("select dgi.marker_type from concept_dimension cd, de_gpl_info dgi where cd.concept_path like('%'||dgi.title||'%') "+
 				"and cd.concept_cd = ?",[conceptCd], {row ->
 					markerType = row.marker_type
-		})		
+		})
 		//return "Gene Expression"
 		//return "SNP"
 		return markerType
@@ -4125,7 +4125,7 @@ class I2b2HelperService {
 					"WHERE a.probeset_id = b.probeset_id AND a.trial_name IN ("+trialNames+") " +
 					"AND a.assay_id IN ("+assayIds+")";
 					
-			sql.eachRow (rawCountQuery, [], {row-> goodPct=row[0]})
+			sql.eachRow (rawCountQuery, {row-> goodPct=row[0]})
 			
 			if(goodPct==0) throw new Exception("No raw data for Comparative Marker Selection.");
 		}
@@ -4689,7 +4689,7 @@ class I2b2HelperService {
 				    Node panelnumber=(Node)xpath.evaluate("panel_number", panel, XPathConstants.NODE)
 				    
 					if(panelnumber?.getTextContent()?.equalsIgnoreCase("21")) {
-                        log.debug("Skipping the security panel in printing the output")
+						log.debug("Skipping the security panel in printing the output")
 						continue
 					}
 				    

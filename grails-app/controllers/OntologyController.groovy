@@ -224,7 +224,7 @@ class OntologyController {
 			def trialid=trial.tag;
 			chain(controller:'trial', action:'trialDetailByTrialNumber', id:trialid)
 		}
-
+		
 		render(template:'showDefinition', model:[tags:result])
 	}
 	

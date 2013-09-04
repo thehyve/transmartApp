@@ -34,7 +34,7 @@ import org.rosuda.REngine.Rserve.RConnection
 import com.recomdata.dataexport.util.ExportUtil
 import com.recomdata.transmart.data.export.util.FileWriterUtil
 
-class ClinicalDataService {
+class PostgresClinicalDataService {
 
     boolean transactional = true
 
@@ -172,7 +172,7 @@ class ClinicalDataService {
 			def filename = (studyList?.size() > 1) ? study+'_'+fileName : fileName
 			log.debug("Retrieving Clinical data : " + sqlQuery)
 			log.debug("Retrieving Clinical data : " + parameterList)
-	
+			
 			//Only pivot the data if the parameter specifies it.
 			if(parPivotData)
 			{
@@ -216,7 +216,7 @@ class ClinicalDataService {
 				log.debug('Writing Clinical File')
 				writerUtil = new FileWriterUtil(studyDir, fileName, jobName, dataTypeName, dataTypeFolder, separator);
 				writerUtil.writeLine(getColumnNames(retrievalTypes, snpFilesMap,includeParentInfo,includeConceptContext) as String[])
-			
+				
 				rows.each { row ->
 					dataFound = true
 					def values = []
@@ -437,7 +437,7 @@ class ClinicalDataService {
 		queryToReturn <<= "INNER JOIN CONCEPT_DIMENSION C1 ON C1.CONCEPT_CD = XMAP.CONCEPT_CD "
 		queryToReturn <<= "INNER JOIN CONCEPT_DIMENSION C2 ON C2.CONCEPT_CD = XMAP.PARENT_CD "
 		queryToReturn <<= "WHERE	qt.RESULT_INSTANCE_ID = CAST(? AS numeric) "
-		queryToReturn <<= "AND		ofa.SOURCESYSTEM_CD = ? AND ( ofa.MODIFIER_CD = '@' OR ofa.MODIFIER_CD = ofa.SOURCESYSTEM_CD) "
+		queryToReturn <<= "AND		ofa.SOURCESYSTEM_CD = ? AND ( ofa.MODIFIER_CD = '@' OR ofa.MODIFIER_CD = ofa.SOURCESYSTEM_CD ) "
 		queryToReturn <<= "AND		ofa.CONCEPT_CD IN "
 		queryToReturn <<= "( "
 		queryToReturn <<= "		SELECT	C_BASECODE "

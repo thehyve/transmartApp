@@ -23,9 +23,9 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
         <meta name="layout" content="admin" />
         <title>Access Control by Study</title>
-</head>
-<body>
-<div class="body">
+    </head>
+    <body>
+        <div class="body">
             <h1>Access Control by Study</h1>
             <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
