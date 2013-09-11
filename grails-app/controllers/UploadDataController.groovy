@@ -17,9 +17,6 @@
  *
  ******************************************************************/
 
-
-
-
 import com.recomdata.upload.DataUploadResult
 import org.transmart.biomart.*
 import org.transmart.searchapp.AccessLog
