@@ -1,20 +1,20 @@
 <!--
   tranSMART - translational medicine data mart
-  
+
   Copyright 2008-2012 Janssen Research & Development, LLC.
-  
+
   This product includes software developed at Janssen Research & Development, LLC.
-  
-  This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 
+
+  This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
   as published by the Free Software  * Foundation, either version 3 of the License, or (at your option) any later version, along with the following terms:
   1.	You may convey a work based on this program in accordance with section 5, provided that you retain the above notices.
   2.	You may convey verbatim copies of this program code as you receive it, in any medium, provided that you retain the above notices.
-  
+
   This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
-  
- 
+
+
 -->
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Strict//EN">
@@ -28,7 +28,7 @@
 		<link rel="stylesheet" href="${resource(dir:'js', file:'ext/resources/css/xtheme-gray.css')}"></link>
 		<link rel="stylesheet" href="${resource(dir:'css', file:'main.css')}"></link>
 		<link rel="stylesheet" href="${resource(dir:'css', file:'uploadData.css')}"></link>
-		
+
 	<!--[if IE 7]>
 		<style type="text/css">
 			 div#gfilterresult,div#ptfilterresult, div#jubfilterresult, div#dqfilterresult {
@@ -36,55 +36,55 @@
 			}
 		</style>
 	<![endif]-->
-		
+
 		<g:javascript library="prototype" />
 		<script type="text/javascript" src="${resource(dir:'js', file:'ext/adapter/ext/ext-base.js')}"></script>
 		<script type="text/javascript" src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 		<script type="text/javascript" src="${resource(dir:'js', file:'ext/miframe.js')}"></script>
 		<script type="text/javascript" src="${resource(dir:'js', file:'searchcombobox.js')}"></script>
-	    <script type="text/javascript" src="${resource(dir:'js', file:'picklist.js')}"></script>
-	    <script type="text/javascript" src="${resource(dir:'js', file:'utilitiesMenu.js')}"></script>
-	    <script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery-1.7.1.min.js')}"></script>
-	    <script type="text/javascript">$j = jQuery.noConflict();</script>
-	    <script type="text/javascript" src="${resource(dir:'js', file:'uploadData.js')}"></script>
+	  <script type="text/javascript" src="${resource(dir:'js', file:'picklist.js')}"></script>
+	  <script type="text/javascript" src="${resource(dir:'js', file:'utilitiesMenu.js')}"></script>
+	  <script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery-1.7.1.min.js')}"></script>
+	  <script type="text/javascript">$j = jQuery.noConflict();</script>
+	  <script type="text/javascript" src="${resource(dir:'js', file:'uploadData.js')}"></script>
 		<script type="text/javascript" charset="utf-8">
-		var studyBrowseWindowUrl = '${createLink([controller: 'experiment', action: 'browseExperimentsSingleSelect'])}';
-		var studyDetailUrl = '${createLink([controller:'experimentAnalysis', action:'expDetail'])}';
-		var platformTypesUrl = '${createLink([action:'platformsForVendor',controller:'bioAssayPlatform'])}';
-		var templateDownloadUrl = '${createLink([action:'template',controller:'uploadData'])}';
+      var studyBrowseWindowUrl = '${createLink([controller: 'experiment', action: 'browseExperimentsSingleSelect'])}';
+      var studyDetailUrl = '${createLink([controller:'experimentAnalysis', action:'expDetail'])}';
+      var platformTypesUrl = '${createLink([action:'platformsForVendor',controller:'bioAssayPlatform'])}';
+      var templateDownloadUrl = '${createLink([action:'template',controller:'uploadData'])}';
 
-		var IS_EDIT = ${uploadDataInstance?.id ? true : false};
-		var ANALYSIS_TYPE = null;
-		
-		Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";
+      var IS_EDIT = ${uploadDataInstance?.id ? true : false};
+      var ANALYSIS_TYPE = null;
 
-		// set ajax to 90*1000 milliseconds
-		Ext.Ajax.timeout = 180000;
+      Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";
 
-		// qtip on
-		Ext.QuickTips.init();
+      // set ajax to 90*1000 milliseconds
+      Ext.Ajax.timeout = 180000;
 
-		Ext.onReady(function(){			
-		    var helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
-		    var contact = '${grailsApplication.config.com.recomdata.searchtool.contactUs}';
-		    var appTitle = '${grailsApplication.config.com.recomdata.searchtool.appTitle}';
-		    var buildVer = 'Build Version: <g:meta name="environment.BUILD_NUMBER"/> - <g:meta name="environment.BUILD_ID"/>';
-		     
-			var viewport = new Ext.Viewport({
-				layout: "border",
-				items:[new Ext.Panel({                          
-					   region: "center",
-					   tbar: createUtilitiesMenu(helpURL, contact, appTitle,'${request.getContextPath()}', buildVer, 'utilities-div'), 
-					   contentEl: "header-div"
-				    })
-		        ]
-			});
-			viewport.doLayout();
-		});
+      // qtip on
+      Ext.QuickTips.init();
 
-		<g:if test="${study}">
-			updateStudyTable('${study.accession}');
-		</g:if>
+      Ext.onReady(function(){
+          var helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
+          var contact = '${grailsApplication.config.com.recomdata.searchtool.contactUs}';
+          var appTitle = '${grailsApplication.config.com.recomdata.searchtool.appTitle}';
+          var buildVer = 'Build Version: <g:meta name="environment.BUILD_NUMBER"/> - <g:meta name="environment.BUILD_ID"/>';
+
+        var viewport = new Ext.Viewport({
+          layout: "border",
+          items:[new Ext.Panel({
+               region: "center",
+               tbar: createUtilitiesMenu(helpURL, contact, appTitle,'${request.getContextPath()}', buildVer, 'utilities-div'),
+               contentEl: "header-div"
+              })
+              ]
+        });
+        viewport.doLayout();
+      });
+
+      <g:if test="${study}">
+        updateStudyTable('${study.accession}');
+      </g:if>
 		</script>
 		<title>${grailsApplication.config.com.recomdata.dataUpload.appTitle}</title>
 		<!-- ************************************** -->
@@ -100,11 +100,11 @@
 			<g:render template="/layouts/commonheader" model="['app':'uploaddata']" />
 			<g:uploadForm name="dataUpload" action="upload" method="post">
 			<div id="formPage1" style="background-color: #EEE">
-			
+
 			<div style="position: absolute; top: 32px; right: 5px">
 				<tmpl:/help/helpIcon id="1331"/>
 			</div>
-			
+
 			<div class="dataFormTitle" id="dataFormTitle1">
 				<g:if test="${uploadDataInstance?.id ? true : false}">
 					Edit Metadata
@@ -143,7 +143,7 @@
 							<div id="studyDiv" style="height: 200px; width: 540px; overflow: auto; display: none;">&nbsp;</div>
 						</td>
 					</tr>
-					
+
 					<tr>
 						<td>
 							Analysis Type to Upload<br/>
@@ -157,7 +157,7 @@
 							<g:select name="dataType" name="dataType" noSelection="${['null':'Select...']}" from="${['GWAS':'GWAS','Metabolic GWAS':'GWAS Metabolomics','EQTL':'eQTL']}" optionKey="${{it.key}}" optionValue="${{it.value}}" value="${uploadDataInstance?.dataType}"/>
 						</td>
 					</tr>
-				
+
 					<tr>
 						<td>
 							Analysis Name:
@@ -178,18 +178,18 @@
 						</td>
 					</tr>
 				</table>
-				
+
 				<div class="buttonbar">
 					<a class="button" onclick="showDataUploadForm()">Enter metadata</a>
 					<a class="button" href="${createLink([action:'index',controller:'search'])}">Cancel</a>
 				</div>
 			</div>
 			<div id="formPage2" style="background-color: #EEE; display: none;">
-			
+
 			<div style="position: absolute; top: 32px; right: 5px">
 				<tmpl:/help/helpIcon id="1332"/>
 			</div>
-			
+
 			<div class="dataFormTitle" id="dataFormTitle2">Upload Data</div>
 				<div style="text-align:right">
 					<a class="button" href="mailto:${grailsApplication.config.com.recomdata.dataUpload.adminEmail}">Email administrator</a>
@@ -224,7 +224,7 @@
 						</td>
 					</tr>
 					 --%>
-					
+
 					<tr class="borderbottom bordertop">
 						<td id="tagsLabel">
 							Phenotype:
@@ -365,11 +365,11 @@
 					<a class="button" href="${createLink([action:'index',controller:'RWG'])}">Cancel</a>
 				</div>
 			</div>
-			
+
 			<g:hiddenField name="id" value="${uploadDataInstance?.id}"/>
 			</g:uploadForm>
 		</div>
-		
+
 		<!-- Browse dialog -->
 		<div id="divBrowseStudies" title="Studies">
 		   	<img src="${resource(file:'ajax-loader.gif', dir:'images')}"/>

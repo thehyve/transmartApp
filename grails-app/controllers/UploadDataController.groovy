@@ -35,32 +35,30 @@ class UploadDataController {
     def dataUploadService
     static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
-    def index =
-        {
-            //Create an event record for this access.
-            def al = new AccessLog(username: springSecurityService.getPrincipal().username, event: "UploadData-Index", eventmessage: "Upload Data index page", accesstime: new Date())
-            al.save();
+    def index = {
+        //Create an event record for this access.
+        def al = new AccessLog(username: springSecurityService.getPrincipal().username, event: "UploadData-Index", eventmessage: "Upload Data index page", accesstime: new Date())
+        al.save();
 
-            def model = [uploadDataInstance: new AnalysisMetadata()]
-            addFieldData(model, null)
-            render(view: "uploadData", model: model)
+        def model = [uploadDataInstance: new AnalysisMetadata()]
+        addFieldData(model, null)
+        render(view: "uploadData", model: model)
+    }
+
+    def edit = {
+        def uploadDataInstance = null;
+        if (params.id) {
+            uploadDataInstance = AnalysisMetadata.get(params.id);
         }
-
-    def edit =
-        {
-            def uploadDataInstance = null;
-            if (params.id) {
-                uploadDataInstance = AnalysisMetadata.get(params.id);
-            }
-            if (!uploadDataInstance) {
-                uploadDataInstance = new AnalysisMetadata();
-            }
-            def model = [uploadDataInstance: uploadDataInstance];
-
-            addFieldData(model, uploadDataInstance);
-
-            render(view: "uploadData", model: model)
+        if (!uploadDataInstance) {
+            uploadDataInstance = new AnalysisMetadata();
         }
+        def model = [uploadDataInstance: uploadDataInstance];
+
+        addFieldData(model, uploadDataInstance);
+
+        render(view: "uploadData", model: model)
+    }
 
     def template = {
         String templatesDir = grailsApplication.config.com.recomdata.dataUpload.templates.dir;
