@@ -75,7 +75,7 @@
           items:[new Ext.Panel({
                region: "center",
                tbar: createUtilitiesMenu(helpURL, contact, appTitle,'${request.getContextPath()}', buildVer, 'utilities-div'),
-               contentEl: "header-div"
+               contentEl: "main"
               })
               ]
         });
@@ -100,12 +100,13 @@
       <g:render template="/layouts/commonheader" model="['app':'uploaddata']" />
     </div>
 
-    <g:uploadForm name="dataUpload" action="upload" method="post">
-      <g:render template="formPage1" />
-      <g:render template="formPage2" />
-      <g:hiddenField name="id" value="${uploadDataInstance?.id}"/>
-    </g:uploadForm>
-
+    <div id="main">
+      <g:uploadForm name="dataUpload" action="upload" method="post">
+        <g:render template="formPage1" />
+        <g:render template="formPage2" />
+        <g:hiddenField name="id" value="${uploadDataInstance?.id}"/>
+      </g:uploadForm>
+    </div>
 
     <!-- Browse dialog -->
     <div id="divBrowseStudies" title="Studies">
