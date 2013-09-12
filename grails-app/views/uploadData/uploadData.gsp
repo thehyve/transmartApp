@@ -29,13 +29,13 @@
     <link rel="stylesheet" href="${resource(dir:'css', file:'main.css')}">
     <link rel="stylesheet" href="${resource(dir:'css', file:'uploadData.css')}">
 
-  <!--[if IE 7]>
-    <style type="text/css">
-       div#gfilterresult,div#ptfilterresult, div#jubfilterresult, div#dqfilterresult {
-        width: 99%;
-      }
-    </style>
-  <![endif]-->
+    <!--[if IE 7]>
+      <style type="text/css">
+         div#gfilterresult,div#ptfilterresult, div#jubfilterresult, div#dqfilterresult {
+          width: 99%;
+        }
+      </style>
+    <![endif]-->
 
     <g:javascript library="prototype" />
     <script type="text/javascript" src="${resource(dir:'js', file:'ext/adapter/ext/ext-base.js')}"></script>
