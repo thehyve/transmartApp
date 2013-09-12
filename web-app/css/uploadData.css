@@ -1,6 +1,10 @@
 /* Because we're working on IE8 */
 * { opacity: inherit; filter: inherit; }
 
+#uploadArea {
+  margin-top: 25px;
+}
+
 .uploadTable > tbody > tr > td {
 	padding: 8px;
 }

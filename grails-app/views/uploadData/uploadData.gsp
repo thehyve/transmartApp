@@ -75,7 +75,7 @@
           items:[new Ext.Panel({
                region: "center",
                tbar: createUtilitiesMenu(helpURL, contact, appTitle,'${request.getContextPath()}', buildVer, 'utilities-div'),
-               contentEl: "main"
+               contentEl: "uploadArea"
               })
               ]
         });
@@ -100,7 +100,7 @@
       <g:render template="/layouts/commonheader" model="['app':'uploaddata']" />
     </div>
 
-    <div id="main">
+    <div id="uploadArea">
       <g:uploadForm name="dataUpload" action="upload" method="post">
         <g:render template="formPage1" />
         <g:render template="formPage2" />
