@@ -46,7 +46,7 @@ class AnalysisMetadata {
     static mapping = {
         table name: 'LZ_SRC_ANALYSIS_METADATA', schema: 'TM_LZ'
 
-        id column: 'ETL_ID', generator: 'sequence', params: [sequence: 'SEQ_ETL_ID']
+        id column: 'ETL_ID', generator: 'sequence', params: [schema: 'TM_LZ', sequence: 'SEQ_ETL_ID']
 
         version false
         columns {
