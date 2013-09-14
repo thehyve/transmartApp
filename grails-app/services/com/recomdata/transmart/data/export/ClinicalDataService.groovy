@@ -113,7 +113,9 @@ class ClinicalDataService {
 				sqlQuery <<= "LEFT JOIN DE_SUBJECT_SAMPLE_MAPPING ssm ON ssm.PATIENT_ID = ofa.PATIENT_NUM  "
 			}
 			
-			sqlQuery <<= "WHERE qt.RESULT_INSTANCE_ID = CAST(? AS numeric) AND ofa.SOURCESYSTEM_CD = ? AND ( ofa.MODIFIER_CD = '@' OR ofa.MODIFIER_CD = ofa.SOURCESYSTEM_CD )"
+            //MODIFIER_CD used to be used to store the study name as well
+			sqlQuery <<= "WHERE qt.RESULT_INSTANCE_ID = CAST(? AS numeric) AND ofa.SOURCESYSTEM_CD = ? " +
+                    "AND ( ofa.MODIFIER_CD = '@' OR ofa.MODIFIER_CD = ofa.SOURCESYSTEM_CD )"
 
 			if (!retrievalTypeMRNAExists && parFilterHighLevelConcepts) {
 				sqlQuery <<= " AND cd.concept_cd NOT IN (SELECT DISTINCT coalesce(sample_type_cd,'-1') as gene_expr_concept"
@@ -172,7 +174,7 @@ class ClinicalDataService {
 			def filename = (studyList?.size() > 1) ? study+'_'+fileName : fileName
 			log.debug("Retrieving Clinical data : " + sqlQuery)
 			log.debug("Retrieving Clinical data : " + parameterList)
-	
+			
 			//Only pivot the data if the parameter specifies it.
 			if(parPivotData)
 			{
@@ -216,7 +218,7 @@ class ClinicalDataService {
 				log.debug('Writing Clinical File')
 				writerUtil = new FileWriterUtil(studyDir, fileName, jobName, dataTypeName, dataTypeFolder, separator);
 				writerUtil.writeLine(getColumnNames(retrievalTypes, snpFilesMap,includeParentInfo,includeConceptContext) as String[])
-			
+				
 				rows.each { row ->
 					dataFound = true
 					def values = []
@@ -317,10 +319,12 @@ class ClinicalDataService {
 				} else {
 					compilePivotDataCommand = "source('${rScriptDirectory}/PivotData/PivotClinicalData.R')"
 				}
+				log.info "compilePivotDataCommand ${compilePivotDataCommand} '${mRNAExists}' snpExists '${snpExists}'"
 				REXP comp = c.eval(compilePivotDataCommand)
 				//Prepare command to call the PivotClinicalData.R script
 				String pivotDataCommand = "PivotClinicalData.pivot('$inputFile.name', '$snpExists', '$multipleStudies', '$study')"
 				//, '"+mRNAExists+"','"+snpExists+"'
+				log.info "pivotDataCommand '${pivotDataCommand}' mRNAExists"
 				//Run the R command to pivot the data in the clinical.i2b2trans file.
 				REXP pivot = c.eval(pivotDataCommand)
 			}
@@ -437,7 +441,8 @@ class ClinicalDataService {
 		queryToReturn <<= "INNER JOIN CONCEPT_DIMENSION C1 ON C1.CONCEPT_CD = XMAP.CONCEPT_CD "
 		queryToReturn <<= "INNER JOIN CONCEPT_DIMENSION C2 ON C2.CONCEPT_CD = XMAP.PARENT_CD "
 		queryToReturn <<= "WHERE	qt.RESULT_INSTANCE_ID = CAST(? AS numeric) "
-		queryToReturn <<= "AND		ofa.SOURCESYSTEM_CD = ? AND ( ofa.MODIFIER_CD = '@' OR ofa.MODIFIER_CD = ofa.SOURCESYSTEM_CD) "
+        //ofa.MODIFIER_CD used to be used to store the study name
+		queryToReturn <<= "AND		ofa.SOURCESYSTEM_CD = ? AND ( ofa.MODIFIER_CD = '@' OR ofa.MODIFIER_CD = ofa.SOURCESYSTEM_CD ) "
 		queryToReturn <<= "AND		ofa.CONCEPT_CD IN "
 		queryToReturn <<= "( "
 		queryToReturn <<= "		SELECT	C_BASECODE "

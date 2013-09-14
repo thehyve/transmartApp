@@ -2,23 +2,23 @@ import grails.util.Environment
 
 /*************************************************************************
  * tranSMART - translational medicine data mart
- * 
+ *
  * Copyright 2008-2012 Janssen Research & Development, LLC.
- * 
+ *
  * This product includes software developed at Janssen Research & Development, LLC.
- * 
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software  * Foundation, either version 3 of the License, or (at your option) any later version, along with the following terms:
- * 1.	You may convey a work based on this program in accordance with section 5, provided that you retain the above notices.
- * 2.	You may convey verbatim copies of this program code as you receive it, in any medium, provided that you retain the above notices.
- * 
+ * 1.    You may convey a work based on this program in accordance with section 5, provided that you retain the above notices.
+ * 2.    You may convey verbatim copies of this program code as you receive it, in any medium, provided that you retain the above notices.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
- * 
+ *
  *
  ******************************************************************/
-  
+
 
 grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
@@ -33,19 +33,17 @@ grails.project.war.file = "target/${appName}.war"
 /* we need at least servlet-api 2.4 because of HttpServletResponse::setCharacterEncoding */
 grails.servlet.version = "2.5"
 
+grails.project.dependency.resolver = "maven"
+
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {
         // uncomment to disable ehcache
         // excludes 'ehcache'
     }
-    log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
+    log "warn"
     repositories {
-        grailsPlugins()
-        grailsHome()
         grailsCentral()
-
-        mavenLocal()
         mavenCentral()
 
         if (!skipTransmartFoundationRepo()) {
@@ -58,15 +56,15 @@ grails.project.dependency.resolution = {
              * file will skip this repo. You may then include it in whatever order
              * in the externalized file. */
 
-        mavenRepo([
+            mavenRepo([
                     name: 'repo.transmartfoundation.org-public',
-                    root: 'https://repo.transmartfoundation.org/content/repositories/public/',
-        ])
-    }
+                    url: 'https://repo.transmartfoundation.org/content/repositories/public/',
+            ])
+        }
     }
     dependencies {
-		runtime 'postgresql:postgresql:9.0-801.jdbc4'
-		compile 'antlr:antlr:2.7.7'
+        runtime 'postgresql:postgresql:9.0-801.jdbc4'
+        compile 'antlr:antlr:2.7.7'
         compile 'org.transmartproject:transmart-core-api:1.0-SNAPSHOT'
         compile 'net.sf.opencsv:opencsv:2.3'
         compile "org.apache.lucene:lucene-core:2.4.0"
@@ -94,8 +92,8 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        compile ":hibernate:$grailsVersion"
-        build ':release:2.2.1', ':rest-client-builder:1.0.3'
+        compile ":hibernate:3.6.10.1"
+        build ':release:3.0.0', ':rest-client-builder:1.0.3'
 
         compile ":quartz:1.0-RC2"
         compile(":transmart-mydas:0.1-SNAPSHOT") {
@@ -104,10 +102,10 @@ grails.project.dependency.resolution = {
         compile ":rdc-rmodules:0.3-SNAPSHOT"
         compile ":spring-security-core:1.2.7.3"
         compile ":dalliance-plugin:0.1-SNAPSHOT"
-        build ":tomcat:$grailsVersion"
-        build ":build-info:1.1"
-		runtime ":prototype:1.0"
-		runtime ":jquery:1.7.1"
+        build ":tomcat:7.0.41"
+        build ":build-info:1.2.4"
+        runtime ":prototype:1.0"
+        runtime ":jquery:1.7.1"
         runtime ":transmart-core:1.0-SNAPSHOT"
         runtime ":resources:1.2"
 
@@ -128,10 +126,10 @@ if (buildConfigFile.exists()) {
             parse(buildConfigFile.toURL())
 
     /* For development, it's interesting to use the plugins in-place.
- * This allows the developer to put the grails.plugin.location.* assignments
- * in an out-of-tree BuildConfig file if they want to.
- * Snippet from https://gist.github.com/acreeger/910438
- */
+     * This allows the developer to put the grails.plugin.location.* assignments
+     * in an out-of-tree BuildConfig file if they want to.
+     * Snippet from https://gist.github.com/acreeger/910438
+     */
     slurpedBuildConfig.grails.plugin.location.each { String k, v ->
         if (!new File(v).exists()) {
             println "WARNING: Cannot load in-place plugin from ${v} as that " +
@@ -145,12 +143,12 @@ if (buildConfigFile.exists()) {
                 // remove optional version from inline definition
                 def dirPrefix = k.replaceFirst(/:.+/, '') + '-'
                 if (dir.name.startsWith(dirPrefix)) {
-                println "WARNING: Found a plugin directory at $dir that is a " +
-                        "possible conflict and may prevent grails from using " +
-                        "the in-place $k plugin."
+                    println "WARNING: Found a plugin directory at $dir that is a " +
+                            "possible conflict and may prevent grails from using " +
+                            "the in-place $k plugin."
+                }
             }
         }
-    }
     }
 
     /* dependency resolution in external BuildConfig */
