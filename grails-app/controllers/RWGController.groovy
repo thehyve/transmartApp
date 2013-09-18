@@ -75,12 +75,11 @@ class RWGController {
         }
         parent["id"] = id
 
-        //TODO GWAS
         // create the key that matches what we use in javascript to identify search terms
         // assuming for now that the category and the category display are the same (with category being all caps); may
         // need to break this out into separate fields
-        //parent["key"] = categoryName + "|" + categoryName.toUpperCase() + ":" + parentNode.termName + ":" + id
-        //parent["categoryName"] = categoryName + "|" + categoryName.toUpperCase()
+        parent["key"] = categoryName + "|" + categoryName.toUpperCase() + ":" + parentNode.termName + ":" + id
+        parent["categoryName"] = categoryName + "|" + categoryName.toUpperCase()
 
         // if category, then display as folder and don't show checkbox; other levels, not a folder and show checkbox
         parent["isFolder"] = isCategory
@@ -147,14 +146,6 @@ class RWGController {
                 addDynaNode(childNode, children, false, categoryName, uniqueTreeId + ":" + childIndex, initialFacetCounts)
                 childIndex++
             }
-        }
-
-        // don't add categories without children to tree
-        if (isCategory && (children.length() == 0)) {
-            //TODO GWAS
-            //Removing this for now, we won't have any children in our tree. We are doing browse popups.
-            //return
-            return
         }
 
         // add children to parent map
@@ -680,16 +671,14 @@ class RWGController {
 
         if (genesList.size > 0) {
             newGeneString = /${genesField}:${genesList.join('|')}/
-            //TODO GWAS: Commenting this out, we don't have to worry about signifigance just yet.
+            //Commenting this out, we don't have to worry about signifigance just yet.
             //newParams.add newGeneString
-            newParams.add newGeneString
         }
 
         log.info("Gene parameter: ${newParams}")
         return ['errorMsg': errorMsg, 'newParams': newParams]
     }
 
-    //NOTE GWAS: Get analyses for current SOLR query and store them in session
     def getFacetResultsForTable = {
 
         def queryParams = request.getParameterValues('q') as List
@@ -886,9 +875,8 @@ class RWGController {
     // Return search keywords
     def searchAutoComplete = {
         def category = params.category == null ? "ALL" : params.category
-        //TODO GWAS has pagination parameter (3d in findSearchKeywords)
-        //def max = params.long('max') ?: 15
-        render searchKeywordService.findSearchKeywords(category, params.term) as JSON
+        def max = params.long('max') ?: 15
+        render searchKeywordService.findSearchKeywords(category, params.term, max) as JSON
     }
 
     // Load the search results for the given search terms using the new annotation tables
@@ -938,7 +926,7 @@ class RWGController {
         return html
     }
 
-    //TODO GWAS: Load the search results for the given search terms using the new annotation tables
+    //Load the search results for the given search terms using the new annotation tables
     // return the html string to be rendered for the results panel
     def loadSearchResultsGWAS = {studyCounts, startTime ->
         def exprimentAnalysis = [:]

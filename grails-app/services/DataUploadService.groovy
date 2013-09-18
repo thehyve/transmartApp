@@ -141,11 +141,11 @@ public class DataUploadService{
 		
 			def etlPath = ConfigurationHolder.config.com.recomdata.dataUpload.etl.dir
 			def stageScript = ConfigurationHolder.config.com.recomdata.dataUpload.stageScript
-			ProcessBuilder pb = new ProcessBuilder(etlPath + stageScript, String.valueOf(etlId));
-			pb.directory(new File(new File(etlPath).getCanonicalPath()))
-			
-			pb.start()
-		
+
+            def cmd = """sh $etlPath$stageScript $etlId"""
+            def proc = cmd.execute()
+            proc.waitFor()
+            log.debug("$stageScript returns ${proc.exitValue()} code. ${proc.err?.text ?: proc.in.text}")
 	}
 }
 
