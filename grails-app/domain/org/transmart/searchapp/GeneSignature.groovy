@@ -23,8 +23,7 @@ import org.transmart.biomart.Compound
 import org.transmart.biomart.ConceptCode
 
 import org.transmart.biomart.BioAssayPlatform;
-import org.transmart.biomart.CellLine;
-import org.transmart.searchapp.SearchKeyword
+import org.transmart.biomart.CellLine
 import com.recomdata.util.IDomainExcelWorkbook
 import com.recomdata.util.ExcelSheet
 import com.recomdata.util.ExcelGenerator
@@ -56,7 +55,7 @@ class GeneSignature implements Cloneable, IDomainExcelWorkbook {
 	ConceptCode analysisMethodConceptCode
 	String analysisMethodOther
     boolean multipleTestingCorrection = false
-	ConceptCode pValueCutoffConceptCode
+	ConceptCode pvalueCutoffConceptCode
 	String uniqueId
 	Date dateCreated
 	AuthUser createdByAuthUser
@@ -108,7 +107,7 @@ class GeneSignature implements Cloneable, IDomainExcelWorkbook {
 			analysisMethodConceptCode column:'ANALYSIS_METHOD_CONCEPT_ID'
 			analysisMethodOther column:'ANALYSIS_METHOD_OTHER'
 			multipleTestingCorrection column:'MULTIPLE_TESTING_CORRECTION'
-			pValueCutoffConceptCode column:'P_VALUE_CUTOFF_CONCEPT_ID'
+			pvalueCutoffConceptCode column:'P_VALUE_CUTOFF_CONCEPT_ID'
 			uniqueId column:'UNIQUE_ID'
 			dateCreated column:'CREATE_DATE'
 			createdByAuthUser column:'CREATED_BY_AUTH_USER_ID'
@@ -243,7 +242,7 @@ class GeneSignature implements Cloneable, IDomainExcelWorkbook {
 		if (analysisMethodConceptCode?.id) params.put("analysisMethodConceptCode.id",analysisMethodConceptCode?.id)
 		params.put("analysisMethodOther",analysisMethodOther)
 		params.put("multipleTestingCorrection",multipleTestingCorrection)
-		if (pValueCutoffConceptCode?.id) params.put("pValueCutoffConceptCode.id",pValueCutoffConceptCode?.id)
+		if (pvalueCutoffConceptCode?.id) params.put("pvalueCutoffConceptCode.id",pvalueCutoffConceptCode?.id)
 		params.put("uniqueId",uniqueId)
 		params.put("publicFlag",publicFlag)
 		params.put("deletedFlag",deletedFlag)
@@ -292,7 +291,7 @@ class GeneSignature implements Cloneable, IDomainExcelWorkbook {
 		gs.analysisMethodConceptCode=analysisMethodConceptCode
 		gs.analysisMethodOther=analysisMethodOther
 		gs.multipleTestingCorrection=multipleTestingCorrection
-		gs.pValueCutoffConceptCode=pValueCutoffConceptCode
+		gs.pvalueCutoffConceptCode=pvalueCutoffConceptCode
 		gs.uniqueId=null
 		gs.publicFlag=publicFlag
 		gs.deletedFlag=deletedFlag
@@ -400,7 +399,7 @@ class GeneSignature implements Cloneable, IDomainExcelWorkbook {
 		values.add(["Analysis Method:",descr])
 
 		values.add(["Multiple Testing Correction?", (multipleTestingCorrection!=null) ? (multipleTestingCorrection==1?"Yes":"No") : ""])
-		values.add(["P-value Cutoff:",pValueCutoffConceptCode?.codeName])
+		values.add(["P-value Cutoff:",pvalueCutoffConceptCode?.codeName])
 		values.add(["Fold-change metric:",foldChgMetricConceptCode?.codeName])
 		values.add(["Original upload file:",uploadFile])
 		

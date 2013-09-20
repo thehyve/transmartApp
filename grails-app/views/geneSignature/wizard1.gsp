@@ -46,7 +46,7 @@
 			if(species.value=="null") errorMsg = errorMsg + "\n- Please select a relevant species";
 
 			//p-value cutoff required
-			var cutoff = document.forms[formName].elements['pValueCutoffConceptCode.id'];
+			var cutoff = document.forms[formName].elements['pvalueCutoffConceptCode.id'];
 			if(cutoff.value=="null") errorMsg += "\n- Please select a p-value cutoff";
 
 			//file schema
@@ -222,9 +222,9 @@
 			<tr class="prop">
 				<td class="name">P-value Cutoff<g:requiredIndicator/></td>
 				<td class="value">
-					<g:select name="pValueCutoffConceptCode.id"
+					<g:select name="pvalueCutoffConceptCode.id"
 	    				      from="${wizard.pValCutoffs}"
-	    				      value="${gs.pValueCutoffConceptCode?.id}"
+	    				      value="${gs.pvalueCutoffConceptCode?.id}"
 	         				  noSelection="['null':'select p-value cutoff']"
 	         				  optionValue="codeName"
 	         				  optionKey="id" />

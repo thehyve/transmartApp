@@ -24,7 +24,7 @@
 	<tbody>
 		<g:each in="${layout}" var="layoutRow">
 			<%-- Special cases: only display cutoffs if this is a comparison --%>
-			<g:if test="${(!layoutRow.column.equals('pValueCutoff') && !layoutRow.column.equals('foldChangeCutoff')) || 'comparison'.equals(analysis.analysisMethodCode)}">
+			<g:if test="${(!layoutRow.column.equals('pvalueCutoff') && !layoutRow.column.equals('foldChangeCutoff')) || 'comparison'.equals(analysis.analysisMethodCode)}">
 				<tr class="columnprop">
 				
 					<g:if test="${analysis.assayDataType.equals('EQTL') && layoutRow.column.equals('phenotypes')}">

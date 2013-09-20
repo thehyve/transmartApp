@@ -1,3 +1,4 @@
+import grails.util.Holders
 import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -136,16 +137,24 @@ public class DataUploadService{
 			}
 		}
 	}
-	
-	def runStaging(etlId) throws Exception {
-		
-			def etlPath = ConfigurationHolder.config.com.recomdata.dataUpload.etl.dir
-			def stageScript = ConfigurationHolder.config.com.recomdata.dataUpload.stageScript
 
-            def cmd = """sh $etlPath$stageScript $etlId"""
+    def runStaging(etlId) {
+        assert etlId
+
+        def etlPath = Holders.config.com.recomdata.dataUpload.etl.dir
+        def stageScript = Holders.config.com.recomdata.dataUpload.stageScript
+        //ProcessBuilder
+        def scriptFile = new File(etlPath, stageScript)
+        if (scriptFile.exists()) {
+            def cmd = """sh ${scriptFile.absolutePath} $etlId"""
             def proc = cmd.execute()
-            proc.waitFor()
-            log.debug("$stageScript returns ${proc.exitValue()} code. ${proc.err?.text ?: proc.in.text}")
-	}
+            proc.in.eachLine { line -> println line }
+            if(proc.exitValue() > 0) {
+                throw new RuntimeException("Etl completed with errors")
+            }
+        } else {
+            throw new RuntimeException("Script does not exist in specidfied folder: ${scriptFile.absolutePath}")
+        }
+    }
 }
 

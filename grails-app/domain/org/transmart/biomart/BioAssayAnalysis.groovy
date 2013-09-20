@@ -25,8 +25,6 @@
  */
 package org.transmart.biomart
 
-import org.transmart.biomart.ContentReference;
-
 import com.recomdata.util.IExcelProfile
 
 class BioAssayAnalysis implements IExcelProfile {
@@ -38,7 +36,7 @@ class BioAssayAnalysis implements IExcelProfile {
 	String analystId
 	Long id
 	Double foldChangeCutoff
-	Double pValueCutoff
+	Double pvalueCutoff
 	Double rValueCutoff
 	BioAssayAnalysisPlatform analysisPlatform
 	String assayDataType
@@ -66,7 +64,7 @@ class BioAssayAnalysis implements IExcelProfile {
 			id column:'BIO_ASSAY_ANALYSIS_ID'
 			etlId column:'ETL_ID'
 			foldChangeCutoff column:'FOLD_CHANGE_CUTOFF'
-			pValueCutoff column:'PVALUE_CUTOFF'
+			pvalueCutoff column:'PVALUE_CUTOFF'
 			rValueCutoff column:'RVALUE_CUTOFF'
 			analysisPlatform column:'BIO_ASY_ANALYSIS_PLTFM_ID'
 			type column:'ANALYSIS_TYPE'
@@ -91,7 +89,7 @@ class BioAssayAnalysis implements IExcelProfile {
 		qaCriteria(nullable:true, maxSize:4000)
 		analystId(nullable:true, maxSize:1020)
 		foldChangeCutoff(nullable:true)
-		pValueCutoff(nullable:true)
+		pvalueCutoff(nullable:true)
 		rValueCutoff(nullable:true)
 		analysisPlatform(nullable:true)
 		type(nullable:true, maxSize:400)
@@ -109,6 +107,6 @@ class BioAssayAnalysis implements IExcelProfile {
 	 * Get values to Export to Excel
 	 */
 	public List getValues() {
-		return [shortDescription, longDescription, pValueCutoff, foldChangeCutoff, qaCriteria, analysisPlatform == null ? "" : analysisPlatform.platformName, analysisMethodCode, assayDataType]
+		return [shortDescription, longDescription, pvalueCutoff, foldChangeCutoff, qaCriteria, analysisPlatform == null ? "" : analysisPlatform.platformName, analysisMethodCode, assayDataType]
 	}
 }

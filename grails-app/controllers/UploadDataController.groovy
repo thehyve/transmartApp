@@ -80,7 +80,6 @@ class UploadDataController {
     }
 
     def upload = {
-        def paramMap = params
         def upload = null;
         if (params.id) {
             upload = AnalysisMetadata.get(params.id)
@@ -121,26 +120,19 @@ class UploadDataController {
             upload.expressionPlatformIds = "";
         }
 
-        def f = null;
-        def filename = null;
-        def uploadsDir = null;
-        f = request.getFile('file');
-
-        if (f && !f.isEmpty()) {
-            uploadsDir = grailsApplication.config.com.recomdata.dataUpload.uploads.dir;
-
-            upload.etlDate = new Date()
-            filename = sdf.format(upload.etlDate) + f.getOriginalFilename()
-            upload.filename = uploadsDir + "/" + filename
-        }
+        def f = request.getFile('file');
 
         //Save the uploaded file, if any
         def result = new DataUploadResult();
 
         if (f && !f.isEmpty()) {
-            def fullpath = uploadsDir + "/" + filename
+            def uploadsDir = grailsApplication.config.com.recomdata.dataUpload.uploads.dir
+
+            upload.etlDate = new Date()
+            def filename = sdf.format(upload.etlDate) + f.getOriginalFilename()
+            upload.filename = new File(uploadsDir, filename).absolutePath
             try {
-                result = dataUploadService.writeFile(fullpath, f, upload)
+                result = dataUploadService.writeFile(upload.filename, f, upload)
                 if (!result.success) {
                     upload.status = "ERROR"
                     upload.save(flush: true)
@@ -152,7 +144,7 @@ class UploadDataController {
                 upload.status = "ERROR"
                 upload.save(flush: true)
                 result = new DataUploadResult(success: false, error: "Could not verify file: " + e.getMessage());
-                render(view: "complete", model: [result: result, uploadDataInstance: upload]);
+                render(view: "complete", model: [result: result, uploadDataInstance: upload])
                 return
             }
 
@@ -172,15 +164,14 @@ class UploadDataController {
         if (result.success) {
             try {
                 dataUploadService.runStaging(upload.id);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.error(e.getMessage(), e)
+                result = new DataUploadResult(success: false, error: "Could not upload data: " + e.getMessage());
             }
         }
 
         if (upload.hasErrors()) {
             flash.message = "The metadata could not be saved - please correct the highlighted errors."
-            def errors = upload.errors
             def model = [uploadDataInstance: upload]
             addFieldData(model, upload)
             render(view: "uploadData", model: model)

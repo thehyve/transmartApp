@@ -66,7 +66,7 @@ class ExperimentController {
 		def experiments = Experiment.listOrderByTitle()
 		
 		experiments.sort({a, b ->
-			return a.title.trim().compareToIgnoreCase(b.title.trim());
+			return a.title?.trim()?.toLowerCase() <=> b.title?.trim()?.toLowerCase()
 		})
 		
 		return experiments

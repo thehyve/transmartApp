@@ -37,7 +37,7 @@ class AnalysisMetadata {
     String cellType
     String modelName
     String modelDescription
-    Double pValueCutoff
+    String pvalueCutoff
     Date etlDate
     Date processDate
     String filename
@@ -65,7 +65,7 @@ class AnalysisMetadata {
             researchUnit column: 'RESEARCH_UNIT'
             sampleSize column: 'SAMPLE_SIZE'
             cellType column: 'CELL_TYPE'
-            pValueCutoff column: 'PVALUE_CUTOFF'
+            pvalueCutoff column: 'PVALUE_CUTOFF'
             etlDate column: 'ETL_DATE'
             filename column: 'FILENAME'
             status column: 'STATUS'
@@ -89,7 +89,7 @@ class AnalysisMetadata {
         researchUnit(nullable: true)
         sampleSize(nullable: true)
         cellType(nullable: true)
-        pValueCutoff(nullable: true)
+        pvalueCutoff(nullable: true)
         etlDate(nullable: true)
         filename(nullable: true)
         status(nullable: true)

@@ -162,7 +162,7 @@
         P-value cutoff &lt;=
       </td>
       <td>
-        <g:textField name="pValueCutoff" value="${uploadDataInstance.pValueCutoff}"/>
+        <g:textField name="pvalueCutoff" value="${uploadDataInstance.pvalueCutoff}"/>
       </td>
     </tr>
     <tr class="borderbottom">
