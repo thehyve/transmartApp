@@ -739,10 +739,11 @@ class RWGController {
         // Clock starts running now!
 
         // determine whether we have set the showAllResults param
-        boolean showSigGenesOnly = true
+        boolean showSigGenesOnly = false
+        /*boolean showSigGenesOnly = true
         if (request.getParameter('showSignificantResults') && request.getParameter('showSignificantResults').toLowerCase() == 'false') {
             showSigGenesOnly = false
-        }
+        }*/
 
         // q params are filtered on but not faceted
         def queryParams = request.getParameterValues('q')
@@ -827,7 +828,8 @@ class RWGController {
     private getInitialFacetResults = {List categoriesList ->
         // initial state of the significant field is checked, so need to add the search field to the SOLR query to get the initial facet coutns
         //  and save the search term to the session variable so that is applied to the query to get the analysis list
-        def queryParams = ["ANY_SIGNIFICANT_GENES:1"]
+        //def queryParams = ["ANY_SIGNIFICANT_GENES:1"]
+        def queryParams = []
         session['solrSearchFilter'] = queryParams
         log.info("Initial facet search: " + queryParams)
 

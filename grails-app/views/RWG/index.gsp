@@ -92,6 +92,7 @@
 	        var getCategoriesURL = "${createLink([action:'getSearchCategories'])}";
 	        var getHeatmapNumberProbesURL = "${createLink([action:'getHeatmapNumberProbes'])}";
 	        var getHeatmapDataURL = "${createLink([action:'getHeatmapData'])}";
+            var getAnalysisDataURL = "${createLink([controller:'search',action:'getAnalysisResults'])}";
 	        var getHeatmapDataForExportURL = "${createLink([action:'getHeatmapDataForExport2'])}";
 	        var getBoxPlotDataURL = "${createLink([action:'getBoxPlotData'])}";
             var getBoxPlotDataCTAURL = "${createLink([action:'getBoxPlotDataCTA'])}";

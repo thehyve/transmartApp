@@ -1291,7 +1291,7 @@ public class SearchController{
 				def temporaryList = []
 				
 				//The third element is our large text field. Split it into an array, leaving trailing empties.
-				def largeTextField = it[3].split(";", -1)
+				def largeTextField = (it[3] ?: '').split(";", -1)
 				
 				//This will be the array that is reordered according to the meta-data index table.
 				String[] newLargeTextField = new String[largeTextField.size()]

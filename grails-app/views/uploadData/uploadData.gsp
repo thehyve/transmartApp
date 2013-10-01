@@ -44,7 +44,8 @@
     <script type="text/javascript" src="${resource(dir:'js', file:'searchcombobox.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js', file:'picklist.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js', file:'utilitiesMenu.js')}"></script>
-    <script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery-1.7.1.min.js')}"></script>
+    <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery.min.js')}"></script>
+    <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery-ui.min.js')}"></script>
     <script type="text/javascript">$j = jQuery.noConflict();</script>
     <script type="text/javascript" src="${resource(dir:'js', file:'uploadData.js')}"></script>
     <script type="text/javascript" charset="utf-8">

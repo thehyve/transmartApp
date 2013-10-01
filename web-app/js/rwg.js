@@ -885,6 +885,9 @@ function exportBoxPlotData(analysisId, exportType)
 		drawBoxPlotD3('boxplotAnalysis_'+analysisId, data, analysisId, false, false, null);
 		
 		break;
+    case 'btnResultsExport':
+        jQuery('#resultsExportOpts_' + analysisID).toggle();
+        break;
 	default:
 		console.log('Error - invalid Export option');
 	}
@@ -1508,7 +1511,7 @@ function getRank(P, N)	{
 
 
 // Show the heatmap visualization 
-function showVisualization(analysisID, changedPaging)	{		
+function showVisualization(analysisID, changedPaging, assayDataType)	{
 	var analysisHeaderDiv = "#TrialDetail_" + analysisID + "_anchor"
 	var divID = "#analysisDiv_" + analysisID;
 	var divID2 = "analysisDiv_" + analysisID;
@@ -1544,12 +1547,18 @@ function showVisualization(analysisID, changedPaging)	{
 				// sync the local probes per page setting with the global one if not re-loading because of changed paging
 				probesPerPageElementGlobal = document.getElementById("probesPerPage");
 				probesPerPageElementHeatmap = document.getElementById("probesPerPage_"+analysisID);
-				probesPerPageElementHeatmap.selectedIndex = probesPerPageElementGlobal.selectedIndex;
+                if(probesPerPageElementHeatmap) {
+                    probesPerPageElementHeatmap.selectedIndex = probesPerPageElementGlobal.selectedIndex;
+                }
 		    }
 
 			jQuery(loadingDiv).mask("Loading...");
-			loadHeatmapPaginator(divID2, analysisID, 1);			
-		}		
+            if(assayDataType == 'GWAS') {
+                loadAnalysisResultsGrid(analysisID, {'max': 10, 'offset': 0, 'cutoff': 0, 'search': "", 'sortField': "", "order": "asc"});
+            } else {
+                loadHeatmapPaginator(divID2, analysisID, 1);
+            }
+		}
 		jQuery(hmFlagDiv).val("1");
 	} else	{
 		var src = jQuery(imgExpand).attr('src').replace('up_arrow_small2.png', 'down_arrow_small2.png');
@@ -1564,6 +1573,27 @@ function showVisualization(analysisID, changedPaging)	{
 		
 	} 	
 	return false;
+}
+
+// This function will load the analysis data into a GRAILS template.
+function loadAnalysisResultsGrid(analysisID, paramMap) {
+    paramMap.analysisId = analysisID
+    jQuery('#analysis_results_table_' + analysisID + '_wrapper').empty().addClass('ajaxloading');
+    jQuery.ajax({
+        "url": getAnalysisDataURL,
+        bDestroy: true,
+        bServerSide: true,
+        data: paramMap,
+        "success": function (jqXHR) {
+            jQuery('#analysis_holder_' + analysisID).unmask();
+            jQuery('#analysis_results_table_' + analysisID + '_wrapper').html(jqXHR).removeClass('ajaxloading');
+        },
+        "error": function (jqXHR, error, e) {
+            jQuery('#analysis_results_table_' + analysisID + '_wrapper').html(jqXHR).removeClass('ajaxloading');
+            jQuery('#analysis_holder_' + analysisID).unmask();
+        },
+        "dataType": "html"
+    });
 }
 
 // Make a call to the server to load the heatmap data

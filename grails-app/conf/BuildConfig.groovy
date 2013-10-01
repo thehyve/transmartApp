@@ -46,7 +46,7 @@ grails.project.dependency.resolution = {
         grailsCentral()
         mavenCentral()
 
-        if (!skipTransmartFoundationRepo()) {
+        if (delegate.hasProperty('skipTransmartFoundationRepo')) {
             /* Allow skipping the tranSMART foundation repository.
              * We read extra repositories in the very limited externalized
              * BuildConfig.groovy (see below), but they are append to this list.
@@ -70,8 +70,6 @@ grails.project.dependency.resolution = {
         compile "org.apache.lucene:lucene-core:2.4.0"
         compile "org.apache.lucene:lucene-demos:2.4.0"
         compile "org.apache.lucene:lucene-highlighter:2.4.0"
-
-        compile 'org.transmartproject:transmart-core-api:1.0-SNAPSHOT'
 
         /* we need at least servlet-api 2.4 because of HttpServletResponse::setCharacterEncoding */
         compile "javax.servlet:servlet-api:$grails.servlet.version" /* delete from the WAR afterwards */
@@ -120,8 +118,6 @@ grails.war.resources = { stagingDir ->
     delete(file: "${stagingDir}/WEB-INF/lib/servlet-api-${grails.servlet.version}.jar")
 }
 
-grails.project.dependency.resolution.metaClass.skipTransmartFoundationRepo = { false }
-
 def buildConfigFile = new File("${userHome}/.grails/${appName}Config/" +
         "BuildConfig.groovy")
 if (buildConfigFile.exists()) {
@@ -163,7 +159,7 @@ if (buildConfigFile.exists()) {
         grails.project.dependency.resolution = {
             originalDepRes.delegate        = extraDepRes.delegate        = delegate
             originalDepRes.resolveStrategy = extraDepRes.resolveStrategy = resolveStrategy
-            originalDepRes.metaClass.skipTransmartFoundationRepo = { true }
+            delegate.metaClass.skipTransmartFoundationRepo = true
             originalDepRes.call(it)
             extraDepRes.call(it)
         }

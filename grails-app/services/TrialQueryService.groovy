@@ -469,7 +469,7 @@ class TrialQueryService {
 		def analysisList = []
  
 		// retrieve the descriptions for each analysis
-		def results = org.transmart.biomart.BioAssayAnalysis.executeQuery("select b.id, b.shortDescription, b.longDescription " +
+		def results = org.transmart.biomart.BioAssayAnalysis.executeQuery("select b.id, b.shortDescription, b.longDescription, b.assayDataType " +
 			" from org.transmart.biomart.BioAssayAnalysis b" +
 			" where b.id in (" + analysisIds.join(',') +  ") ORDER BY b.longDescription")
  
@@ -487,7 +487,7 @@ class TrialQueryService {
 			}
 			
 			// create a map for each record
-			def aMap = ['id':r[0], 'shortDescription':r[1], 'longDescription':r[2], 'isTimeCourse':isTimeCourse, 'studyID':trialNumber]
+			def aMap = ['id':r[0], 'shortDescription':r[1], 'longDescription':r[2], 'isTimeCourse':isTimeCourse, 'studyID':trialNumber, 'assayDataType':r[3]]
 					   
 			analysisList.add aMap
 		}
