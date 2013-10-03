@@ -96,7 +96,7 @@ grails.project.dependency.resolution = {
         build ':release:3.0.0', ':rest-client-builder:1.0.3'
 
         compile ":quartz:1.0-RC2"
-        compile(":transmart-mydas:0.1-SNAPSHOT") {
+        compile(":transmart-mydas:0.1-gwas-SNAPSHOT") {
             excludes 'lucene-core'
         }
         compile ":rdc-rmodules:0.3-SNAPSHOT"
