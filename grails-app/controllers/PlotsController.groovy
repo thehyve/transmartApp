@@ -20,7 +20,12 @@ class PlotsController {
         def imageFile = new File(getPlotsDir(), "mplot_${params.id}.png")
         if(imageFile.exists()) {
             response.contentType = 'image/png'
-            response.outputStream << imageFile.newInputStream()
+            def imageInputStream = imageFile.newInputStream()
+            try {
+                response.outputStream << imageInputStream
+            } finally {
+                imageInputStream.close()
+            }
         } else {
             response.status = 404
         }
