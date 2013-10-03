@@ -21,6 +21,7 @@ package com.recomdata.transmart.data.export;
 import java.util.List;
 
 import de.DeVariantDataSet;
+import de.DeVariantPopulationData;
 import de.DeVariantSubjectDetail;
 import de.DeVariantSubjectIdx;
 import com.recomdata.transmart.data.export.util.FileWriterUtil;
@@ -31,34 +32,34 @@ class VcfDataService {
 	def snpRefDataService
 	def dataSource
 	def VCF_V4_1_HEADER_LINE ="#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT"
-	
-	def boolean getDataAsFile(
-		String outputDir,
-		String jobName,
-		List studyList,
-	String resultInstanceId1,
-	//String resultInstanceId2,
-	String selectedSNPs,
-	String selectedGenes,
-	String selectedChromosomes,
-	String subjectPrefix){
 
-		def rsList = []
+    def boolean getDataAsFile(
+            String outputDir,
+            String jobName,
+            List studyList,
+            String resultInstanceId1,
+            //String resultInstanceId2,
+            String selectedSNPs,
+            String selectedGenes,
+            String selectedChromosomes,
+            String subjectPrefix) {
+
+        def rsList = []
 		def chrList =[]
 		def geneNameList = [];
 		// create query to find gene to snps
-		if(selectedGenes!=null&& selectedGenes.trim().length()>0){
+		if(selectedGenes != null && selectedGenes.trim().length() > 0){
 			// ToDo- parse gene list
 			//def geneList = parseGeneList(selectedGenes)
 		//	def geneList = parseGeneList(["BRCA1"])
 			List<Long> geneSearchIdList = new ArrayList<Long>();
-			
+
 			if (selectedGenes != null && selectedGenes.length() != 0) {
-				
+
 				geneNameList = parseGeneList(selectedGenes, null, geneSearchIdList);
 				//println(selectedGenes)
 				//println(geneNameList)
-				
+
 			rsList.addAll(snpRefDataService.findRsIdByGeneNames(geneNameList))
 			}
 
