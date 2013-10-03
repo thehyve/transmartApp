@@ -33,6 +33,10 @@ class VcfDataService {
     def dataSource
     def VCF_V4_1_HEADER_LINE = "#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT"
 
+    def getSummaryMAF(String datasetId) {
+        DeVariantPopulationData.getSummaryMAF(datasetId)
+    }
+
     def boolean getDataAsFile(
             String outputDir,
             String jobName,

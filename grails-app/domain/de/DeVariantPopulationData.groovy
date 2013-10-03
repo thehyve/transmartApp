@@ -21,4 +21,9 @@ class DeVariantPopulationData {
             position column: 'POS'
         }
     }
+
+    static def getSummaryMAF(datasetId) {
+        //TODO JOIN rs_id field from de_variant_subject_detail
+        findAllByDatasetId(datasetId)
+    }
 }
