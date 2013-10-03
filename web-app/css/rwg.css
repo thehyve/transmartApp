@@ -1291,6 +1291,9 @@ overflow:auto;
 max-height:500px;
 }
 
+.plot-image {
+    margin: 15px;
+}
 
 /*** End Home Screen ***/
 

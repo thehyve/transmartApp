@@ -31,6 +31,7 @@
 	       <ul>
                <g:if test="${assayDataType == 'GWAS'}">
                    <li><a href="#results_${analysisId}">Analysis Results</a></li>
+                   <li><a href="#mplot_${analysisId}">Manhattan plot</a></li>
                </g:if>
                <g:else>
                    <li><a href="#heatmap_${analysisId}">Heatmap</a></li>
@@ -59,6 +60,9 @@
                         </div>
 
                     </div>
+                </div>
+                <div id="mplot_${analysisId}">
+                    <g:img class="plot-image" uri="/plots/mplot/${analysisId}" width="600"></g:img>
                 </div>
             </g:if>
             <g:else>
