@@ -73,24 +73,24 @@ class VcfDataService {
 			chrList.addAll(parseChrList(selectedChromosomes));
 		}
 
-		
+
 		// locate dataset
-		
+
 		def datasets = findDataset(resultInstanceId1, null);
-		
+
 
 		// locate and retrieve variant
-				
+
 		def variants = retrieveVariantDetail(rsList, chrList, datasets)
-		
+
 		def dsSubjectIdxMap = [:]
 		def dsSubHeaderColMap=[:]
 		// create subset 1 subject id query
-		
+
 		def s1 = [:]
 		if(resultInstanceId1!=null)
 			s1 = findSubjectIdx(resultInstanceId1)
-	
+
 		// create subset 2 subject id query
 
 		def s2 =[:]
@@ -122,12 +122,12 @@ class VcfDataService {
 				dsSubHeaderColMap.get(k).add(subjectPrefix+key)
 				}
 			}
-			
+
 			// construct VCFdata file
 		def vsnpset =	constructVCFfile(variants, datasets, dsSubjectIdxMap, dsSubHeaderColMap, outputDir, jobName,subjectPrefix)
 		println(vsnpset)
 		constructVCFParamFile(outputDir, geneNameList, new ArrayList(vsnpset), chrList,jobName)
-		
+
 
 		return true;
 	}
@@ -238,7 +238,7 @@ class VcfDataService {
 		}
 		// loop through variant data and use the dataset writer to output data
 		
-		println("variant length:"+variants.size())
+		println("variant length:" + variants.size())
 		variants.each {
 			
 			StringBuilder variant = new StringBuilder()
