@@ -237,7 +237,8 @@ class RegionSearchService {
 
         def analysisNameMap = [:]
 
-        if (!ranges) {
+        //FIXME Comment for now
+        /*if (!ranges) {
             hg19only = true;
         } else {
             hg19only = true; // default to true
@@ -249,7 +250,7 @@ class RegionSearchService {
                     break;
                 }
             }
-        }
+        }*/
 
         if (type.equals("gwas")) {
             analysisQuery = gwasSqlQuery
@@ -357,7 +358,7 @@ class RegionSearchService {
             } else {
                 queryCriteria.append(" OR gmap.gene_name LIKE '%${search}%'");
             }
-            queryCriteria.append(" OR info.pos LIKE '%${search}%'")
+            queryCriteria.append(" OR (info.pos || '') LIKE '%${search}%'")
             queryCriteria.append(" OR info.chrom LIKE '%${search}%'")
             if (type.equals("eqtl")) {
                 queryCriteria.append(" OR data.gene LIKE '%${search}%'")

@@ -872,8 +872,6 @@ text-decoration: none;
 }
 
 .vis-toolBar{
-	
-	float:right;
 	margin-top:-1px;
 }
 
@@ -1293,6 +1291,9 @@ overflow:auto;
 max-height:500px;
 }
 
+.plot-image {
+    margin: 15px;
+}
 
 /*** End Home Screen ***/
 

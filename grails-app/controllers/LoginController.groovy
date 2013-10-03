@@ -95,21 +95,17 @@ class LoginController {
             }
         }
 
-        // patch for null pointer exception, see JIRA: http://transmartproject.org/jira/browse/TMPSTGSQL-146
-        boolean isLoggedIn = false;
-        try {
-            isLoggedin = springSecurityService.isLoggedIn()
-        } catch (Throwable ignore) {}
+        boolean isLoggedIn = springSecurityService.isLoggedIn()
 
         if (isLoggedIn) {
             redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
         } else {
-            String ivUrl = grailsApplication.config.com.recomdata.searchtool.identityVaultURL
-            boolean ivLogin = ivUrl.length() > 5
-            log.info("Identity Vault login set? : " + ivLogin)
+            def ivUrl = grailsApplication.config.com.recomdata.searchtool.identityVaultURL
+            boolean doIvLogin = ivUrl /* false if config option undefined or has falsy value */
+            log.info("Identity Vault login set? : " + doIvLogin)
 
             log.info("User is forcing the form login? : " + forcedFormLogin)
-            if (!ivLogin || forcedFormLogin) {
+            if (!doIvLogin || forcedFormLogin) {
                 log.info("Proceeding with form login")
                 render view: 'auth', model: [postUrl: request.contextPath + SpringSecurityUtils.securityConfig.apf.filterProcessesUrl]
             } else {
