@@ -4,12 +4,12 @@ class DeVariantPopulationData {
     Integer id
     String chromosome
     Integer position
-    String dataset_id
-    Float float_value
-    Integer integer_value
-    String text_value
-    Integer info_index
-    String info_name
+    String datasetId
+    Float floatValue
+    Integer integerValue
+    String textValue
+    Integer infoIndex
+    String infoName
 
     static mapping = {
         table 'DE_VARIANT_POPULATION_DATA'
