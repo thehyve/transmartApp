@@ -62,7 +62,7 @@
                     </div>
                 </div>
                 <div id="mplot_${analysisId}">
-                    <g:img class="plot-image" uri="/plots/mplot/${analysisId}" width="600"></g:img>
+                    <g:img class="plot-image" uri="/plots/mplot/${analysisId}"></g:img>
                 </div>
             </g:if>
             <g:else>
