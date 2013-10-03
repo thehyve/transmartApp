@@ -61,8 +61,7 @@ class RegionSearchService {
 """
     //Query with mad Oracle pagination
     def gwasSqlQuery = """
-		SELECT a.*
-		  FROM (SELECT   _analysisSelect_ info.chrom AS chrom,
+	                    SELECT   _analysisSelect_ info.chrom AS chrom,
 		                 info.pos AS pos, gmap.gene_name AS rsgene,
 		                 DATA.rs_id AS rsid, DATA.p_value AS pvalue,
 		                 DATA.log_p_value AS logpvalue, DATA.ext_data AS extdata
@@ -75,8 +74,7 @@ class RegionSearchService {
 		                 WHERE 1=1
 	"""
     def gwasHg19SqlQuery = """
-	SELECT a.*
-	  FROM (SELECT   _analysisSelect_ info.chrom AS chrom,
+                    SELECT   _analysisSelect_ info.chrom AS chrom,
 					 info.pos AS pos, info.rsgene AS rsgene,
 					 DATA.rs_id AS rsid, DATA.p_value AS pvalue,
 					 DATA.log_p_value AS logpvalue, DATA.ext_data AS extdata
@@ -88,8 +86,7 @@ class RegionSearchService {
 					 WHERE 1=1
 """
     def eqtlSqlQuery = """
-		SELECT a.*
-		  FROM (SELECT   _analysisSelect_ info.chrom AS chrom,
+                        SELECT   _analysisSelect_ info.chrom AS chrom,
 		                 info.pos AS pos, gmap.gene_name AS rsgene,
 		                 DATA.rs_id AS rsid, DATA.p_value AS pvalue,
 		                 DATA.log_p_value AS logpvalue, DATA.ext_data AS extdata, DATA.gene as gene
@@ -103,8 +100,7 @@ class RegionSearchService {
 	"""
 
     def eqtlHg19SqlQuery = """
-	SELECT a.*
-	  FROM (SELECT   _analysisSelect_ info.chrom AS chrom,
+                    SELECT   _analysisSelect_ info.chrom AS chrom,
 					 info.pos AS pos, info.rsgene AS rsgene,
 					 DATA.rs_id AS rsid, DATA.p_value AS pvalue,
 					 DATA.log_p_value AS logpvalue, DATA.ext_data AS extdata, DATA.gene as gene
@@ -408,10 +404,7 @@ class RegionSearchService {
 
         //println(analysisNameMap)
         // data query
-        def finalQuery = analysisQuery + queryCriteria.toString() + "\n) a";
-        if (limit > 0) {
-            finalQuery += " where a.row_nbr between ${offset + 1} and ${offset + limit}";
-        }
+        def finalQuery = analysisQuery + queryCriteria.toString() + (offset > 0 ? " offset $offset " : '') + (limit > 0 ? " limit $limit " : '');
         stmt = con.prepareStatement(finalQuery);
 
         //stmt.setString(1, sortField)
