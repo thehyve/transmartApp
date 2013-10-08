@@ -1225,6 +1225,7 @@ public class SearchController{
 //			session['cachedAnalysisData'] = analysisData
 //		}
 		
+		/* FIXME
 		if (!regions && !geneNames && analysisIds.size() == 1 && sortField.equals('null') && !cutoff && !search && max > 0) {
 			println("Triggering shortcut query")
 			//If displaying no regions and only one analysis, run the alternative query and pull back the rows for the limits
@@ -1236,7 +1237,7 @@ public class SearchController{
 			totalCount = analysis.dataCount
 			println("Got results in a batch of " + analysisData.size())
 		}
-		else {
+		else {*/
 			//Otherwise, run the query and recache the returned data
 			queryResult = regionSearchService.getAnalysisData(analysisIds, regions, max, offset, cutoff, sortField, order, search, type, geneNames, true)
 			analysisData = queryResult.results
@@ -1247,7 +1248,7 @@ public class SearchController{
 //				session['cachedAnalysisData'] = analysisData
 //				session['cachedCount'] = totalCount
 //			}
-		}
+		//}
 		
 		
 		def analysisIndexData
