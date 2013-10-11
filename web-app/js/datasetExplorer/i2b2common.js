@@ -1907,6 +1907,7 @@ function getTreeNodeFromJsonNode(concept)
     var normalunitsnode 	= 	null;
     var oktousevaluesnode	= 	null;
     var oktousevalues		=	null;
+    var visualattributes    =   null;
 
     level				= concept.level;
     key					= concept.key;
@@ -1977,7 +1978,8 @@ function getTreeNodeFromJsonNode(concept)
         tablename     : tablename,
         normalunits   : normalunits,
         oktousevalues : oktousevalues,
-        expanded      : autoExpand
+        expanded      : autoExpand,
+        visualattributes : visualattributes
     });
     newnode.addListener('contextmenu', ontologyRightClick);
     return newnode;
