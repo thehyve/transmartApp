@@ -65,7 +65,7 @@ grails.project.dependency.resolution = {
     dependencies {
         runtime 'postgresql:postgresql:9.0-801.jdbc4'
         compile 'antlr:antlr:2.7.7'
-        compile 'org.transmartproject:transmart-core-api:1.0-SNAPSHOT'
+        compile 'org.transmartproject:transmart-core-api:1.0-gwas-SNAPSHOT'
         compile 'net.sf.opencsv:opencsv:2.3'
         compile "org.apache.lucene:lucene-core:2.4.0"
         compile "org.apache.lucene:lucene-demos:2.4.0"
@@ -104,7 +104,7 @@ grails.project.dependency.resolution = {
         build ":build-info:1.2.4"
         runtime ":prototype:1.0"
         runtime ":jquery:1.7.1"
-        runtime ":transmart-core:1.0-SNAPSHOT"
+        runtime ":transmart-core:1.0-gwas-SNAPSHOT"
         runtime ":resources:1.2"
 
         //This version of code coverage plugin does not work with grails 2.3

@@ -18,15 +18,8 @@
  ******************************************************************/
 package com.recomdata.transmart.data.export
 
-import org.transmartproject.db.querytool.QtQueryResultInstance;
-
-import java.util.List;
-
 import de.DeVariantDataSet;
-import de.DeVariantPopulationData;
-import de.DeVariantSubjectDetail;
-import de.DeVariantSubjectIdx;
-import com.recomdata.transmart.data.export.util.FileWriterUtil;
+import de.DeVariantPopulationData
 
 class VcfDataService {
     boolean transactional = false
@@ -328,40 +321,6 @@ class VcfDataService {
 
         return DeVariantSubjectDetail.findAll(query, vmap)
 
-    }
-
-    def retrieveVariantDetail(long resultInstanceId, Collection<String> chrs, Long from = null, Long to = null) {
-        List sysCdList = QtQueryResultInstance.executeQuery(
-                '''select p.sourcesystemCd
-                   from QtQueryResultInstance ri
-                   inner join ri.patientSet ps
-                   inner join ps.patient p
-                   where ri.id = :id
-                ''',
-                [id: resultInstanceId],
-                [max: 1])
-
-        if(!sysCdList) {
-            log.warn("No patients found for resultInstanceId = $resultInstanceId")
-            return []
-        }
-
-        def sysCd = sysCdList[0]?.split(':')
-
-        if(!sysCd || !sysCd[0] || sysCd.size() == 1) {
-            log.warn("Can't retrieve study id from ${sysCdList[0]}")
-            return []
-        }
-
-        def studyId = sysCd[0]
-
-        log.debug("studyId = $studyId for resultInstanceId = $resultInstanceId")
-
-        DeVariantSubjectDetail.createCriteria().list {
-            if(chrs) inList('chromosome', chrs)
-            between('position', from ?: 0L, to ?: Long.MAX_VALUE)
-            eq('dataset', studyId)
-        }
     }
 
     /**
