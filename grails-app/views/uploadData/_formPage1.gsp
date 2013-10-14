@@ -6,10 +6,10 @@
 
   <div class="dataFormTitle" id="dataFormTitle1">
     <g:if test="${uploadDataInstance?.id ? true : false}">
-    Edit Metadata
+        <h1>Edit Metadata</h1>
     </g:if>
     <g:else>
-    Upload Data
+        <h1>Upload Data</h1>
     </g:else>
   </div>
   <div style="text-align:right">
@@ -37,8 +37,8 @@
           </g:eachError>
         </div>
         <tmpl:extSearchField width="600" fieldName="study" searchAction="extSearch" searchController="experiment" value="${study?.accession}" label="${study?.title}"/>
-        <a id="studyChangeButton" class="upload" onclick="$j('#studyDiv').empty().slideUp('slow'); changeField('study-combobox', 'study')">Change</a>
-        <a style="margin-left: 32px;" id="studyBrowseButton" class="upload" onclick="generateBrowseWindow('Studies');">Browse</a>
+        <a id="studyChangeButton" class="button" onclick="$j('#studyDiv').empty().slideUp('slow'); changeField('study-combobox', 'study')">Change</a>
+        <a style="margin-left: 5px;" id="studyBrowseButton" class="button" onclick="generateBrowseWindow('Studies');">Browse</a>
         <br/><br/>
         <div id="studyDiv" style="height: 200px; width: 540px; overflow: auto; display: none;">&nbsp;</div>
       </td>

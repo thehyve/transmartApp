@@ -249,7 +249,7 @@ function generateBrowseWindow(nodeClicked)
                         show: 'fade',
                         hide: 'fade',
                         buttons: {"Select" : applyStudyBrowse}
-                  })
+                  });
 }
 
 function downloadTemplate() {
