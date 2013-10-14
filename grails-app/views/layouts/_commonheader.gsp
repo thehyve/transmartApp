@@ -16,8 +16,11 @@
 --%>
 <div id="navlist">
     <ul>
-        <g:if test="${'search'==app}"><li class="active">Search</li></g:if>
-        <g:else><li><a href="${createLink([controller:'search'])}">Search</a></li></g:else>
+
+        %{-- Hidden Search Application for GWAS --}%
+        %{--<g:if test="${'search'==app}"><li class="active">Search</li></g:if>--}%
+        %{--<g:else><li><a href="${createLink([controller:'search'])}">Search</a></li></g:else>--}%
+        %{-- Hidden Search Application for GWAS --}%
 
         <g:if test="${'rwg'==app}"><li class="active">Faceted Search</li></g:if>
         <g:else><li><a href="${createLink([controller:'RWG'])}">Faceted Search</a></li></g:else>    
