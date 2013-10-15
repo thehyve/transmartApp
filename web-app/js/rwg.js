@@ -1853,7 +1853,7 @@ function showSearchTemplate(categories, keywords)	{
 				if (!tooltip)  {
 					aTag = '&nbsp;<a id="' + keywords[j].removeAnchorId + '" class="term-remove" href="#" onclick="removeSearchTerm(this);">' 
  
-					imgTag = '<img alt="remove" src="./../images/small_cross.png"/></a>&nbsp;'
+					imgTag = '<img alt="remove" src="../images/small_cross.png"/></a>&nbsp;'
 				}
 					
 				searchHTML = searchHTML + "<span class=term>"+ keywords[j].keyword + aTag + imgTag + "</span>";

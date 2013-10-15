@@ -10,6 +10,9 @@
         <!-- jQuery CSS for cupertino theme -->
         <link rel="stylesheet" href="${resource(dir:'css/jquery/cupertino', file:'jquery-ui-1.8.18.custom.css')}"/>
         <link rel="stylesheet" href="${resource(dir:'css/jquery/skin', file:'ui.dynatree.css')}"/>
+
+        <!-- jQuery CSS for dataTables -->
+        <link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'jquery.dataTables.css')}">
         
         <!-- Our CSS -->
         <link rel="stylesheet" href="${resource(dir:'css', file:'jquery.loadmask.css')}"/>
