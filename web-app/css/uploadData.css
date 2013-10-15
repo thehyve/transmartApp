@@ -5,6 +5,10 @@
   margin-top: 25px;
 }
 
+#formPage1 {
+    padding-top: 10px;
+}
+
 .uploadTable > tbody > tr > td {
   padding: 8px;
 }

@@ -266,7 +266,7 @@
 	
 			});
 	
-			// Show a dialog window animated from the specifed id paramter with
+			// Show a dialog window animated from the specified id parameter with
 			// title and content contained in value parameter.
 			function showDialog(id, value) {
 				// Attempt to get exitsing window with id.
@@ -289,9 +289,7 @@
 	
 			    win.show();
 			    win.toFront();
-			    var atitle = id+'_anchor';
-			   // alert(atitle);
-			  //  var anchor = document.getElementById(value.title+'_anchor');
+			    var atitle = id + '_anchor';
 			    win.alignTo(atitle,'bl-tl?');
 			}
 	
@@ -315,7 +313,7 @@
 	<div>
 		<h3 style="background: #dfe8f6; padding-bottom: 5px; padding-top: 5px;">
 			Clinical Trials Analysis View
-			<%topicID="1026" %>
+			<% topicID = "1026" %>
 			<a HREF='JavaScript:D2H_ShowHelp(<%=topicID%>,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
 				<img src="${resource(dir:'images',file:'help/helpbutton.jpg')}" alt="Help" border=0 width=18pt style="margin-top:1pt;margin-bottom:1pt;margin-right:18pt;float:right"/>
 			</a>
