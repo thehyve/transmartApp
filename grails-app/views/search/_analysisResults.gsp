@@ -55,7 +55,7 @@
 					<tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
 					<g:each in="${row}" var="data" status="colNum">
 						<g:unless test="${colNum == 0}"> <%-- Skip analysis name --%>
-							<td class="">${data}</td>
+							<td>${data}</td>
 						</g:unless>
 					</g:each>
 					</tr>
