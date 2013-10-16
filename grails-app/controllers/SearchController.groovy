@@ -817,7 +817,21 @@ public class SearchController{
         exportResults(regionSearchResults.columnNames, regionSearchResults.analysisData, "analysis" + analysisId + ".csv")
       }
       else {
-        render(template: "analysisResults", model: [analysisData: regionSearchResults.analysisData, columnNames: regionSearchResults.columnNames, max: regionSearchResults.max, offset: regionSearchResults.offset, cutoff: filter.cutoff, sortField: filter.sortField, order: filter.order, search: filter.search, totalCount: regionSearchResults.totalCount, wasRegionFiltered: regionSearchResults.wasRegionFiltered, analysisId: analysisId])
+          render(template: "analysisResults",
+                  model: [
+                          analysisData: regionSearchResults.analysisData,
+                          columnNames: regionSearchResults.columnNames,
+                          max: regionSearchResults.max,
+                          offset: regionSearchResults.offset,
+                          cutoff: filter.cutoff,
+                          sortField: filter.sortField,
+                          order: filter.order,
+                          search: filter.search,
+                          totalCount: regionSearchResults.totalCount,
+                          wasRegionFiltered: regionSearchResults.wasRegionFiltered,
+                          analysisId: analysisId
+                  ]
+          )
       }
     }
     catch (Exception e) {
