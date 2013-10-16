@@ -1578,18 +1578,21 @@ function showVisualization(analysisID, changedPaging, assayDataType)	{
 // This function will load the analysis data into a GRAILS template.
 function loadAnalysisResultsGrid(analysisID, paramMap) {
     paramMap.analysisId = analysisID
-    jQuery('#analysis_results_table_' + analysisID + '_wrapper').empty().addClass('ajaxloading');
+    if (jQuery('.loadmask')) {
+        jQuery('#analysis_holder_' + analysisID).mask("Loading...");
+    }
+
     jQuery.ajax({
         "url": getAnalysisDataURL,
         bDestroy: true,
         bServerSide: true,
         data: paramMap,
         "success": function (jqXHR) {
+            jQuery('#analysis_results_table_' + analysisID + '_wrapper').html(jqXHR);
             jQuery('#analysis_holder_' + analysisID).unmask();
-            jQuery('#analysis_results_table_' + analysisID + '_wrapper').html(jqXHR).removeClass('ajaxloading');
         },
         "error": function (jqXHR, error, e) {
-            jQuery('#analysis_results_table_' + analysisID + '_wrapper').html(jqXHR).removeClass('ajaxloading');
+            jQuery('#analysis_results_table_' + analysisID + '_wrapper').html(jqXHR);
             jQuery('#analysis_holder_' + analysisID).unmask();
         },
         "dataType": "html"
