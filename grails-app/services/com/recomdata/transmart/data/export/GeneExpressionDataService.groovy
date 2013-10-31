@@ -20,19 +20,13 @@
 
 package com.recomdata.transmart.data.export
 
-import java.io.File
-import java.sql.ResultSetMetaData
-import java.util.List;
-import java.util.Map
-
+import com.recomdata.transmart.data.export.util.FileWriterUtil
 import org.apache.commons.lang.StringUtils
-import org.apache.commons.lang.math.NumberUtils;
 import org.rosuda.REngine.REXP
 import org.rosuda.REngine.Rserve.RConnection
-
 import search.SearchKeyword
 
-import com.recomdata.transmart.data.export.util.FileWriterUtil
+import java.sql.ResultSetMetaData
 
 class GeneExpressionDataService {
 		
@@ -86,7 +80,7 @@ class GeneExpressionDataService {
 					def concepts = i2b2HelperService.getConcepts(resultInstanceId)
 		
 					//Add the subquery to the main query.
-					 sqlQuery = createMRNAHeatmapPathwayQuery(study, resultInstanceId, gplIds, pathway, timepoint, sampleTypes, tissueTypes)
+					 sqlQuery = Thread.currentThread().contextClassLoader.getClass('DeSubjectMicroarrayData').createMRNAHeatmapPathwayQuery(study, resultInstanceId, gplIds, pathway, timepoint, sampleTypes, tissueTypes)
 					 sampleQuery = createStudySampleAssayQuery(study,resultInstanceId, gplIds, timepoint, sampleTypes, tissueTypes )
 					
 				}
