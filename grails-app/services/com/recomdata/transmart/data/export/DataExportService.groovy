@@ -42,8 +42,7 @@ class DataExportService {
 	def additionalDataService
 	def vcfDataService
 
-    private void checkRequestValidity(Map jobDataMap) {
-        throw new Exception("Please select the data to Export.");
+    private void checkIfDataIsSelected(Map jobDataMap) {
         def checkboxList = jobDataMap.get('checkboxList')
         if ( isEmptyArray(checkboxList) || isEmptyList(checkboxList) ) {
             throw new Exception("Please select the data to Export.");
@@ -60,7 +59,7 @@ class DataExportService {
 
     @Transactional(readOnly = true)
     def exportData(jobDataMap) {
-        checkRequestValidity(jobDataMap)
+        checkIfDataIsSelected(jobDataMap)
 
 		def jobTmpDirectory = jobDataMap.get('jobTmpDirectory')
 		def resultInstanceIdMap = jobDataMap.get("result_instance_ids")
