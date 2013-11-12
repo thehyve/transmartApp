@@ -42,18 +42,18 @@ class DataExportService {
     def additionalDataService
     def vcfDataService
 
-    private void checkIfDataIsSelected(Map jobDataMap) {
+    private static void checkIfDataIsSelected(Map jobDataMap) {
         def checkboxList = jobDataMap.get('checkboxList')
         if (isEmptyArray(checkboxList) || isEmptyList(checkboxList)) {
             throw new Exception("Please select the data to Export.");
         }
     }
 
-    private Boolean isEmptyArray(possibleArray) {
+    private static Boolean isEmptyArray(possibleArray) {
         possibleArray.getClass().isArray() && possibleArray?.length == 0
     }
 
-    private Boolean isEmptyList(possibleList) {
+    private static Boolean isEmptyList(possibleList) {
         possibleList instanceof List && possibleList?.isEmpty()
     }
 
