@@ -57,11 +57,28 @@ class DataExportService {
         possibleList instanceof List && possibleList?.isEmpty()
     }
 
+    private String getJobTmpDirectory(Map jobDataMap) {
+        String dir = jobDataMap.get('jobTmpDirectory')
+        if (StringUtils.isEmpty(dir)) {
+            dir = grailsApplication.config.com.recomdata.transmart.data.export.jobTmpDirectory
+        }
+        return dir
+    }
+
+    private void checkForJobTmpDirectory(Map jobDataMap) {
+        String dir = getJobTmpDirectory(jobDataMap)
+        if (StringUtils.isEmpty(dir)) {
+            throw new Exception('Job temp directory needs to be specified')
+        }
+    }
+
     @Transactional(readOnly = true)
     def exportData(jobDataMap) {
         checkIfDataIsSelected(jobDataMap)
+        checkForJobTmpDirectory(jobDataMap)
 
-        def jobTmpDirectory = jobDataMap.get('jobTmpDirectory')
+        String jobTmpDirectory = getJobTmpDirectory(jobDataMap)
+
         def resultInstanceIdMap = jobDataMap.get("result_instance_ids")
         def subsetSelectedFilesMap = jobDataMap.get("subsetSelectedFilesMap")
         def subsetSelectedPlatformsByFiles = jobDataMap.get("subsetSelectedPlatformsByFiles")
@@ -71,13 +88,6 @@ class DataExportService {
         def study = null
         def File studyDir = null
         def filesDoneMap = [:]
-
-        if (StringUtils.isEmpty(jobTmpDirectory)) {
-            jobTmpDirectory = grailsApplication.config.com.recomdata.transmart.data.export.jobTmpDirectory
-            if (StringUtils.isEmpty(jobTmpDirectory)) {
-                throw new Exception('Job temp directory needs to be specified')
-            }
-        }
 
         try {
             subsets.each { subset ->
