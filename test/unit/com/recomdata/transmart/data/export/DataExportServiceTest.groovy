@@ -9,14 +9,9 @@ import java.lang.reflect.Method
 @TestFor(DataExportService)
 class DataExportServiceTest {
 
-    @Before
-    void setup() {
-        println("time for lunch!")
-    }
-
     @Test
     void "it throws an exception when the request 'checkboxList' key contains an empty List"() {
-        Method method = DataExportService.getDeclaredMethod("checkRequestValidity", Map);
+        Method method = DataExportService.getDeclaredMethod("checkIfDataIsSelected", Map);
         method.setAccessible(true);
         shouldFail {
             method.invoke(service, ['checkboxList':[]]);
