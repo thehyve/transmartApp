@@ -91,7 +91,8 @@ class DataExportService {
             subsets.each { subset ->
                 def snpFilesMap = [:]
                 def selectedFilesList = subsetSelectedFilesMap.get(subset)
-                if (null != selectedFilesList && !selectedFilesList.isEmpty()) {
+
+                if (selectedFilesList?.isEmpty()) {
                     //Prepare Study dir
                     def List studyList = null
                     if (null != resultInstanceIdMap[subset] && !resultInstanceIdMap[subset].isEmpty()) {
