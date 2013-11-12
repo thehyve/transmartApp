@@ -41,14 +41,26 @@ class DataExportService {
 	def geneExpressionDataService
 	def additionalDataService
 	def vcfDataService
-	
-	@Transactional(readOnly = true)
+
+    private void checkIfDataIsSelected(Map jobDataMap) {
+        def checkboxList = jobDataMap.get('checkboxList')
+        if ( isEmptyArray(checkboxList) || isEmptyList(checkboxList) ) {
+            throw new Exception("Please select the data to Export.");
+        }
+    }
+
+    private Boolean isEmptyArray(possibleArray) {
+        possibleArray.getClass().isArray() && possibleArray?.length == 0
+    }
+
+    private Boolean isEmptyList(possibleList) {
+        possibleList instanceof List && possibleList?.isEmpty()
+    }
+
+    @Transactional(readOnly = true)
     def exportData(jobDataMap) {
-		def checkboxList = jobDataMap.get('checkboxList')
-		if ((checkboxList.getClass().isArray() && checkboxList?.length == 0) ||
-			(checkboxList instanceof List && checkboxList?.isEmpty())) {
-			throw new Exception("Please select the data to Export.");
-		}
+        checkIfDataIsSelected(jobDataMap)
+
 		def jobTmpDirectory = jobDataMap.get('jobTmpDirectory')
 		def resultInstanceIdMap = jobDataMap.get("result_instance_ids")
 		def subsetSelectedFilesMap = jobDataMap.get("subsetSelectedFilesMap")
