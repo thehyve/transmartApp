@@ -82,8 +82,6 @@ class DataExportService {
         def resultInstanceIdMap = jobDataMap.get("result_instance_ids")
         def subsetSelectedFilesMap = jobDataMap.get("subsetSelectedFilesMap")
         def subsetSelectedPlatformsByFiles = jobDataMap.get("subsetSelectedPlatformsByFiles")
-        def mergeSubSet = jobDataMap.get("mergeSubset")
-        //Hard-coded subsets to count 2
         def subsets = ['subset1', 'subset2']
         def study = null
         def File studyDir = null
