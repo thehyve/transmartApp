@@ -95,7 +95,7 @@ class DataExportService {
             def selectedFilesList = subsetSelectedFilesMap.get(subset)
 
             //Prepare Study dir
-            def List studyList = null
+            List studyList = null
             if (null != resultInstanceIdMap[subset] && !resultInstanceIdMap[subset].isEmpty()) {
                 studyList = i2b2ExportHelperService.findStudyAccessions([resultInstanceIdMap[subset]])
                 if (!studyList.isEmpty()) {
