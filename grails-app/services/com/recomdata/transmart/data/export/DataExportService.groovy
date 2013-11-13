@@ -94,22 +94,19 @@ class DataExportService {
         emptySubsets.each { subset ->
             def selectedFilesList = subsetSelectedFilesMap.get(subset)
 
-            //Prepare Study dir
-            List studyList = null
+            boolean pivotData = jobDataMap.get("pivotData") != false
+            boolean writeClinicalData = false
+            List studyList = i2b2ExportHelperService.findStudyAccessions([resultInstanceIdMap[subset]])
+
             if (!resultInstanceIdMap[subset]) {
-                studyList = i2b2ExportHelperService.findStudyAccessions([resultInstanceIdMap[subset]])
+
+                //Prepare Study dir
                 if (!studyList.isEmpty()) {
                     study = studyList.get(0)
                     studyDir = new File(jobTmpDirectory, subset + (studyList.size() == 1 ? '_' + study : ''))
                     studyDir.mkdir()
                 }
-            }
 
-            //Pull the data pivot parameter out of the data map.
-            boolean pivotData = jobDataMap.get("pivotData") != false
-            boolean writeClinicalData = false
-
-            if (null != resultInstanceIdMap[subset] && !resultInstanceIdMap[subset].isEmpty()) {
                 // Construct a list of the URL objects we're running, submitted to the pool
                 selectedFilesList.each() { selectedFile ->
 
