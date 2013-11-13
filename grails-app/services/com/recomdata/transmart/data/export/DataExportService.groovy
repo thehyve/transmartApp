@@ -102,6 +102,7 @@ class DataExportService {
             boolean shouldWriteClinicalData = shouldWriteClinicalData(selectedFilesList)
             List studyList = i2b2ExportHelperService.findStudyAccessions([resultInstanceIdMap[subset]])
 
+            //NOTE: This seems to prevent an analysis to run twice. Perhaps uniq the presentSubsets is better?
             if (!resultInstanceIdMap[subset]) {
 
                 //Prepare Study dir
