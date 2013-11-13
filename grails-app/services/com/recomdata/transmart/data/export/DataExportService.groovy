@@ -88,7 +88,7 @@ class DataExportService {
         def subsetSelectedPlatformsByFiles = jobDataMap.get("subsetSelectedPlatformsByFiles")
         def study = null
         File studyDir = null
-        def filesDoneMap = [:]
+        Map filesDone = [:]
         ArrayList<String> emptySubsets = onlyEmptySubsets(jobDataMap)
 
         emptySubsets.each { subset ->
@@ -135,7 +135,7 @@ class DataExportService {
                                     null,
                                     false)
                             //filesDoneMap is used for building the Clinical Data query
-                            filesDoneMap.put('MRNA.TXT', new Boolean(true))
+                            filesDone.put('MRNA.TXT', new Boolean(true))
                             break;
                         case "MRNA_DETAILED.TXT":
 
@@ -262,7 +262,7 @@ class DataExportService {
                 def snpFilesMap = [:]
                 def retVal = clinicalDataService.getData(studyList, studyDir, "clinical.i2b2trans", jobDataMap.get("jobName"),
                         resultInstanceIdMap[subset], conceptCodeList, selectedFilesList, pivotData, filterHighLevelConcepts,
-                        snpFilesMap, subset, filesDoneMap, platformsList, parentConceptCodeList as String[], includeConceptContext)
+                        snpFilesMap, subset, filesDone, platformsList, parentConceptCodeList as String[], includeConceptContext)
 
                 if (jobDataMap.get("analysis") != "DataExport") {
                     //if i2b2Dao was not able to find data for any of the studies associated with the result instance ids, throw an exception.
