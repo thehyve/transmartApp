@@ -20,9 +20,6 @@
 
 package com.recomdata.transmart.data.export
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.Callable;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,7 +65,7 @@ class DataExportService {
     private void checkForJobTmpDirectory(Map jobDataMap) {
         String dir = getJobTmpDirectory(jobDataMap)
         if (StringUtils.isEmpty(dir)) {
-            throw new Exception('Job temp directory needs to be specified')
+            throw new Exception('Job temp directory needs to be specified.')
         }
     }
 

@@ -11,21 +11,22 @@ class DataExportServiceTest {
 
     @Test
     void "it throws an exception when the request 'checkboxList' key contains an empty List"() {
-        Method method = DataExportService.getDeclaredMethod("checkIfDataIsSelected", Map);
-        method.setAccessible(true);
-        shouldFail {
-            method.invoke(service, ['checkboxList':[]]);
+        Map emptyCheckboxList = ['checkboxList':[]]
+
+        def message = shouldFail {
+            service.exportData(emptyCheckboxList)
         }
+        assert message == "Please select the data to Export."
     }
 
     @Test
     void "it throws an exception when the request lacks a jobTmpDirectory and the config too"() {
         grailsApplication.config.com.recomdata.transmart.data.export.jobTmpDirectory = null
-        Method method = DataExportService.getDeclaredMethod("checkForJobTmpDirectory", Map);
-        method.setAccessible(true);
-        //NOTE: we should be able to catch the message but that does not happen for some reason
+        Map missingJobTmpDirectory = ['a':1]
+
         def message = shouldFail {
-            method.invoke(service, ['a':1]);
+            service.exportData(missingJobTmpDirectory)
         }
+        assert message == "Job temp directory needs to be specified."
     }
 }
