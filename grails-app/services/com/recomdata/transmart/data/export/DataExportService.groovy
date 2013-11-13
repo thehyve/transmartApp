@@ -69,13 +69,13 @@ class DataExportService {
         }
     }
 
-    private ArrayList<String> onlyEmptySubsets(Map jobDataMap) {
+    private ArrayList<String> onlyNonEmptySubsets(Map jobDataMap) {
         ArrayList subsets = ['subset1', 'subset2']
-        ArrayList emptySubsets = subsets.findAll { subset ->
+        ArrayList presentSubsets = subsets.findAll { subset ->
             def selectedFilesList = jobDataMap.get("subsetSelectedFilesMap").get(subset)
-            selectedFilesList?.isEmpty()
+            !selectedFilesList?.isEmpty()
         }
-        return emptySubsets
+        return presentSubsets
     }
 
     @Transactional(readOnly = true)
@@ -89,9 +89,9 @@ class DataExportService {
         def study = null
         File studyDir = null
         Map filesDone = [:]
-        ArrayList<String> emptySubsets = onlyEmptySubsets(jobDataMap)
+        ArrayList<String> presentSubsets = onlyNonEmptySubsets(jobDataMap)
 
-        emptySubsets.each { subset ->
+        presentSubsets.each { subset ->
             def selectedFilesList = jobDataMap.get("subsetSelectedFilesMap").get(subset)
 
             boolean pivotData = jobDataMap.get("pivotData") != false
