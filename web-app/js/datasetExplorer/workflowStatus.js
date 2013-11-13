@@ -73,7 +73,7 @@ function createWorkflowStatus(parentElem, noTitleBar) {
 		, maxWidth: 350
 		, closeOnEscape: false
 		, show: { effect: 'drop', direction: "up" }
-		, hide: { effect: 'fade', duration: 2500 }
+		, hide: { effect: 'fade', duration: 250 }
 		, dialogClass: 'dialog-modal'
 		, title: 'Workflow Status'
 		, position: {
@@ -163,8 +163,8 @@ function showWorkflowStatusErrorDialog(jobStatusHeader, jobStatusMsg) {
 		, maxWidth: 350
 		, resizable: true
 		, closeOnEscape: true
-		, show: { effect: 'fade', duration: 2500 }
-		, hide: { effect: 'fade', duration: 2500 }
+		, show: { effect: 'fade', duration: 250 }
+		, hide: { effect: 'fade', duration: 250 }
 		, dialogClass: 'dialog-modal'
 		, title: jobStatusHeader
 		, position: {
