@@ -88,30 +88,25 @@ class DataExportService {
         def subsetSelectedPlatformsByFiles = jobDataMap.get("subsetSelectedPlatformsByFiles")
         def study = null
         File studyDir = null
-        def filesDoneMap = [:]
+        Map filesDone = [:]
         ArrayList<String> emptySubsets = onlyEmptySubsets(jobDataMap)
 
         emptySubsets.each { subset ->
             def selectedFilesList = subsetSelectedFilesMap.get(subset)
 
-            def snpFilesMap = [:]
-            //Prepare Study dir
-            def List studyList = null
-            if (null != resultInstanceIdMap[subset] && !resultInstanceIdMap[subset].isEmpty()) {
-                studyList = i2b2ExportHelperService.findStudyAccessions([resultInstanceIdMap[subset]])
+            boolean pivotData = jobDataMap.get("pivotData") != false
+            boolean writeClinicalData = false
+            List studyList = i2b2ExportHelperService.findStudyAccessions([resultInstanceIdMap[subset]])
+
+            if (!resultInstanceIdMap[subset]) {
+
+                //Prepare Study dir
                 if (!studyList.isEmpty()) {
                     study = studyList.get(0)
                     studyDir = new File(jobTmpDirectory, subset + (studyList.size() == 1 ? '_' + study : ''))
                     studyDir.mkdir()
                 }
-            }
 
-            //Pull the data pivot parameter out of the data map.
-            def pivotDataValueDef = jobDataMap.get("pivotData")
-            boolean pivotData = new Boolean(true)
-            if (pivotDataValueDef == false) pivotData = new Boolean(false)
-            boolean writeClinicalData = false
-            if (null != resultInstanceIdMap[subset] && !resultInstanceIdMap[subset].isEmpty()) {
                 // Construct a list of the URL objects we're running, submitted to the pool
                 selectedFilesList.each() { selectedFile ->
 
@@ -119,23 +114,30 @@ class DataExportService {
                         writeClinicalData = true
                     }
 
-                    println 'Working on to export File :: ' + selectedFile
                     def List gplIds = subsetSelectedPlatformsByFiles?.get(subset)?.get(selectedFile)
-                    def retVal = null
+                    def dataFound = null
                     switch (selectedFile) {
                         case "STUDY":
-                            retVal = metadataService.getData(studyDir, "experimentalDesign.txt", jobDataMap.get("jobName"), studyList);
+                            dataFound = metadataService.getData(studyDir, "experimentalDesign.txt", jobDataMap.get("jobName"), studyList);
                             log.info("retrieved study data")
                             break;
                         case "MRNA.TXT":
-                            retVal = geneExpressionDataService.getData(studyList, studyDir, "mRNA.trans", jobDataMap.get("jobName"), resultInstanceIdMap[subset], pivotData, gplIds, null, null, null, null, false)
+                            dataFound = geneExpressionDataService.getData(studyList,
+                                    studyDir,
+                                    "mRNA.trans",
+                                    jobDataMap.get("jobName"),
+                                    resultInstanceIdMap[subset],
+                                    pivotData,
+                                    gplIds,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    false)
                             //filesDoneMap is used for building the Clinical Data query
-                            filesDoneMap.put('MRNA.TXT', new Boolean(true))
+                            filesDone.put('MRNA.TXT', new Boolean(true))
                             break;
                         case "MRNA_DETAILED.TXT":
-
-                            println("Job data map:")
-                            jobDataMap.each { k, v -> println "${k}:${v}" }
 
                             //We need to grab some inputs from the jobs data map.
                             def pathway = jobDataMap.get("gexpathway")
@@ -148,10 +150,6 @@ class DataExportService {
                             if (sampleType == ",") sampleType = ""
                             if (timepoint == ",") timepoint = ""
 
-                            println("tissueType:" + tissueType)
-                            println("tissueType:" + sampleType)
-                            println("timepoint:" + timepoint)
-
                             if (gplIds != null) {
                                 gplIds = gplString.tokenize(",")
                             } else {
@@ -161,10 +159,10 @@ class DataExportService {
                             //adding String to a List to make it compatible to the type expected
                             //if gexgpl contains multiple gpl(s) as single string we need to convert that to a list
 
-                            retVal = geneExpressionDataService.getData(studyList, studyDir, "mRNA.trans", jobDataMap.get("jobName"), resultInstanceIdMap[subset], pivotData, gplIds, pathway, timepoint, sampleType, tissueType, true)
+                            dataFound = geneExpressionDataService.getData(studyList, studyDir, "mRNA.trans", jobDataMap.get("jobName"), resultInstanceIdMap[subset], pivotData, gplIds, pathway, timepoint, sampleType, tissueType, true)
                             if (jobDataMap.get("analysis") != "DataExport") {
                                 //if geneExpressionDataService was not able to find data throw an exception.
-                                if (!retVal) {
+                                if (!dataFound) {
                                     throw new DataNotFoundException("There are no patients that meet the criteria selected therefore no gene expression data was returned.")
                                 }
                             }
@@ -176,7 +174,7 @@ class DataExportService {
                             geneExpressionDataService.getGCTAndCLSData(studyList, studyDir, "mRNA.GCT", jobDataMap.get("jobName"), resultInstanceIdMap, pivotData, gplIds)
                             break;
                         case "SNP.PED, .MAP & .CNV":
-                            retVal = snpDataService.getData(studyDir, "snp.trans", jobDataMap.get("jobName"), resultInstanceIdMap[subset])
+                            dataFound = snpDataService.getData(studyDir, "snp.trans", jobDataMap.get("jobName"), resultInstanceIdMap[subset])
                             snpDataService.getDataByPatientByProbes(studyDir, resultInstanceIdMap[subset], jobDataMap.get("jobName"))
                             break;
                         case "SNP.CEL":
@@ -261,9 +259,10 @@ class DataExportService {
                 if (jobDataMap.get("analysis") == "DataExport") filterHighLevelConcepts = true
                 def platformsList = subsetSelectedPlatformsByFiles?.get(subset)?.get("MRNA.TXT")
                 //Reason for moving here: We'll get the map of SNP files from SnpDao to be output into Clinical file
+                def snpFilesMap = [:]
                 def retVal = clinicalDataService.getData(studyList, studyDir, "clinical.i2b2trans", jobDataMap.get("jobName"),
                         resultInstanceIdMap[subset], conceptCodeList, selectedFilesList, pivotData, filterHighLevelConcepts,
-                        snpFilesMap, subset, filesDoneMap, platformsList, parentConceptCodeList as String[], includeConceptContext)
+                        snpFilesMap, subset, filesDone, platformsList, parentConceptCodeList as String[], includeConceptContext)
 
                 if (jobDataMap.get("analysis") != "DataExport") {
                     //if i2b2Dao was not able to find data for any of the studies associated with the result instance ids, throw an exception.
