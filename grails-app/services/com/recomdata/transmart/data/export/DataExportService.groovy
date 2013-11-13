@@ -92,7 +92,7 @@ class DataExportService {
         ArrayList<String> emptySubsets = onlyEmptySubsets(jobDataMap)
 
         emptySubsets.each { subset ->
-            def selectedFilesList = subsetSelectedFilesMap.get(subset)
+            def selectedFilesList = jobDataMap.get("subsetSelectedFilesMap").get(subset)
 
             boolean pivotData = jobDataMap.get("pivotData") != false
             boolean writeClinicalData = false
