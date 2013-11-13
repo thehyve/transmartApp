@@ -115,14 +115,14 @@ class DataExportService {
                     }
 
                     def List gplIds = subsetSelectedPlatformsByFiles?.get(subset)?.get(selectedFile)
-                    def retVal = null
+                    def dataFound = null
                     switch (selectedFile) {
                         case "STUDY":
-                            retVal = metadataService.getData(studyDir, "experimentalDesign.txt", jobDataMap.get("jobName"), studyList);
+                            dataFound = metadataService.getData(studyDir, "experimentalDesign.txt", jobDataMap.get("jobName"), studyList);
                             log.info("retrieved study data")
                             break;
                         case "MRNA.TXT":
-                            retVal = geneExpressionDataService.getData(studyList,
+                            dataFound = geneExpressionDataService.getData(studyList,
                                     studyDir,
                                     "mRNA.trans",
                                     jobDataMap.get("jobName"),
@@ -159,10 +159,10 @@ class DataExportService {
                             //adding String to a List to make it compatible to the type expected
                             //if gexgpl contains multiple gpl(s) as single string we need to convert that to a list
 
-                            retVal = geneExpressionDataService.getData(studyList, studyDir, "mRNA.trans", jobDataMap.get("jobName"), resultInstanceIdMap[subset], pivotData, gplIds, pathway, timepoint, sampleType, tissueType, true)
+                            dataFound = geneExpressionDataService.getData(studyList, studyDir, "mRNA.trans", jobDataMap.get("jobName"), resultInstanceIdMap[subset], pivotData, gplIds, pathway, timepoint, sampleType, tissueType, true)
                             if (jobDataMap.get("analysis") != "DataExport") {
                                 //if geneExpressionDataService was not able to find data throw an exception.
-                                if (!retVal) {
+                                if (!dataFound) {
                                     throw new DataNotFoundException("There are no patients that meet the criteria selected therefore no gene expression data was returned.")
                                 }
                             }
@@ -174,7 +174,7 @@ class DataExportService {
                             geneExpressionDataService.getGCTAndCLSData(studyList, studyDir, "mRNA.GCT", jobDataMap.get("jobName"), resultInstanceIdMap, pivotData, gplIds)
                             break;
                         case "SNP.PED, .MAP & .CNV":
-                            retVal = snpDataService.getData(studyDir, "snp.trans", jobDataMap.get("jobName"), resultInstanceIdMap[subset])
+                            dataFound = snpDataService.getData(studyDir, "snp.trans", jobDataMap.get("jobName"), resultInstanceIdMap[subset])
                             snpDataService.getDataByPatientByProbes(studyDir, resultInstanceIdMap[subset], jobDataMap.get("jobName"))
                             break;
                         case "SNP.CEL":
