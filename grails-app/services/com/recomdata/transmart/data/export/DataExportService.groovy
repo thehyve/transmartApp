@@ -106,9 +106,7 @@ class DataExportService {
             }
 
             //Pull the data pivot parameter out of the data map.
-            def pivotDataValueDef = jobDataMap.get("pivotData")
-            boolean pivotData = new Boolean(true)
-            if (pivotDataValueDef == false) pivotData = new Boolean(false)
+            boolean pivotData = jobDataMap.get("pivotData") != false
             boolean writeClinicalData = false
 
             if (null != resultInstanceIdMap[subset] && !resultInstanceIdMap[subset].isEmpty()) {
