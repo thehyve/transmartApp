@@ -119,7 +119,6 @@ class DataExportService {
                         writeClinicalData = true
                     }
 
-                    println 'Working on to export File :: ' + selectedFile
                     def List gplIds = subsetSelectedPlatformsByFiles?.get(subset)?.get(selectedFile)
                     def retVal = null
                     switch (selectedFile) {
@@ -145,9 +144,6 @@ class DataExportService {
                             break;
                         case "MRNA_DETAILED.TXT":
 
-                            println("Job data map:")
-                            jobDataMap.each { k, v -> println "${k}:${v}" }
-
                             //We need to grab some inputs from the jobs data map.
                             def pathway = jobDataMap.get("gexpathway")
                             def timepoint = jobDataMap.get("gextime")
@@ -158,10 +154,6 @@ class DataExportService {
                             if (tissueType == ",") tissueType = ""
                             if (sampleType == ",") sampleType = ""
                             if (timepoint == ",") timepoint = ""
-
-                            println("tissueType:" + tissueType)
-                            println("tissueType:" + sampleType)
-                            println("timepoint:" + timepoint)
 
                             if (gplIds != null) {
                                 gplIds = gplString.tokenize(",")
