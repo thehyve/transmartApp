@@ -78,6 +78,10 @@ class DataExportService {
         return presentSubsets
     }
 
+    private boolean shouldWriteClinicalData(selectedFilesList) {
+        selectedFilesList.any { StringUtils.equalsIgnoreCase(it, "CLINICAL.TXT") }
+    }
+
     @Transactional(readOnly = true)
     def exportData(jobDataMap) {
         checkIfDataIsSelected(jobDataMap)
@@ -95,7 +99,7 @@ class DataExportService {
             def selectedFilesList = jobDataMap.get("subsetSelectedFilesMap").get(subset)
 
             boolean pivotData = jobDataMap.get("pivotData") != false
-            boolean writeClinicalData = false
+            boolean shouldWriteClinicalData = shouldWriteClinicalData(selectedFilesList)
             List studyList = i2b2ExportHelperService.findStudyAccessions([resultInstanceIdMap[subset]])
 
             if (!resultInstanceIdMap[subset]) {
@@ -109,10 +113,6 @@ class DataExportService {
 
                 // Construct a list of the URL objects we're running, submitted to the pool
                 selectedFilesList.each() { selectedFile ->
-
-                    if (StringUtils.equalsIgnoreCase(selectedFile, "CLINICAL.TXT")) {
-                        writeClinicalData = true
-                    }
 
                     def List gplIds = subsetSelectedPlatformsByFiles?.get(subset)?.get(selectedFile)
                     def dataFound = null
@@ -229,7 +229,7 @@ class DataExportService {
                 }
             }
 
-            if (writeClinicalData) {
+            if (shouldWriteClinicalData) {
 
                 //Grab the item from the data map that tells us whether we need the concept contexts.
                 Boolean includeConceptContext = jobDataMap.get("includeContexts", false);
