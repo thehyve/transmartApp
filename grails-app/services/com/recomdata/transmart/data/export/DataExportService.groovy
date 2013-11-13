@@ -68,7 +68,7 @@ class DataExportService {
     private void checkForJobTmpDirectory(Map jobDataMap) {
         String dir = getJobTmpDirectory(jobDataMap)
         if (StringUtils.isEmpty(dir)) {
-            throw new Exception('Job temp directory needs to be specified')
+            throw new Exception('Job temp directory needs to be specified.')
         }
     }
 
