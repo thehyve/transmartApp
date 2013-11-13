@@ -161,11 +161,8 @@ class DataExportService {
                             //if gexgpl contains multiple gpl(s) as single string we need to convert that to a list
 
                             dataFound = geneExpressionDataService.getData(studyList, studyDir, "mRNA.trans", jobDataMap.get("jobName"), resultInstanceIdMap[subset], pivotData, gplIds, pathway, timepoint, sampleType, tissueType, true)
-                            if (jobDataMap.get("analysis") != "DataExport") {
-                                //if geneExpressionDataService was not able to find data throw an exception.
-                                if (!dataFound) {
-                                    throw new DataNotFoundException("There are no patients that meet the criteria selected therefore no gene expression data was returned.")
-                                }
+                            if (jobDataMap.get("analysis") != "DataExport" && !dataFound) {
+                                throw new DataNotFoundException("There are no patients that meet the criteria selected therefore no gene expression data was returned.")
                             }
                             break;
                         case "MRNA.CEL":
