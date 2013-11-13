@@ -94,7 +94,6 @@ class DataExportService {
         emptySubsets.each { subset ->
             def selectedFilesList = subsetSelectedFilesMap.get(subset)
 
-            def snpFilesMap = [:]
             //Prepare Study dir
             def List studyList = null
             if (null != resultInstanceIdMap[subset] && !resultInstanceIdMap[subset].isEmpty()) {
@@ -261,6 +260,7 @@ class DataExportService {
                 if (jobDataMap.get("analysis") == "DataExport") filterHighLevelConcepts = true
                 def platformsList = subsetSelectedPlatformsByFiles?.get(subset)?.get("MRNA.TXT")
                 //Reason for moving here: We'll get the map of SNP files from SnpDao to be output into Clinical file
+                def snpFilesMap = [:]
                 def retVal = clinicalDataService.getData(studyList, studyDir, "clinical.i2b2trans", jobDataMap.get("jobName"),
                         resultInstanceIdMap[subset], conceptCodeList, selectedFilesList, pivotData, filterHighLevelConcepts,
                         snpFilesMap, subset, filesDoneMap, platformsList, parentConceptCodeList as String[], includeConceptContext)
