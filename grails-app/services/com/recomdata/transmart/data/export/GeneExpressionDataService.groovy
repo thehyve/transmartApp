@@ -467,7 +467,7 @@ class GeneExpressionDataService {
         log.info("start sample retrieving query");
         log.debug("Sample Query : " + sampleQuery);
         rows = sampleStatement.executeQuery();
-        def sttSampleStr = null;
+        String sttSampleStr = null;
 
         try {
             while (rows.next()) {
