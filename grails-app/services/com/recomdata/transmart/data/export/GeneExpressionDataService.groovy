@@ -409,7 +409,7 @@ class GeneExpressionDataService {
         Boolean dataFound = false
 
         //Create objects we use to form JDBC connection.
-        def con, stmt, stmt1, rs = null;
+        def con, statement, sampleStatement, rs = null;
 
         //Grab the connection from the grails object.
         con = dataSource.getConnection()
@@ -417,14 +417,14 @@ class GeneExpressionDataService {
         Integer fetchSize = getStmtFetchSize()
 
         //Prepare the SQL statement.
-        stmt = con.prepareStatement(sqlQuery);
-        stmt.setString(1, resultInstanceId);
-        stmt.setFetchSize(fetchSize)
+        statement = con.prepareStatement(sqlQuery);
+        statement.setString(1, resultInstanceId);
+        statement.setFetchSize(fetchSize)
 
         // sample query
-        stmt1 = con.prepareStatement(sampleQuery);
-        stmt1.setString(1, resultInstanceId);
-        stmt1.setFetchSize(fetchSize);
+        sampleStatement = con.prepareStatement(sampleQuery);
+        sampleStatement.setString(1, resultInstanceId);
+        sampleStatement.setFetchSize(fetchSize);
 
         def char separator = '\t';
         log.info("started file writing")
@@ -468,7 +468,7 @@ class GeneExpressionDataService {
 
         log.info("start sample retrieving query");
         log.debug("Sample Query : " + sampleQuery);
-        rs = stmt1.executeQuery();
+        rs = sampleStatement.executeQuery();
         def sttSampleStr = null;
 
         try {
@@ -497,13 +497,13 @@ class GeneExpressionDataService {
             }
         } finally {
             rs?.close();
-            stmt1?.close();
+            sampleStatement?.close();
         }
         log.info("finished sample retrieving query");
 
         //Run the query.
         log.debug("begin data retrieving query: " + sqlQuery)
-        rs = stmt.executeQuery();
+        rs = statement.executeQuery();
         log.info("query completed")
         // get column name map
         ResultSetMetaData metaData = rs.getMetaData();
@@ -636,7 +636,7 @@ class GeneExpressionDataService {
                 filePath = outFile?.getAbsolutePath()
             }
             log.info("completed file writing")
-            stmt?.close();
+            statement?.close();
             con?.close();
         }
 
