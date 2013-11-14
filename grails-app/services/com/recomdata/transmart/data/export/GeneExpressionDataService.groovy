@@ -66,6 +66,14 @@ class GeneExpressionDataService {
         boolean includePathwayInfo = derivePathwayName(pathway) ? true : false
 
         studyList.each { study ->
+            // performance optimization - reduce latency by eliminating sample type data from mRNA result
+            //we retrieve the results in 2 queries
+            // first one gets the sample, patient and timepoint from subject sample mapping table
+            // create the sample type\t timepoint\tTissue type string and put it in a map with assay id as key
+            // second query goes to the mrna table and gets the intensity data
+            // use the assay id to look up the sample\tm\tissue type from the map created in the first query
+            // and writes to the writer
+
             String sqlQuery = createMRNAHeatmapPathwayQuery(study, resultInstanceId, gplIds, pathway, timepoint, sampleTypes, tissueTypes)
             String sampleQuery = createStudySampleAssayQuery(study, resultInstanceId, gplIds, timepoint, sampleTypes, tissueTypes)
             String filename = (studyList?.size() > 1) ? study + '_' + fileName : fileName
@@ -455,14 +463,6 @@ class GeneExpressionDataService {
         def sttMap = [:]
 
         long elapsetime = System.currentTimeMillis();
-        // performance optimization - reduce latency by eliminating sample type data from mRNA result
-        //we retrieve the results in 2 queries
-        // first one gets the sample, patient and timepoint from subject sample mapping table
-        // create the sample type\t timepoint\tTissue type string and put it in a map with assay id as key
-
-        // second query goes to the mrna table and gets the intensity data
-        // use the assay id to look up the sample\tm\tissue type from the map created in the first query
-        // and writes to the writer
 
         log.info("start sample retrieving query");
         log.debug("Sample Query : " + sampleQuery);
