@@ -71,9 +71,8 @@ class GeneExpressionDataService {
                     //Add the subquery to the main query.
                     sqlQuery = createMRNAHeatmapPathwayQuery(study, resultInstanceId, gplIds, pathway, timepoint, sampleTypes, tissueTypes)
                     sampleQuery = createStudySampleAssayQuery(study, resultInstanceId, gplIds, timepoint, sampleTypes, tissueTypes)
-
                 }
-                def filename = (studyList?.size() > 1) ? study + '_' + fileName : fileName
+                String filename = (studyList?.size() > 1) ? study + '_' + fileName : fileName
                 //The writeData method will return a map that tells us if data was found, and the name of the file that was written.
                 def writeDataStatusMap = writeData(resultInstanceId, sqlQuery, sampleQuery, studyDir, filename, jobName, includePathwayInfo, splitAttributeColumn, gplIds)
 
