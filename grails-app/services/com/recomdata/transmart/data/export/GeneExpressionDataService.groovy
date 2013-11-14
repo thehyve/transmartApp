@@ -461,7 +461,7 @@ class GeneExpressionDataService {
         */
 
         def output;
-        FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, "mRNA", "Processed_Data", valueDelimiter);
+        FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, "mRNA", "Processed_Data", valueDelimiter.charAt(0));
         File outFile = writerUtil.outputFile
         output = outFile.newWriter(true) //This is particularly bad. Please refactor to use FileWriterUtil.writeLine
 
