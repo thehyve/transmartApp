@@ -43,47 +43,43 @@ class GeneExpressionDataService {
 
 
     boolean getData(List studyList,
-                           File studyDir,
-                           String fileName,
-                           String jobName,
-                           String resultInstanceId,
-                           boolean pivot,
-                           List gplIds,
-                           String pathway,
-                           String timepoint,
-                           String sampleTypes,
-                           String tissueTypes,
-                           Boolean splitAttributeColumn) {
+                    File studyDir,
+                    String fileName,
+                    String jobName,
+                    String resultInstanceId,
+                    boolean pivot,
+                    List gplIds,
+                    String pathway,
+                    String timepoint,
+                    String sampleTypes,
+                    String tissueTypes,
+                    Boolean splitAttributeColumn) {
 
         //This tells us whether we found data when we call the "Write Data" method.
         boolean dataFound = false
 
-        try {
-            //Set a flag based on the presence of the pathway.
-            boolean includePathwayInfo = derivePathwayName(pathway) ? true : false
+        //Set a flag based on the presence of the pathway.
+        boolean includePathwayInfo = derivePathwayName(pathway) ? true : false
 
-            studyList.each { study ->
-                String sqlQuery, sampleQuery = null;
+        studyList.each { study ->
+            String sqlQuery, sampleQuery = null;
 
-                //Create a query for the Subset.
-                if (resultInstanceId) {
+            //Create a query for the Subset.
+            if (resultInstanceId) {
 
-                    //Add the subquery to the main query.
-                    sqlQuery = createMRNAHeatmapPathwayQuery(study, resultInstanceId, gplIds, pathway, timepoint, sampleTypes, tissueTypes)
-                    sampleQuery = createStudySampleAssayQuery(study, resultInstanceId, gplIds, timepoint, sampleTypes, tissueTypes)
-                }
-                String filename = (studyList?.size() > 1) ? study + '_' + fileName : fileName
-                //The writeData method will return a map that tells us if data was found, and the name of the file that was written.
-                def writeDataStatusMap = writeData(resultInstanceId, sqlQuery, sampleQuery, studyDir, filename, jobName, includePathwayInfo, splitAttributeColumn, gplIds)
-
-                def outFile = writeDataStatusMap["outFile"]
-                dataFound = writeDataStatusMap["dataFound"]
-                if (outFile && dataFound && pivot) {
-                    pivotData((studyList?.size() > 1), study, outFile)
-                }
+                //Add the subquery to the main query.
+                sqlQuery = createMRNAHeatmapPathwayQuery(study, resultInstanceId, gplIds, pathway, timepoint, sampleTypes, tissueTypes)
+                sampleQuery = createStudySampleAssayQuery(study, resultInstanceId, gplIds, timepoint, sampleTypes, tissueTypes)
             }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            String filename = (studyList?.size() > 1) ? study + '_' + fileName : fileName
+            //The writeData method will return a map that tells us if data was found, and the name of the file that was written.
+            def writeDataStatusMap = writeData(resultInstanceId, sqlQuery, sampleQuery, studyDir, filename, jobName, includePathwayInfo, splitAttributeColumn, gplIds)
+
+            def outFile = writeDataStatusMap["outFile"]
+            dataFound = writeDataStatusMap["dataFound"]
+            if (outFile && dataFound && pivot) {
+                pivotData((studyList?.size() > 1), study, outFile)
+            }
         }
 
         return dataFound
