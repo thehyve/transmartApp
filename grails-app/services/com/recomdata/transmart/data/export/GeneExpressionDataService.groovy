@@ -428,7 +428,15 @@ class GeneExpressionDataService {
         output << "\n"
     }
 
-    def writeData(String resultInstanceId, String sqlQuery, String sampleQuery, File studyDir, String fileName, String jobName, includePathwayInfo, splitAttributeColumn, gplIds) {
+    def writeData(String resultInstanceId,
+                  String sqlQuery,
+                  String sampleQuery,
+                  File studyDir,
+                  String fileName,
+                  String jobName,
+                  Boolean includePathwayInfo,
+                  Boolean splitAttributeColumn,
+                  List gplIds) {
 
         //We need to return a map with two key/values.
         Map returnValues = ["outFile": null, "dataFound": false]
@@ -461,7 +469,7 @@ class GeneExpressionDataService {
         */
 
         def output;
-        FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, "mRNA", "Processed_Data", valueDelimiter);
+        FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, "mRNA", "Processed_Data", valueDelimiter.charAt(0));
         File outFile = writerUtil.outputFile
         output = outFile.newWriter(true) //This is particularly bad. Please refactor to use FileWriterUtil.writeLine
 
@@ -626,7 +634,7 @@ class GeneExpressionDataService {
             output?.flush();
             output?.close()
             returnValues["outFile"] = outFile?.getAbsolutePath()
-            if (!dataFound) {
+            if (!returnValues["dataFound"]) {
                 outFile?.delete()
             }
             log.info("completed file writing")
@@ -977,7 +985,6 @@ class GeneExpressionDataService {
     /*
      * This method will check to see if we have multiple result instance ids and return a boolean.
      */
-
     def boolean isMultipleResultInstanceIds(str) {
         def strList = str?.tokenize(',')
         return (!strList.empty && strList.size() > 1)
