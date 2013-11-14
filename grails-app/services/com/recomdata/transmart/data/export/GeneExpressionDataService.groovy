@@ -66,8 +66,6 @@ class GeneExpressionDataService {
 
             //Create a query for the Subset.
             if (resultInstanceId) {
-
-                //Add the subquery to the main query.
                 sqlQuery = createMRNAHeatmapPathwayQuery(study, resultInstanceId, gplIds, pathway, timepoint, sampleTypes, tissueTypes)
                 sampleQuery = createStudySampleAssayQuery(study, resultInstanceId, gplIds, timepoint, sampleTypes, tissueTypes)
             }
