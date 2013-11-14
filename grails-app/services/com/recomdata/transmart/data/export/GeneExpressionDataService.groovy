@@ -410,6 +410,22 @@ class GeneExpressionDataService {
         return s.toString();
     }
 
+    String constructHeaderRow(splitAttributeColumn, includePathwayInfo) {
+        String output = "PATIENT ID\t"
+
+        if (splitAttributeColumn) {
+            output << "SAMPLE TYPE\tTIMEPOINT\tTISSUE TYPE\tGPL ID\tASSAY ID\tVALUE\tZSCORE\tLOG2ED\tPROBE ID\tPROBESET ID\tGENE_ID\tGENE_SYMBOL"
+        } else {
+            output << "SAMPLE\tASSAY ID\tVALUE\tZSCORE\tLOG2ED\tPROBE ID\tPROBESET ID\tGENE_ID\tGENE_SYMBOL"
+        }
+
+        if (includePathwayInfo) {
+            output << "\tSEARCH_ID"
+        }
+
+        output << "\n"
+    }
+
     def writeData(String resultInstanceId, String sqlQuery, String sampleQuery, File studyDir, String fileName, String jobName, includePathwayInfo, splitAttributeColumn, gplIds) {
         String filePath = null
         Boolean dataFound = false
@@ -439,18 +455,7 @@ class GeneExpressionDataService {
         FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, "mRNA", "Processed_Data", '\t');
         outFile = writerUtil.outputFile
         output = outFile.newWriter(true)
-
-        output << "PATIENT ID\t"
-
-        if (splitAttributeColumn)
-            output << "SAMPLE TYPE\tTIMEPOINT\tTISSUE TYPE\tGPL ID\tASSAY ID\tVALUE\tZSCORE\tLOG2ED\tPROBE ID\tPROBESET ID\tGENE_ID\tGENE_SYMBOL"
-        else
-            output << "SAMPLE\tASSAY ID\tVALUE\tZSCORE\tLOG2ED\tPROBE ID\tPROBESET ID\tGENE_ID\tGENE_SYMBOL"
-
-        if (includePathwayInfo)
-            output << "\tSEARCH_ID\n"
-        else
-            output << "\n"
+        output << constructHeaderRow(splitAttributeColumn, includePathwayInfo)
 
         def sampleType, timepoint, tissueType, rawIntensityRS, zScoreRS, patientID, sourceSystemCode, assayID, GPL_ID, logIntensityRS, probeID, probesetID, gplID = null
         def sample, value, zscore, lineToWrite = null
