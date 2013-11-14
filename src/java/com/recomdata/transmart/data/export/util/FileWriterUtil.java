@@ -49,7 +49,7 @@ import au.com.bytecode.opencsv.CSVWriter;
  */
 public class FileWriterUtil {
 	
-	private File outputFile;
+	File outputFile;
 	private CSVWriter writer;
 
 	private static org.apache.log4j.Logger log = Logger
