@@ -369,7 +369,7 @@ class GeneExpressionDataService {
         return s
     }
 
-    def constructInClause(String t) {
+    def constructInClause(String list) {
         def sanitizedList = list.split(",") - ""
         def quotedList = sanitizedList.collect { "'${it}'" }
 
