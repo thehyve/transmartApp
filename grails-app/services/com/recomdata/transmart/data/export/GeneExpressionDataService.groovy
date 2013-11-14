@@ -47,7 +47,7 @@ class GeneExpressionDataService {
                     String fileName,
                     String jobName,
                     String resultInstanceId,
-                    boolean pivot,
+                    Boolean pivot,
                     List gplIds,
                     String pathway,
                     String timepoint,
