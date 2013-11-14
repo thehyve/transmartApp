@@ -558,7 +558,7 @@ class GeneExpressionDataService {
                 geneID = resultSet.getString(geneIDIdx);
                 geneSymbolId = resultSet.getString(geneSymbolIdx);
 
-                dataFound = true
+                returnValues["dataFound"] = true
 
                 //To use only GPL96 when same probe present in both platforms
                 if (gplIds.size() > 1) { // when there are more than one platforms
