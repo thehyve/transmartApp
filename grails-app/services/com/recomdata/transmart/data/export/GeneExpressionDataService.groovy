@@ -589,16 +589,7 @@ class GeneExpressionDataService {
                 if (StringUtils.isNotEmpty(logIntensityRS)) {
                     output.write(logIntensityRS);
                     log2 = "1";
-                } /*
-				//Don't do the below for Global Normalized data as log_intensity must be present
-				else if(StringUtils.isNotEmpty(rawIntensityRS)){ // calculate log 2
-					rawIntensity =  Double.valueOf(rawIntensityRS);
-					output.write((Math.log(rawIntensity)/Math.log(2)).toString());
-					log2 ="1";
-				} else if(StringUtils.isNotEmpty(zScoreRS)){ // use zscore
-					output.write(zScoreRS);
-					log2 ="0";
-				}*/
+                }
 
                 output.write(valueDelimiter);
                 writeNotEmptyString(output, zScoreRS);
