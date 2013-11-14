@@ -64,6 +64,7 @@ class GeneExpressionDataService {
         studyList.each { study ->
             String sqlQuery, sampleQuery = null;
 
+            //NOTE: I think this code is fundamentally wrong. The method "writeData" won't be able to handle null queries
             //Create a query for the Subset.
             if (resultInstanceId) {
                 sqlQuery = createMRNAHeatmapPathwayQuery(study, resultInstanceId, gplIds, pathway, timepoint, sampleTypes, tissueTypes)
