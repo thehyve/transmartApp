@@ -449,11 +449,19 @@ class GeneExpressionDataService {
         sampleStatement.setFetchSize(fetchSize);
 
         log.info("started file writing")
-        def output;
 
+        /*
+         * FIXME: This part is seriously broken.
+         * It depends on the fact that access rights of attributes are not enforced. The 'outputFile' attribute should
+         * never be accessed like this.
+         * Also it misuses the FileWriterUtil class.
+        */
+
+        def output;
         FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, "mRNA", "Processed_Data", valueDelimiter);
         File outFile = writerUtil.outputFile
         output = outFile.newWriter(true)
+
         output << constructHeaderRow(splitAttributeColumn, includePathwayInfo)
 
         def sampleType, timepoint, tissueType, rawIntensityRS, zScoreRS, patientID, sourceSystemCode, assayID, GPL_ID, logIntensityRS, probeID, probesetID, gplID = null
