@@ -432,12 +432,11 @@ class GeneExpressionDataService {
         sampleStatement.setString(1, resultInstanceId);
         sampleStatement.setFetchSize(fetchSize);
 
-        def char separator = '\t';
         log.info("started file writing")
         def output;
         def outFile;
 
-        FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, "mRNA", "Processed_Data", separator);
+        FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, "mRNA", "Processed_Data", '\t');
         outFile = writerUtil.outputFile
         output = outFile.newWriter(true)
 
@@ -467,7 +466,7 @@ class GeneExpressionDataService {
         log.info("start sample retrieving query");
         log.debug("Sample Query : " + sampleQuery);
         rows = sampleStatement.executeQuery();
-        def sttSampleStr = null;
+        String sttSampleStr = null;
 
         try {
             while (rows.next()) {
