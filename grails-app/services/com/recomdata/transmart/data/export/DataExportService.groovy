@@ -79,12 +79,7 @@ class DataExportService {
     }
 
     private boolean shouldWriteClinicalData(selectedFilesList) {
-        selectedFilesList.each() { selectedFile ->
-
-            if (StringUtils.equalsIgnoreCase(selectedFile, "CLINICAL.TXT")) {
-                shouldWriteClinicalData = true
-            }
-        }
+        selectedFilesList.any { StringUtils.equalsIgnoreCase(it, "CLINICAL.TXT") }
     }
 
     @Transactional(readOnly = true)
