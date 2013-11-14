@@ -403,9 +403,7 @@ class GeneExpressionDataService {
     }
 
     def writeData(String resultInstanceId, String sqlQuery, String sampleQuery, File studyDir, String fileName, String jobName, includePathwayInfo, splitAttributeColumn, gplIds) {
-        def filePath = null
-        def dataTypeName = "mRNA";
-        def dataTypeFolder = "Processed_Data";
+        String filePath = null
         Boolean dataFound = false
 
         //Create objects we use to form JDBC connection.
@@ -431,7 +429,7 @@ class GeneExpressionDataService {
         def output;
         def outFile;
 
-        FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, dataTypeName, dataTypeFolder, separator);
+        FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, "mRNA", "Processed_Data", separator);
         outFile = writerUtil.outputFile
         output = outFile.newWriter(true)
 
