@@ -473,8 +473,6 @@ class GeneExpressionDataService {
         String log2 = null;
         def sttMap = [:]
 
-        long elapsetime = System.currentTimeMillis();
-
         log.info("start sample retrieving query");
         log.debug("Sample Query : " + sampleQuery);
         rows = sampleStatement.executeQuery();
@@ -647,10 +645,6 @@ class GeneExpressionDataService {
             statement?.close();
             connection?.close();
         }
-
-        // calculate elapse tim
-        elapsetime = System.currentTimeMillis() - elapsetime;
-        log.info("\n \t total seconds:" + (elapsetime / 1000) + "\n\n");
 
         //We need to return a map with two key/values.
         def mapReturnValues = [:]
