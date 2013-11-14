@@ -432,12 +432,11 @@ class GeneExpressionDataService {
         sampleStatement.setString(1, resultInstanceId);
         sampleStatement.setFetchSize(fetchSize);
 
-        def char separator = '\t';
         log.info("started file writing")
         def output;
         def outFile;
 
-        FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, "mRNA", "Processed_Data", separator);
+        FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, "mRNA", "Processed_Data", '\t');
         outFile = writerUtil.outputFile
         output = outFile.newWriter(true)
 
