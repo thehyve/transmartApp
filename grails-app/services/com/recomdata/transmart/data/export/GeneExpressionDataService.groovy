@@ -66,7 +66,7 @@ class GeneExpressionDataService {
                 String sqlQuery, sampleQuery = null;
 
                 //Create a query for the Subset.
-                if (null != resultInstanceId) {
+                if (resultInstanceId) {
                     //Get the concepts for this result instance id.
                     def concepts = i2b2HelperService.getConcepts(resultInstanceId)
 
