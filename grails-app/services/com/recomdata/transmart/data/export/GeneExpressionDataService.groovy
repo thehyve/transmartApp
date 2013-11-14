@@ -100,17 +100,17 @@ class GeneExpressionDataService {
         sQuery.append(" WHERE ssm.trial_name = '").append(study).append("' ")
         //If we have a sample type, append it to the query.
         if (sampleTypes != null && sampleTypes.length() > 0) {
-            sQuery.append(" AND ssm.sample_type_cd IN ").append(convertStringToken(sampleTypes));
+            sQuery.append(" AND ssm.sample_type_cd IN ").append(constructInClause(sampleTypes));
         }
 
         //If we have timepoints, append it to the query.
         if (timepoint != null && timepoint.trim().length() > 0) {
-            sQuery.append(" AND ssm.timepoint_cd IN ").append(convertStringToken(timepoint));
+            sQuery.append(" AND ssm.timepoint_cd IN ").append(constructInClause(timepoint));
         }
 
         //If we have tissues, append it to the query.
         if (tissueTypes != null && tissueTypes.trim().length() > 0) {
-            sQuery.append(" AND ssm.tissue_type_cd IN ").append(convertStringToken(tissueTypes));
+            sQuery.append(" AND ssm.tissue_type_cd IN ").append(constructInClause(tissueTypes));
         }
 
         //If we have gplid, append it to the query.
@@ -167,7 +167,7 @@ class GeneExpressionDataService {
             // insert distinct
             sSelect.insert(6, " DISTINCT ");
 
-            String keywordTokens = convertStringToken(pathwayName);
+            String keywordTokens = constructInClause(pathwayName);
 
             sSelect.append(", sk.SEARCH_KEYWORD_ID ")
 
@@ -194,24 +194,24 @@ class GeneExpressionDataService {
 
             //Include the normal filter.
             sTables.append(" WHERE SSM.trial_name = '").append(study).append("' ")
-            sTables.append(" AND sk.unique_id IN ").append(convertStringToken(pathwayName)).append(" ");
+            sTables.append(" AND sk.unique_id IN ").append(constructInClause(pathwayName)).append(" ");
         } else {
             sTables.append(" WHERE SSM.trial_name = '").append(study).append("' ")
         }
 
         //If we have a sample type, append it to the query.
         if (sampleTypes != null && sampleTypes.length() > 0) {
-            sTables.append(" AND ssm.sample_type_cd IN ").append(convertStringToken(sampleTypes));
+            sTables.append(" AND ssm.sample_type_cd IN ").append(constructInClause(sampleTypes));
         }
 
         //If we have timepoints, append it to the query.
         if (timepoint != null && timepoint.trim().length() > 0) {
-            sTables.append(" AND ssm.timepoint_cd IN ").append(convertStringToken(timepoint));
+            sTables.append(" AND ssm.timepoint_cd IN ").append(constructInClause(timepoint));
         }
 
         //If we have tissues, append it to the query.
         if (tissueTypes != null && tissueTypes.trim().length() > 0) {
-            sTables.append(" AND ssm.tissue_type_cd IN ").append(convertStringToken(tissueTypes));
+            sTables.append(" AND ssm.tissue_type_cd IN ").append(constructInClause(tissueTypes));
         }
 
         //If we have gplid, append it to the query.
@@ -272,17 +272,17 @@ class GeneExpressionDataService {
 
         //If we have a sample type, append it to the query.
         if (sampleTypes != null && sampleTypes.length() > 0) {
-            assayS.append(" AND s.sample_type_cd IN ").append(convertStringToken(sampleTypes));
+            assayS.append(" AND s.sample_type_cd IN ").append(constructInClause(sampleTypes));
         }
 
         //If we have timepoints, append it to the query.
         if (timepoint != null && timepoint.trim().length() > 0) {
-            assayS.append(" AND s.timepoint_cd IN ").append(convertStringToken(timepoint));
+            assayS.append(" AND s.timepoint_cd IN ").append(constructInClause(timepoint));
         }
 
         //If we have tissues, append it to the query.
         if (tissueTypes != null && tissueTypes.trim().length() > 0) {
-            assayS.append(" AND s.tissue_type_cd IN ").append(convertStringToken(tissueTypes));
+            assayS.append(" AND s.tissue_type_cd IN ").append(constructInClause(tissueTypes));
         }
 
         //Always add an order by to the query.
@@ -369,24 +369,11 @@ class GeneExpressionDataService {
         return s
     }
 
-    /**
-     *
-     */
-    def convertStringToken(String t) {
-        String[] ts = t.split(",");
-        StringBuilder s = new StringBuilder("(");
-        for (int i = 0; i < ts.length; i++) {
-            //Make sure we have a non blank token before adding to list.
-            if (ts[i]) {
-                if (i > 0)
-                    s.append(",");
-                s.append("'");
-                s.append(ts[i]);
-                s.append("'");
-            }
-        }
-        s.append(")");
-        return s.toString();
+    def constructInClause(String list) {
+        def sanitizedList = list.split(",") - ""
+        def quotedList = sanitizedList.collect { "'${it}'" }
+
+        "(" + quotedList.join(",") + ")"
     }
 
     /**
