@@ -63,7 +63,7 @@ class GeneExpressionDataService {
             boolean includePathwayInfo = derivePathwayName(pathway) ? true : false
 
             studyList.each { study ->
-                def sqlQuery, sampleQuery = null;
+                String sqlQuery, sampleQuery = null;
 
                 //Create a query for the Subset.
                 if (null != resultInstanceId) {
