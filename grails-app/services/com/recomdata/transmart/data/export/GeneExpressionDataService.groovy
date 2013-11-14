@@ -55,17 +55,12 @@ class GeneExpressionDataService {
                            String tissueTypes,
                            Boolean splitAttributeColumn) {
 
-        //This tells us whether we need to include the pathway information or not.
-        Boolean includePathwayInfo = false
-
         //This tells us whether we found data when we call the "Write Data" method.
         boolean dataFound = false
 
         try {
             //Set a flag based on the presence of the pathway.
-            if (derivePathwayName(pathway)) {
-                includePathwayInfo = true
-            }
+            boolean includePathwayInfo = derivePathwayName(pathway) ? true : false
 
             studyList.each { study ->
                 def sqlQuery, sampleQuery = null;
