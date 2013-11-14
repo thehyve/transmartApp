@@ -1,7 +1,6 @@
 package com.recomdata.transmart.data.export
 
 import grails.test.mixin.*
-import org.junit.Before
 import org.junit.Test
 
 import java.lang.reflect.Method
