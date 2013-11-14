@@ -451,7 +451,7 @@ class GeneExpressionDataService {
         log.info("started file writing")
         def output;
 
-        FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, "mRNA", "Processed_Data", '\t');
+        FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, "mRNA", "Processed_Data", valueDelimiter);
         File outFile = writerUtil.outputFile
         output = outFile.newWriter(true)
         output << constructHeaderRow(splitAttributeColumn, includePathwayInfo)
