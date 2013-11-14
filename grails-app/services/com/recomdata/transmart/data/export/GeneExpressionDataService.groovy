@@ -403,35 +403,33 @@ class GeneExpressionDataService {
     }
 
     def writeData(String resultInstanceId, String sqlQuery, String sampleQuery, File studyDir, String fileName, String jobName, includePathwayInfo, splitAttributeColumn, gplIds) {
-        def filePath = null
-        def dataTypeName = "mRNA";
-        def dataTypeFolder = "Processed_Data";
+        String filePath = null
         Boolean dataFound = false
 
         //Create objects we use to form JDBC connection.
-        def con, stmt, stmt1, rs = null;
+        def connection, statement, sampleStatement, rows = null;
 
         //Grab the connection from the grails object.
-        con = dataSource.getConnection()
+        connection = dataSource.getConnection()
 
         Integer fetchSize = getStmtFetchSize()
 
         //Prepare the SQL statement.
-        stmt = con.prepareStatement(sqlQuery);
-        stmt.setString(1, resultInstanceId);
-        stmt.setFetchSize(fetchSize)
+        statement = connection.prepareStatement(sqlQuery);
+        statement.setString(1, resultInstanceId);
+        statement.setFetchSize(fetchSize)
 
         // sample query
-        stmt1 = con.prepareStatement(sampleQuery);
-        stmt1.setString(1, resultInstanceId);
-        stmt1.setFetchSize(fetchSize);
+        sampleStatement = connection.prepareStatement(sampleQuery);
+        sampleStatement.setString(1, resultInstanceId);
+        sampleStatement.setFetchSize(fetchSize);
 
         def char separator = '\t';
         log.info("started file writing")
         def output;
         def outFile;
 
-        FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, dataTypeName, dataTypeFolder, separator);
+        FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, "mRNA", "Processed_Data", separator);
         outFile = writerUtil.outputFile
         output = outFile.newWriter(true)
 
@@ -468,17 +466,17 @@ class GeneExpressionDataService {
 
         log.info("start sample retrieving query");
         log.debug("Sample Query : " + sampleQuery);
-        rs = stmt1.executeQuery();
+        rows = sampleStatement.executeQuery();
         def sttSampleStr = null;
 
         try {
-            while (rs.next()) {
+            while (rows.next()) {
 
-                sampleType = rs.getString("SAMPLE_TYPE");
-                timepoint = rs.getString("TIMEPOINT");
-                tissueType = rs.getString("TISSUE_TYPE");
-                assayID = rs.getString("ASSAY_ID");
-                GPL_ID = rs.getString("GPL_ID");
+                sampleType = rows.getString("SAMPLE_TYPE");
+                timepoint = rows.getString("TIMEPOINT");
+                tissueType = rows.getString("TISSUE_TYPE");
+                assayID = rows.getString("ASSAY_ID");
+                GPL_ID = rows.getString("GPL_ID");
 
                 if (splitAttributeColumn) {
                     sttSampleStr = (new StringBuilder()).append(StringUtils.isNotEmpty(sampleType) ? sampleType : '').append(valueDelimiter)
@@ -496,17 +494,17 @@ class GeneExpressionDataService {
                 sttMap.put(assayID, sttSampleStr.toString());
             }
         } finally {
-            rs?.close();
-            stmt1?.close();
+            rows?.close();
+            sampleStatement?.close();
         }
         log.info("finished sample retrieving query");
 
         //Run the query.
         log.debug("begin data retrieving query: " + sqlQuery)
-        rs = stmt.executeQuery();
+        rows = statement.executeQuery();
         log.info("query completed")
         // get column name map
-        ResultSetMetaData metaData = rs.getMetaData();
+        ResultSetMetaData metaData = rows.getMetaData();
         def nameIndexMap = [:]
         int count = metaData.getColumnCount();
         for (int i = 1; i <= count; i++) {
@@ -534,24 +532,24 @@ class GeneExpressionDataService {
 
         try {
             //Iterate over the record set object.
-            while (rs.next()) {
+            while (rows.next()) {
                 //Pull the values we need from the record set object.
-                rawIntensityRS = rs.getString(rawIntensityRSIdx);
-                zScoreRS = rs.getString(zScoreRSIdx);
-                patientID = rs.getString(ptIDIdx);
-                sourceSystemCode = rs.getString(sourceSystemCodeIdx);
-                assayID = rs.getString(assayIDIdx);
-                probeID = rs.getString(probeIDIdx);
-                probesetID = rs.getString(probesetIDIdx);
-                logIntensityRS = rs.getString(logIntensityRSIdx);
-                geneID = rs.getString(geneIDIdx);
-                geneSymbolId = rs.getString(geneSymbolIdx);
+                rawIntensityRS = rows.getString(rawIntensityRSIdx);
+                zScoreRS = rows.getString(zScoreRSIdx);
+                patientID = rows.getString(ptIDIdx);
+                sourceSystemCode = rows.getString(sourceSystemCodeIdx);
+                assayID = rows.getString(assayIDIdx);
+                probeID = rows.getString(probeIDIdx);
+                probesetID = rows.getString(probesetIDIdx);
+                logIntensityRS = rows.getString(logIntensityRSIdx);
+                geneID = rows.getString(geneIDIdx);
+                geneSymbolId = rows.getString(geneSymbolIdx);
 
                 dataFound = true
 
                 //To use only GPL96 when same probe present in both platforms
                 if (gplIds.size() > 1) { // when there are more than one platforms
-                    gplID = rs.getString(gplIDIdx)
+                    gplID = rows.getString(gplIDIdx)
                     if (gplID.equals(platformToUse)) { // compared with the hard-coded value GPL96
                         patientProbePlatformValueMap.put(patientID + '_' + probeID + '_' + gplID, logIntensityRS)
                     } else {
@@ -604,7 +602,7 @@ class GeneExpressionDataService {
                 writeNotEmptyString(output, geneSymbolId);
 
                 if (includePathwayInfo) {
-                    searchKeywordId = rs.getString(searchKeywordIdIdx);
+                    searchKeywordId = rows.getString(searchKeywordIdIdx);
                     output.write(valueDelimiter);
                     writeNotEmptyString(output, searchKeywordId);
                 }
@@ -636,8 +634,8 @@ class GeneExpressionDataService {
                 filePath = outFile?.getAbsolutePath()
             }
             log.info("completed file writing")
-            stmt?.close();
-            con?.close();
+            statement?.close();
+            connection?.close();
         }
 
         // calculate elapse tim
