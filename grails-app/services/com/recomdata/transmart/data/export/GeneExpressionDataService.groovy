@@ -619,13 +619,6 @@ class GeneExpressionDataService {
                     //log.info("# record processed:"+recCount);
                 }
             }
-            if (!dataFound) {
-                boolean delFile = outFile?.delete()
-                writeNotEmptyString(output, "No data found to add to file.");
-                /*log.debug("File deleted :: " + delFile)
-                if (!delFile) writeNotEmptyString(output, "Unable to delete this file.");
-                filePath = null*/
-            }
         } catch (Exception e) {
             log.error(e.getMessage(), e)
         } finally {
