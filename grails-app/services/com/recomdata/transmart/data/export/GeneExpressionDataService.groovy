@@ -62,11 +62,10 @@ class GeneExpressionDataService {
         boolean dataFound = false
 
         try {
-            //Grab the pathway name based on the pathway id.
-            pathway = derivePathwayName(pathway)
-
             //Set a flag based on the presence of the pathway.
-            if (pathway != null && pathway.length() > 0) includePathwayInfo = true
+            if (derivePathwayName(pathway)) {
+                includePathwayInfo = true
+            }
 
             studyList.each { study ->
                 def sqlQuery, sampleQuery = null;
