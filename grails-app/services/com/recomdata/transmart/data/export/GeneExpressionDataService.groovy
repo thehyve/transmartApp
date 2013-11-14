@@ -66,10 +66,8 @@ class GeneExpressionDataService {
         boolean includePathwayInfo = derivePathwayName(pathway) ? true : false
 
         studyList.each { study ->
-            String sqlQuery, sampleQuery = null;
-
-            sqlQuery = createMRNAHeatmapPathwayQuery(study, resultInstanceId, gplIds, pathway, timepoint, sampleTypes, tissueTypes)
-            sampleQuery = createStudySampleAssayQuery(study, resultInstanceId, gplIds, timepoint, sampleTypes, tissueTypes)
+            String sqlQuery = createMRNAHeatmapPathwayQuery(study, resultInstanceId, gplIds, pathway, timepoint, sampleTypes, tissueTypes)
+            String sampleQuery = createStudySampleAssayQuery(study, resultInstanceId, gplIds, timepoint, sampleTypes, tissueTypes)
             String filename = (studyList?.size() > 1) ? study + '_' + fileName : fileName
             //The writeData method will return a map that tells us if data was found, and the name of the file that was written.
             def writeDataStatusMap = writeData(resultInstanceId, sqlQuery, sampleQuery, studyDir, filename, jobName, includePathwayInfo, splitAttributeColumn, gplIds)
@@ -429,17 +427,7 @@ class GeneExpressionDataService {
         //Grab the connection from the grails object.
         con = dataSource.getConnection()
 
-        //Grab the configuration that sets the fetch size.
-        def rsize = grailsApplication.config.com.recomdata.plugins.resultSize;
-        Integer fetchSize = 5000;
-        if (rsize != null) {
-            try {
-                fetchSize = Integer.parseInt(rsize);
-            } catch (Exception exs) {
-                log.warn("com.recomdata.plugins.resultSize is not set!");
-
-            }
-        }
+        Integer fetchSize = getStmtFetchSize()
 
         //Prepare the SQL statement.
         stmt = con.prepareStatement(sqlQuery);
