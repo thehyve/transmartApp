@@ -100,11 +100,9 @@ class DataExportService {
 
             boolean pivotData = jobDataMap.get("pivotData") != false
             boolean shouldWriteClinicalData = shouldWriteClinicalData(selectedFilesList)
-            List studyList = i2b2ExportHelperService.findStudyAccessions([resultInstanceIdMap[subset]])
 
-            //NOTE: This seems to prevent an analysis to run twice. Perhaps uniq the presentSubsets is better?
-            if (!resultInstanceIdMap[subset]) {
-
+            if (resultInstanceIdMap[subset]) {
+                List studyList = i2b2ExportHelperService.findStudyAccessions([resultInstanceIdMap[subset]])
                 //Prepare Study dir
                 if (!studyList.isEmpty()) {
                     study = studyList.get(0)
@@ -117,6 +115,7 @@ class DataExportService {
 
                     def List gplIds = subsetSelectedPlatformsByFiles?.get(subset)?.get(selectedFile)
                     def dataFound = null
+
                     switch (selectedFile) {
                         case "STUDY":
                             dataFound = metadataService.getData(studyDir, "experimentalDesign.txt", jobDataMap.get("jobName"), studyList);
