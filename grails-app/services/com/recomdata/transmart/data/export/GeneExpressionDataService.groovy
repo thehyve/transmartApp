@@ -42,7 +42,7 @@ class GeneExpressionDataService {
     def utilService
 
 
-    public boolean getData(List studyList,
+    boolean getData(List studyList,
                            File studyDir,
                            String fileName,
                            String jobName,
