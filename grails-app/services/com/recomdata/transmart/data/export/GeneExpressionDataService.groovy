@@ -67,8 +67,6 @@ class GeneExpressionDataService {
 
                 //Create a query for the Subset.
                 if (resultInstanceId) {
-                    //Get the concepts for this result instance id.
-                    def concepts = i2b2HelperService.getConcepts(resultInstanceId)
 
                     //Add the subquery to the main query.
                     sqlQuery = createMRNAHeatmapPathwayQuery(study, resultInstanceId, gplIds, pathway, timepoint, sampleTypes, tissueTypes)
