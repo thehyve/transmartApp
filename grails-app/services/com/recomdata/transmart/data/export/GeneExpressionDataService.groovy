@@ -429,8 +429,9 @@ class GeneExpressionDataService {
     }
 
     def writeData(String resultInstanceId, String sqlQuery, String sampleQuery, File studyDir, String fileName, String jobName, includePathwayInfo, splitAttributeColumn, gplIds) {
-        String filePath = null
-        Boolean dataFound = false
+
+        //We need to return a map with two key/values.
+        Map returnValues = ["outFile": null, "dataFound": false]
 
         //Create objects we use to form JDBC connection.
         def connection, statement, sampleStatement
@@ -557,7 +558,7 @@ class GeneExpressionDataService {
                 geneID = resultSet.getString(geneIDIdx);
                 geneSymbolId = resultSet.getString(geneSymbolIdx);
 
-                dataFound = true
+                returnValues["dataFound"] = true
 
                 //To use only GPL96 when same probe present in both platforms
                 if (gplIds.size() > 1) { // when there are more than one platforms
@@ -624,7 +625,7 @@ class GeneExpressionDataService {
         } finally {
             output?.flush();
             output?.close()
-            filePath = outFile?.getAbsolutePath()
+            returnValues["outFile"] = outFile?.getAbsolutePath()
             if (!dataFound) {
                 outFile?.delete()
             }
@@ -633,13 +634,7 @@ class GeneExpressionDataService {
             connection?.close();
         }
 
-        //We need to return a map with two key/values.
-        def mapReturnValues = [:]
-
-        mapReturnValues["outFile"] = filePath
-        mapReturnValues["dataFound"] = dataFound
-
-        return mapReturnValues
+        return returnValues
     }
 
     def determineSampleAttribute(sample) {
