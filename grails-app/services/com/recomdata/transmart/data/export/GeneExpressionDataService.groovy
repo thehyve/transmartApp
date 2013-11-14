@@ -78,7 +78,7 @@ class GeneExpressionDataService {
 
                 def outFile = writeDataStatusMap["outFile"]
                 dataFound = writeDataStatusMap["dataFound"]
-                if (null != outFile && dataFound && pivot) {
+                if (outFile && dataFound && pivot) {
                     pivotData((studyList?.size() > 1), study, outFile)
                 }
             }
