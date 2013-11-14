@@ -55,6 +55,10 @@ class GeneExpressionDataService {
                     String tissueTypes,
                     Boolean splitAttributeColumn) {
 
+        if(!resultInstanceId) {
+            return false
+        }
+
         //This tells us whether we found data when we call the "Write Data" method.
         boolean dataFound = false
 
@@ -64,12 +68,8 @@ class GeneExpressionDataService {
         studyList.each { study ->
             String sqlQuery, sampleQuery = null;
 
-            //NOTE: I think this code is fundamentally wrong. The method "writeData" won't be able to handle null queries
-            //Create a query for the Subset.
-            if (resultInstanceId) {
-                sqlQuery = createMRNAHeatmapPathwayQuery(study, resultInstanceId, gplIds, pathway, timepoint, sampleTypes, tissueTypes)
-                sampleQuery = createStudySampleAssayQuery(study, resultInstanceId, gplIds, timepoint, sampleTypes, tissueTypes)
-            }
+            sqlQuery = createMRNAHeatmapPathwayQuery(study, resultInstanceId, gplIds, pathway, timepoint, sampleTypes, tissueTypes)
+            sampleQuery = createStudySampleAssayQuery(study, resultInstanceId, gplIds, timepoint, sampleTypes, tissueTypes)
             String filename = (studyList?.size() > 1) ? study + '_' + fileName : fileName
             //The writeData method will return a map that tells us if data was found, and the name of the file that was written.
             def writeDataStatusMap = writeData(resultInstanceId, sqlQuery, sampleQuery, studyDir, filename, jobName, includePathwayInfo, splitAttributeColumn, gplIds)
