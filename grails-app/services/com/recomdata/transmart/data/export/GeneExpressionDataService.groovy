@@ -427,17 +427,7 @@ class GeneExpressionDataService {
         //Grab the connection from the grails object.
         con = dataSource.getConnection()
 
-        //Grab the configuration that sets the fetch size.
-        def rsize = grailsApplication.config.com.recomdata.plugins.resultSize;
-        Integer fetchSize = 5000;
-        if (rsize != null) {
-            try {
-                fetchSize = Integer.parseInt(rsize);
-            } catch (Exception exs) {
-                log.warn("com.recomdata.plugins.resultSize is not set!");
-
-            }
-        }
+        Integer fetchSize = getStmtFetchSize()
 
         //Prepare the SQL statement.
         stmt = con.prepareStatement(sqlQuery);
