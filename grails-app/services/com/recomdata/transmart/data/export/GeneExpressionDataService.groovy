@@ -26,6 +26,8 @@ import org.rosuda.REngine.REXP
 import org.rosuda.REngine.Rserve.RConnection
 import search.SearchKeyword
 
+import javax.sql.DataSource
+import java.sql.ResultSet
 import java.sql.ResultSetMetaData
 
 class GeneExpressionDataService {
@@ -431,7 +433,7 @@ class GeneExpressionDataService {
         Boolean dataFound = false
 
         //Create objects we use to form JDBC connection.
-        def connection, statement, sampleStatement, rows = null;
+        def connection, statement, sampleStatement
 
         //Grab the connection from the grails object.
         connection = dataSource.getConnection()
@@ -460,7 +462,7 @@ class GeneExpressionDataService {
         def output;
         FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, "mRNA", "Processed_Data", valueDelimiter);
         File outFile = writerUtil.outputFile
-        output = outFile.newWriter(true)
+        output = outFile.newWriter(true) //This is particularly bad. Please refactor to use FileWriterUtil.writeLine
 
         output << constructHeaderRow(splitAttributeColumn, includePathwayInfo)
 
@@ -473,21 +475,19 @@ class GeneExpressionDataService {
         String log2 = null;
         def sttMap = [:]
 
-        long elapsetime = System.currentTimeMillis();
-
         log.info("start sample retrieving query");
         log.debug("Sample Query : " + sampleQuery);
-        rows = sampleStatement.executeQuery();
+        ResultSet resultSet = sampleStatement.executeQuery();
         String sttSampleStr = null;
 
         try {
-            while (rows.next()) {
+            while (resultSet.next()) {
 
-                sampleType = rows.getString("SAMPLE_TYPE");
-                timepoint = rows.getString("TIMEPOINT");
-                tissueType = rows.getString("TISSUE_TYPE");
-                assayID = rows.getString("ASSAY_ID");
-                GPL_ID = rows.getString("GPL_ID");
+                sampleType = resultSet.getString("SAMPLE_TYPE");
+                timepoint = resultSet.getString("TIMEPOINT");
+                tissueType = resultSet.getString("TISSUE_TYPE");
+                assayID = resultSet.getString("ASSAY_ID");
+                GPL_ID = resultSet.getString("GPL_ID");
 
                 if (splitAttributeColumn) {
                     sttSampleStr = (new StringBuilder()).append(StringUtils.isNotEmpty(sampleType) ? sampleType : '').append(valueDelimiter)
@@ -505,17 +505,18 @@ class GeneExpressionDataService {
                 sttMap.put(assayID, sttSampleStr.toString());
             }
         } finally {
-            rows?.close();
+            resultSet?.close();
             sampleStatement?.close();
         }
+
         log.info("finished sample retrieving query");
 
         //Run the query.
         log.debug("begin data retrieving query: " + sqlQuery)
-        rows = statement.executeQuery();
+        resultSet = statement.executeQuery();
         log.info("query completed")
         // get column name map
-        ResultSetMetaData metaData = rows.getMetaData();
+        ResultSetMetaData metaData = resultSet.getMetaData();
         def nameIndexMap = [:]
         int count = metaData.getColumnCount();
         for (int i = 1; i <= count; i++) {
@@ -543,24 +544,24 @@ class GeneExpressionDataService {
 
         try {
             //Iterate over the record set object.
-            while (rows.next()) {
+            while (resultSet.next()) {
                 //Pull the values we need from the record set object.
-                rawIntensityRS = rows.getString(rawIntensityRSIdx);
-                zScoreRS = rows.getString(zScoreRSIdx);
-                patientID = rows.getString(ptIDIdx);
-                sourceSystemCode = rows.getString(sourceSystemCodeIdx);
-                assayID = rows.getString(assayIDIdx);
-                probeID = rows.getString(probeIDIdx);
-                probesetID = rows.getString(probesetIDIdx);
-                logIntensityRS = rows.getString(logIntensityRSIdx);
-                geneID = rows.getString(geneIDIdx);
-                geneSymbolId = rows.getString(geneSymbolIdx);
+                rawIntensityRS = resultSet.getString(rawIntensityRSIdx);
+                zScoreRS = resultSet.getString(zScoreRSIdx);
+                patientID = resultSet.getString(ptIDIdx);
+                sourceSystemCode = resultSet.getString(sourceSystemCodeIdx);
+                assayID = resultSet.getString(assayIDIdx);
+                probeID = resultSet.getString(probeIDIdx);
+                probesetID = resultSet.getString(probesetIDIdx);
+                logIntensityRS = resultSet.getString(logIntensityRSIdx);
+                geneID = resultSet.getString(geneIDIdx);
+                geneSymbolId = resultSet.getString(geneSymbolIdx);
 
                 dataFound = true
 
                 //To use only GPL96 when same probe present in both platforms
                 if (gplIds.size() > 1) { // when there are more than one platforms
-                    gplID = rows.getString(gplIDIdx)
+                    gplID = resultSet.getString(gplIDIdx)
                     if (gplID.equals(platformToUse)) { // compared with the hard-coded value GPL96
                         patientProbePlatformValueMap.put(patientID + '_' + probeID + '_' + gplID, logIntensityRS)
                     } else {
@@ -588,16 +589,7 @@ class GeneExpressionDataService {
                 if (StringUtils.isNotEmpty(logIntensityRS)) {
                     output.write(logIntensityRS);
                     log2 = "1";
-                } /*
-				//Don't do the below for Global Normalized data as log_intensity must be present
-				else if(StringUtils.isNotEmpty(rawIntensityRS)){ // calculate log 2
-					rawIntensity =  Double.valueOf(rawIntensityRS);
-					output.write((Math.log(rawIntensity)/Math.log(2)).toString());
-					log2 ="1";
-				} else if(StringUtils.isNotEmpty(zScoreRS)){ // use zscore
-					output.write(zScoreRS);
-					log2 ="0";
-				}*/
+                }
 
                 output.write(valueDelimiter);
                 writeNotEmptyString(output, zScoreRS);
@@ -613,7 +605,7 @@ class GeneExpressionDataService {
                 writeNotEmptyString(output, geneSymbolId);
 
                 if (includePathwayInfo) {
-                    searchKeywordId = rows.getString(searchKeywordIdIdx);
+                    searchKeywordId = resultSet.getString(searchKeywordIdIdx);
                     output.write(valueDelimiter);
                     writeNotEmptyString(output, searchKeywordId);
                 }
@@ -626,13 +618,6 @@ class GeneExpressionDataService {
                     flushCount = 0;
                     //log.info("# record processed:"+recCount);
                 }
-            }
-            if (!dataFound) {
-                boolean delFile = outFile?.delete()
-                writeNotEmptyString(output, "No data found to add to file.");
-                /*log.debug("File deleted :: " + delFile)
-                if (!delFile) writeNotEmptyString(output, "Unable to delete this file.");
-                filePath = null*/
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e)
@@ -647,10 +632,6 @@ class GeneExpressionDataService {
             statement?.close();
             connection?.close();
         }
-
-        // calculate elapse tim
-        elapsetime = System.currentTimeMillis() - elapsetime;
-        log.info("\n \t total seconds:" + (elapsetime / 1000) + "\n\n");
 
         //We need to return a map with two key/values.
         def mapReturnValues = [:]
