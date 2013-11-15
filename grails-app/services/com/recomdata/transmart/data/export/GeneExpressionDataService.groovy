@@ -426,7 +426,7 @@ class GeneExpressionDataService {
         output << "\n"
     }
 
-    def writeData(String resultInstanceId,
+    Map writeData(String resultInstanceId,
                   String sqlQuery,
                   String sampleQuery,
                   File studyDir,
