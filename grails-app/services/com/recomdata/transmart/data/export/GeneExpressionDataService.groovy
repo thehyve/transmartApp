@@ -977,7 +977,6 @@ class GeneExpressionDataService {
     /*
      * This method will check to see if we have multiple result instance ids and return a boolean.
      */
-
     def boolean isMultipleResultInstanceIds(str) {
         def strList = str?.tokenize(',')
         return (!strList.empty && strList.size() > 1)
