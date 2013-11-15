@@ -634,7 +634,7 @@ class GeneExpressionDataService {
             output?.flush();
             output?.close()
             returnValues["outFile"] = outFile?.getAbsolutePath()
-            if (!dataFound) {
+            if (!returnValues["dataFound"]) {
                 outFile?.delete()
             }
             log.info("completed file writing")
