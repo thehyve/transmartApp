@@ -428,7 +428,15 @@ class GeneExpressionDataService {
         output << "\n"
     }
 
-    def writeData(String resultInstanceId, String sqlQuery, String sampleQuery, File studyDir, String fileName, String jobName, includePathwayInfo, splitAttributeColumn, gplIds) {
+    def writeData(String resultInstanceId,
+                  String sqlQuery,
+                  String sampleQuery,
+                  File studyDir,
+                  String fileName,
+                  String jobName,
+                  Boolean includePathwayInfo,
+                  Boolean splitAttributeColumn,
+                  List gplIds) {
 
         //We need to return a map with two key/values.
         Map returnValues = ["outFile": null, "dataFound": false]
