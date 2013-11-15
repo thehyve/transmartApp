@@ -387,9 +387,6 @@ class GeneExpressionDataService {
         "(" + quotedList.join(",") + ")"
     }
 
-    /**
-     * convert id list
-     */
     def convertList(idList, boolean isString, int max) {
         StringBuilder s = new StringBuilder();
         int i = 0;
@@ -477,8 +474,6 @@ class GeneExpressionDataService {
         output << constructHeaderRow(splitAttributeColumn, includePathwayInfo)
 
         def sampleType, timepoint, tissueType, rawIntensityRS, zScoreRS, patientID, sourceSystemCode, assayID, GPL_ID, logIntensityRS, probeID, probesetID, gplID = null
-        def sample, value, zscore, lineToWrite = null
-        Double rawIntensity = null;
         String geneID = null;
         String geneSymbolId = null;
         String searchKeywordId = null;
