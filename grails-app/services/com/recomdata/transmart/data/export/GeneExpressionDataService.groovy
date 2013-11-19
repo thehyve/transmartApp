@@ -474,7 +474,7 @@ class GeneExpressionDataService {
         File outFile = writerUtil.outputFile
         output = outFile.newWriter(true) //This is particularly bad. Please refactor to use FileWriterUtil.writeLine
 
-        output += constructHeaderRow(splitAttributeColumn, includePathwayInfo)
+        output << constructHeaderRow(splitAttributeColumn, includePathwayInfo)
 
         def sampleType, timepoint, tissueType, rawIntensityRS, zScoreRS, patientID, sourceSystemCode, assayID, GPL_ID, logIntensityRS, probeID, probesetID, gplID = null
         def sample, value, zscore, lineToWrite = null
