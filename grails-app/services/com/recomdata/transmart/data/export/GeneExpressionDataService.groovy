@@ -64,8 +64,9 @@ class GeneExpressionDataService {
         //This tells us whether we found data when we call the "Write Data" method.
         boolean dataFound = false
 
+        pathway = derivePathwayName(pathway)
         //Set a flag based on the presence of the pathway.
-        boolean includePathwayInfo = derivePathwayName(pathway) ? true : false
+        boolean includePathwayInfo = pathway ? true : false
 
         studyList.each { study ->
             // performance optimization - reduce latency by eliminating sample type data from mRNA result
