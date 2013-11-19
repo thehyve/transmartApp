@@ -417,16 +417,16 @@ class GeneExpressionDataService {
         String output = "PATIENT ID\t"
 
         if (splitAttributeColumn) {
-            output << "SAMPLE TYPE\tTIMEPOINT\tTISSUE TYPE\tGPL ID\tASSAY ID\tVALUE\tZSCORE\tLOG2ED\tPROBE ID\tPROBESET ID\tGENE_ID\tGENE_SYMBOL"
+            output += "SAMPLE TYPE\tTIMEPOINT\tTISSUE TYPE\tGPL ID\tASSAY ID\tVALUE\tZSCORE\tLOG2ED\tPROBE ID\tPROBESET ID\tGENE_ID\tGENE_SYMBOL"
         } else {
-            output << "SAMPLE\tASSAY ID\tVALUE\tZSCORE\tLOG2ED\tPROBE ID\tPROBESET ID\tGENE_ID\tGENE_SYMBOL"
+            output += "SAMPLE\tASSAY ID\tVALUE\tZSCORE\tLOG2ED\tPROBE ID\tPROBESET ID\tGENE_ID\tGENE_SYMBOL"
         }
 
         if (includePathwayInfo) {
-            output << "\tSEARCH_ID"
+            output += "\tSEARCH_ID"
         }
 
-        output << "\n"
+        output += "\n"
     }
 
     def writeData(String resultInstanceId,
@@ -474,7 +474,7 @@ class GeneExpressionDataService {
         File outFile = writerUtil.outputFile
         output = outFile.newWriter(true) //This is particularly bad. Please refactor to use FileWriterUtil.writeLine
 
-        output << constructHeaderRow(splitAttributeColumn, includePathwayInfo)
+        output += constructHeaderRow(splitAttributeColumn, includePathwayInfo)
 
         def sampleType, timepoint, tissueType, rawIntensityRS, zScoreRS, patientID, sourceSystemCode, assayID, GPL_ID, logIntensityRS, probeID, probesetID, gplID = null
         def sample, value, zscore, lineToWrite = null
