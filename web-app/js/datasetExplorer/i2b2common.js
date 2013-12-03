@@ -101,9 +101,9 @@ function convertNodeToConcept(node)
 
 	//Each node has a type (Categorical, Continuous, High Dimensional Data) that we need to populate. For now we will use the icon class.
 	var nodeType = node.attributes.iconCls
-	
+
 	if(oktousevalues=="Y"){value.mode="novalue";} //default to novalue
-	
+
 	var myConcept=new Concept(name, key, level, tooltip, tablename, dimcode, comment, normalunits, oktousevalues, value, nodeType, visualattributes);
 	return myConcept;
 }
@@ -1901,50 +1901,31 @@ function getTreeNodeFromJsonNode(concept)
 {
     var Tree = Ext.tree;
 
-    var level				=	null;
-    var name				=	null;
-    var tablename			=	null;
-    var tooltip				=	null;
-    var key					=	null;
-    var dimcode				=	null;
-    var newnode				=	null;
     var leaf				=	false;
     var draggable			=	true;
-    var comment				=	null;
-    var normalunits			=	null;
-    var commentnode			=	null;
-    var normalunitsnode 	= 	null;
-    var oktousevaluesnode	= 	null;
     var oktousevalues		=	null;
-    var visualattributes    =   null;
-
-    level				= concept.level;
-    key					= concept.key;
-    name				= concept.name;
-    tooltip				= concept.tooltip;
-    dimcode				= concept.dimensionCode;
-    tablename			= concept.dimensionTableName;
-    visualattributes	= concept.visualAttributes;
-
-    comment				= ''; //XXX
-    normalunits			= concept.metadata
-                              ? concept.metadata.unitValues.normalUnits
-                              : '';
-    oktousevalues		=	concept.metadata
-                              ? (concept.metadata.okToUseValues ? 'Y' : 'N')
-                              : 'N'
+    var level				= concept.level;
+    var key					= concept.key;
+    var name				= concept.name;
+    var tooltip				= concept.tooltip;
+    var dimcode				= concept.dimensionCode;
+    var tablename			= concept.dimensionTableName;
+    var visualattributes	= concept.visualAttributes;
+    var comment				= '';
+    var normalunits			= concept.metadata ?
+                              concept.metadata.unitValues.normalUnits : '';
+    var oktousevalues		= concept.metadata ?
+                              (concept.metadata.okToUseValues ? 'Y' : 'N') : 'N'
 
     //We need to replace the < signs with &lt;
     name = name.replace(/</gi, "&lt;");
 
     var iconCls = null;
-    var cls = null;
     var tcls = null;
 
     if (oktousevalues != "N") {
         iconCls = "valueicon";
     }
-
 
     if (visualattributes.indexOf('LEAF') != -1 ||
         visualattributes.indexOf('MULTIPLE') != -1) {
