@@ -41,7 +41,7 @@ function jobsstoreLoaded()
 {
 	var foo = jobsstore;
 	var ojobs = Ext.getCmp('ajobsgrid');
-    var supportedJobs = ['aCGHSurvivalAnalysis', 'aCGHgroupTest', 'RNASeqgroupTest', 'ACGHFrequencyPlot'];
+    var supportedJobs = ['aCGHSurvivalAnalysis', 'aCGHgroupTest', 'RNASeqgroupTest', 'acghFrequencyPlot'];
 
 	if(ojobs!=null)
 	{
@@ -77,7 +77,6 @@ function jobsstoreLoaded()
 						// Second, we check for special cases where the results are stored in JOB_RESULTS field
 						if (viewerURL != null)	{
 							// at the moment specific to these two analysis will load the analysis page
-							//if (jobType == 'aCGHSurvivalAnalysis' || jobType == 'aCGHgroupTest' || jobType == 'ACGHFrequencyPlot') {
                             if (supportedJobs.indexOf(jobType) != -1) {
 								resultsTabPanel.setActiveTab('dataAssociationPanel');
 								loadAnalysisPage(jobType, true, jobName);
