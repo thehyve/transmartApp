@@ -20,19 +20,25 @@ import grails.util.Environment
  ******************************************************************/
 
 
-def forkSettings = [
+def forkSettingsRun = [
         minMemory: 1536,
         maxMemory: 4096,
+        maxPerm:   384,
+        debug:     false,
+]
+def forkSettingsOther = [
+        minMemory: 256,
+        maxMemory: 1024,
         maxPerm:   384,
         debug:     false,
 ]
 /* We can't enable forked run-app now because of a bug in Grails:
  * http://stackoverflow.com/questions/19371859 */
 grails.project.fork = [
-        test:    [ *:forkSettings, daemon: true ],
+        test:    [ *:forkSettingsOther, daemon: true ],
         run:     false,
-        war:     forkSettings,
-        console: forkSettings ]
+        war:     forkSettingsRun,
+        console: forkSettingsOther ]
 
 //grails.plugin.location.'rdc-rmodules' = "../Rmodules"
 
@@ -97,25 +103,28 @@ grails.project.dependency.resolution = {
 
         /* update when grails spring-security-core uses a more recent version of spring-security */
         runtime 'org.springframework.security:spring-security-config:3.0.7.RELEASE'
+
+        compile 'org.grails:grails-plugin-url-mappings:2.3.3-hyve1' // until Grails 2.3.4 is out
     }
 
     plugins {
-        compile ":hibernate:3.6.10.4"
         build ':release:3.0.1', ':rest-client-builder:1.0.3'
+        build ':tomcat:7.0.47'
 
-        compile ":quartz:1.0-RC2"
-        compile ":rdc-rmodules:0.3-SNAPSHOT"
-        compile ":spring-security-core:1.2.7.3"
-        build ":tomcat:7.0.47"
-        build ":build-info:1.2.5"
-        runtime ":prototype:1.0"
-        runtime ":jquery:1.7.1"
-        runtime ":transmart-core:1.0-SNAPSHOT"
-        runtime ":resources:1.2.1"
+        compile ':build-info:1.2.5'
+        compile ':hibernate:3.6.10.4'
+        compile ':quartz:1.0-RC2'
+        compile ':rdc-rmodules:0.3-SNAPSHOT'
+        compile ':spring-security-core:1.2.7.3'
 
-        //This version of code coverage plugin does not work with grails 2.3
-        //Despite specified test scope declaration of this plugin appears in grails.xml of prod war
-        //cause ClassNotFoundationException: CodeCoverageGrailsPlugin
+        runtime ':prototype:1.0'
+        runtime ':jquery:1.7.1'
+        runtime ':transmart-core:1.0-SNAPSHOT'
+        runtime ':resources:1.2.1'
+        runtime ':transmart-mydas:0.1-SNAPSHOT'
+        runtime ':dalliance-plugin:0.1-SNAPSHOT'
+
+        // Doesn't work with forked tests yet
         //test ":code-coverage:1.2.6"
     }
 }
