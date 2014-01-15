@@ -26,6 +26,8 @@ import org.rosuda.REngine.REXP
 import org.rosuda.REngine.Rserve.RConnection
 import search.SearchKeyword
 
+import javax.sql.DataSource
+import java.sql.ResultSet
 import java.sql.ResultSetMetaData
 
 class GeneExpressionDataService {
@@ -42,57 +44,50 @@ class GeneExpressionDataService {
     def utilService
 
 
-    public boolean getData(List studyList,
-                           File studyDir,
-                           String fileName,
-                           String jobName,
-                           String resultInstanceId,
-                           boolean pivot,
-                           List gplIds,
-                           String pathway,
-                           String timepoint,
-                           String sampleTypes,
-                           String tissueTypes,
-                           Boolean splitAttributeColumn) {
+    boolean getData(List studyList,
+                    File studyDir,
+                    String fileName,
+                    String jobName,
+                    String resultInstanceId,
+                    Boolean pivot,
+                    List gplIds,
+                    String pathway,
+                    String timepoint,
+                    String sampleTypes,
+                    String tissueTypes,
+                    Boolean splitAttributeColumn) {
 
-        //This tells us whether we need to include the pathway information or not.
-        Boolean includePathwayInfo = false
+        if(!resultInstanceId) {
+            return false
+        }
 
         //This tells us whether we found data when we call the "Write Data" method.
         boolean dataFound = false
 
-        try {
-            //Grab the pathway name based on the pathway id.
-            pathway = derivePathwayName(pathway)
+        pathway = derivePathwayName(pathway)
+        //Set a flag based on the presence of the pathway.
+        boolean includePathwayInfo = pathway ? true : false
 
-            //Set a flag based on the presence of the pathway.
-            if (pathway != null && pathway.length() > 0) includePathwayInfo = true
+        studyList.each { study ->
+            // performance optimization - reduce latency by eliminating sample type data from mRNA result
+            //we retrieve the results in 2 queries
+            // first one gets the sample, patient and timepoint from subject sample mapping table
+            // create the sample type\t timepoint\tTissue type string and put it in a map with assay id as key
+            // second query goes to the mrna table and gets the intensity data
+            // use the assay id to look up the sample\tm\tissue type from the map created in the first query
+            // and writes to the writer
 
-            studyList.each { study ->
-                def sqlQuery, sampleQuery = null;
+            String sqlQuery = createMRNAHeatmapPathwayQuery(study, resultInstanceId, gplIds, pathway, timepoint, sampleTypes, tissueTypes)
+            String sampleQuery = createStudySampleAssayQuery(study, resultInstanceId, gplIds, timepoint, sampleTypes, tissueTypes)
+            String filename = (studyList?.size() > 1) ? study + '_' + fileName : fileName
+            //The writeData method will return a map that tells us if data was found, and the name of the file that was written.
+            def writeDataStatusMap = writeData(resultInstanceId, sqlQuery, sampleQuery, studyDir, filename, jobName, includePathwayInfo, splitAttributeColumn, gplIds)
 
-                //Create a query for the Subset.
-                if (null != resultInstanceId) {
-                    //Get the concepts for this result instance id.
-                    def concepts = i2b2HelperService.getConcepts(resultInstanceId)
-
-                    //Add the subquery to the main query.
-                    sqlQuery = createMRNAHeatmapPathwayQuery(study, resultInstanceId, gplIds, pathway, timepoint, sampleTypes, tissueTypes)
-                    sampleQuery = createStudySampleAssayQuery(study, resultInstanceId, gplIds, timepoint, sampleTypes, tissueTypes)
-
-                }
-                def filename = (studyList?.size() > 1) ? study + '_' + fileName : fileName
-                //The writeData method will return a map that tells us if data was found, and the name of the file that was written.
-                def writeDataStatusMap = writeData(resultInstanceId, sqlQuery, sampleQuery, studyDir, filename, jobName, includePathwayInfo, splitAttributeColumn, gplIds)
-
-                def outFile = writeDataStatusMap["outFile"]
-                dataFound = writeDataStatusMap["dataFound"]
-                if (null != outFile && dataFound && pivot) {
-                    pivotData((studyList?.size() > 1), study, outFile)
-                }
+            def outFile = writeDataStatusMap["outFile"]
+            dataFound = writeDataStatusMap["dataFound"]
+            if (outFile && dataFound && pivot) {
+                pivotData((studyList?.size() > 1), study, outFile)
             }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
         }
 
         return dataFound
@@ -116,17 +111,17 @@ class GeneExpressionDataService {
         sQuery.append(" WHERE ssm.trial_name = '").append(study).append("' ")
         //If we have a sample type, append it to the query.
         if (sampleTypes != null && sampleTypes.length() > 0) {
-            sQuery.append(" AND ssm.sample_type_cd IN ").append(convertStringToken(sampleTypes));
+            sQuery.append(" AND ssm.sample_type_cd IN ").append(constructInClause(sampleTypes));
         }
 
         //If we have timepoints, append it to the query.
         if (timepoint != null && timepoint.trim().length() > 0) {
-            sQuery.append(" AND ssm.timepoint_cd IN ").append(convertStringToken(timepoint));
+            sQuery.append(" AND ssm.timepoint_cd IN ").append(constructInClause(timepoint));
         }
 
         //If we have tissues, append it to the query.
         if (tissueTypes != null && tissueTypes.trim().length() > 0) {
-            sQuery.append(" AND ssm.tissue_type_cd IN ").append(convertStringToken(tissueTypes));
+            sQuery.append(" AND ssm.tissue_type_cd IN ").append(constructInClause(tissueTypes));
         }
 
         //If we have gplid, append it to the query.
@@ -183,7 +178,7 @@ class GeneExpressionDataService {
             // insert distinct
             sSelect.insert(6, " DISTINCT ");
 
-            String keywordTokens = convertStringToken(pathwayName);
+            String keywordTokens = constructInClause(pathwayName);
 
             sSelect.append(", sk.SEARCH_KEYWORD_ID ")
 
@@ -210,24 +205,24 @@ class GeneExpressionDataService {
 
             //Include the normal filter.
             sTables.append(" WHERE SSM.trial_name = '").append(study).append("' ")
-            sTables.append(" AND sk.unique_id IN ").append(convertStringToken(pathwayName)).append(" ");
+            sTables.append(" AND sk.unique_id IN ").append(constructInClause(pathwayName)).append(" ");
         } else {
             sTables.append(" WHERE SSM.trial_name = '").append(study).append("' ")
         }
 
         //If we have a sample type, append it to the query.
         if (sampleTypes != null && sampleTypes.length() > 0) {
-            sTables.append(" AND ssm.sample_type_cd IN ").append(convertStringToken(sampleTypes));
+            sTables.append(" AND ssm.sample_type_cd IN ").append(constructInClause(sampleTypes));
         }
 
         //If we have timepoints, append it to the query.
         if (timepoint != null && timepoint.trim().length() > 0) {
-            sTables.append(" AND ssm.timepoint_cd IN ").append(convertStringToken(timepoint));
+            sTables.append(" AND ssm.timepoint_cd IN ").append(constructInClause(timepoint));
         }
 
         //If we have tissues, append it to the query.
         if (tissueTypes != null && tissueTypes.trim().length() > 0) {
-            sTables.append(" AND ssm.tissue_type_cd IN ").append(convertStringToken(tissueTypes));
+            sTables.append(" AND ssm.tissue_type_cd IN ").append(constructInClause(tissueTypes));
         }
 
         //If we have gplid, append it to the query.
@@ -288,17 +283,17 @@ class GeneExpressionDataService {
 
         //If we have a sample type, append it to the query.
         if (sampleTypes != null && sampleTypes.length() > 0) {
-            assayS.append(" AND s.sample_type_cd IN ").append(convertStringToken(sampleTypes));
+            assayS.append(" AND s.sample_type_cd IN ").append(constructInClause(sampleTypes));
         }
 
         //If we have timepoints, append it to the query.
         if (timepoint != null && timepoint.trim().length() > 0) {
-            assayS.append(" AND s.timepoint_cd IN ").append(convertStringToken(timepoint));
+            assayS.append(" AND s.timepoint_cd IN ").append(constructInClause(timepoint));
         }
 
         //If we have tissues, append it to the query.
         if (tissueTypes != null && tissueTypes.trim().length() > 0) {
-            assayS.append(" AND s.tissue_type_cd IN ").append(convertStringToken(tissueTypes));
+            assayS.append(" AND s.tissue_type_cd IN ").append(constructInClause(tissueTypes));
         }
 
         //Always add an order by to the query.
@@ -385,24 +380,11 @@ class GeneExpressionDataService {
         return s
     }
 
-    /**
-     *
-     */
-    def convertStringToken(String t) {
-        String[] ts = t.split(",");
-        StringBuilder s = new StringBuilder("(");
-        for (int i = 0; i < ts.length; i++) {
-            //Make sure we have a non blank token before adding to list.
-            if (ts[i]) {
-                if (i > 0)
-                    s.append(",");
-                s.append("'");
-                s.append(ts[i]);
-                s.append("'");
-            }
-        }
-        s.append(")");
-        return s.toString();
+    def constructInClause(String list) {
+        def sanitizedList = list.split(",") - ""
+        def quotedList = sanitizedList.collect { "'${it}'" }
+
+        "(" + quotedList.join(",") + ")"
     }
 
     /**
@@ -431,60 +413,68 @@ class GeneExpressionDataService {
         return s.toString();
     }
 
-    def writeData(String resultInstanceId, String sqlQuery, String sampleQuery, File studyDir, String fileName, String jobName, includePathwayInfo, splitAttributeColumn, gplIds) {
-        def filePath = null
-        def dataTypeName = "mRNA";
-        def dataTypeFolder = "Processed_Data";
-        Boolean dataFound = false
+    String constructHeaderRow(splitAttributeColumn, includePathwayInfo) {
+        String output = "PATIENT ID\t"
 
-        //Create objects we use to form JDBC connection.
-        def con, stmt, stmt1, rs = null;
-
-        //Grab the connection from the grails object.
-        con = dataSource.getConnection()
-
-        //Grab the configuration that sets the fetch size.
-        def rsize = grailsApplication.config.com.recomdata.plugins.resultSize;
-        Integer fetchSize = 5000;
-        if (rsize != null) {
-            try {
-                fetchSize = Integer.parseInt(rsize);
-            } catch (Exception exs) {
-                log.warn("com.recomdata.plugins.resultSize is not set!");
-
-            }
+        if (splitAttributeColumn) {
+            output += "SAMPLE TYPE\tTIMEPOINT\tTISSUE TYPE\tGPL ID\tASSAY ID\tVALUE\tZSCORE\tLOG2ED\tPROBE ID\tPROBESET ID\tGENE_ID\tGENE_SYMBOL"
+        } else {
+            output += "SAMPLE\tASSAY ID\tVALUE\tZSCORE\tLOG2ED\tPROBE ID\tPROBESET ID\tGENE_ID\tGENE_SYMBOL"
         }
 
+        if (includePathwayInfo) {
+            output += "\tSEARCH_ID"
+        }
+
+        output += "\n"
+    }
+
+    def writeData(String resultInstanceId,
+                  String sqlQuery,
+                  String sampleQuery,
+                  File studyDir,
+                  String fileName,
+                  String jobName,
+                  Boolean includePathwayInfo,
+                  Boolean splitAttributeColumn,
+                  List gplIds) {
+
+        //We need to return a map with two key/values.
+        Map returnValues = ["outFile": null, "dataFound": false]
+
+        //Create objects we use to form JDBC connection.
+        def connection, statement, sampleStatement
+
+        //Grab the connection from the grails object.
+        connection = dataSource.getConnection()
+
+        Integer fetchSize = getStmtFetchSize()
+
         //Prepare the SQL statement.
-        stmt = con.prepareStatement(sqlQuery);
-        stmt.setString(1, resultInstanceId);
-        stmt.setFetchSize(fetchSize)
+        statement = connection.prepareStatement(sqlQuery);
+        statement.setString(1, resultInstanceId);
+        statement.setFetchSize(fetchSize)
 
         // sample query
-        stmt1 = con.prepareStatement(sampleQuery);
-        stmt1.setString(1, resultInstanceId);
-        stmt1.setFetchSize(fetchSize);
+        sampleStatement = connection.prepareStatement(sampleQuery);
+        sampleStatement.setString(1, resultInstanceId);
+        sampleStatement.setFetchSize(fetchSize);
 
-        def char separator = '\t';
         log.info("started file writing")
+
+        /*
+         * FIXME: This part is seriously broken.
+         * It depends on the fact that access rights of attributes are not enforced. The 'outputFile' attribute should
+         * never be accessed like this.
+         * Also it misuses the FileWriterUtil class.
+        */
+
         def output;
-        def outFile;
+        FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, "mRNA", "Processed_Data", valueDelimiter.charAt(0));
+        File outFile = writerUtil.outputFile
+        output = outFile.newWriter(true) //This is particularly bad. Please refactor to use FileWriterUtil.writeLine
 
-        FileWriterUtil writerUtil = new FileWriterUtil(studyDir, fileName, jobName, dataTypeName, dataTypeFolder, separator);
-        outFile = writerUtil.outputFile
-        output = outFile.newWriter(true)
-
-        output << "PATIENT ID\t"
-
-        if (splitAttributeColumn)
-            output << "SAMPLE TYPE\tTIMEPOINT\tTISSUE TYPE\tGPL ID\tASSAY ID\tVALUE\tZSCORE\tLOG2ED\tPROBE ID\tPROBESET ID\tGENE_ID\tGENE_SYMBOL"
-        else
-            output << "SAMPLE\tASSAY ID\tVALUE\tZSCORE\tLOG2ED\tPROBE ID\tPROBESET ID\tGENE_ID\tGENE_SYMBOL"
-
-        if (includePathwayInfo)
-            output << "\tSEARCH_ID\n"
-        else
-            output << "\n"
+        output << constructHeaderRow(splitAttributeColumn, includePathwayInfo)
 
         def sampleType, timepoint, tissueType, rawIntensityRS, zScoreRS, patientID, sourceSystemCode, assayID, GPL_ID, logIntensityRS, probeID, probesetID, gplID = null
         def sample, value, zscore, lineToWrite = null
@@ -495,29 +485,19 @@ class GeneExpressionDataService {
         String log2 = null;
         def sttMap = [:]
 
-        long elapsetime = System.currentTimeMillis();
-        // performance optimization - reduce latency by eliminating sample type data from mRNA result
-        //we retrieve the results in 2 queries
-        // first one gets the sample, patient and timepoint from subject sample mapping table
-        // create the sample type\t timepoint\tTissue type string and put it in a map with assay id as key
-
-        // second query goes to the mrna table and gets the intensity data
-        // use the assay id to look up the sample\tm\tissue type from the map created in the first query
-        // and writes to the writer
-
         log.info("start sample retrieving query");
         log.debug("Sample Query : " + sampleQuery);
-        rs = stmt1.executeQuery();
-        def sttSampleStr = null;
+        ResultSet resultSet = sampleStatement.executeQuery();
+        String sttSampleStr = null;
 
         try {
-            while (rs.next()) {
+            while (resultSet.next()) {
 
-                sampleType = rs.getString("SAMPLE_TYPE");
-                timepoint = rs.getString("TIMEPOINT");
-                tissueType = rs.getString("TISSUE_TYPE");
-                assayID = rs.getString("ASSAY_ID");
-                GPL_ID = rs.getString("GPL_ID");
+                sampleType = resultSet.getString("SAMPLE_TYPE");
+                timepoint = resultSet.getString("TIMEPOINT");
+                tissueType = resultSet.getString("TISSUE_TYPE");
+                assayID = resultSet.getString("ASSAY_ID");
+                GPL_ID = resultSet.getString("GPL_ID");
 
                 if (splitAttributeColumn) {
                     sttSampleStr = (new StringBuilder()).append(StringUtils.isNotEmpty(sampleType) ? sampleType : '').append(valueDelimiter)
@@ -535,17 +515,18 @@ class GeneExpressionDataService {
                 sttMap.put(assayID, sttSampleStr.toString());
             }
         } finally {
-            rs?.close();
-            stmt1?.close();
+            resultSet?.close();
+            sampleStatement?.close();
         }
+
         log.info("finished sample retrieving query");
 
         //Run the query.
         log.debug("begin data retrieving query: " + sqlQuery)
-        rs = stmt.executeQuery();
+        resultSet = statement.executeQuery();
         log.info("query completed")
         // get column name map
-        ResultSetMetaData metaData = rs.getMetaData();
+        ResultSetMetaData metaData = resultSet.getMetaData();
         def nameIndexMap = [:]
         int count = metaData.getColumnCount();
         for (int i = 1; i <= count; i++) {
@@ -573,24 +554,24 @@ class GeneExpressionDataService {
 
         try {
             //Iterate over the record set object.
-            while (rs.next()) {
+            while (resultSet.next()) {
                 //Pull the values we need from the record set object.
-                rawIntensityRS = rs.getString(rawIntensityRSIdx);
-                zScoreRS = rs.getString(zScoreRSIdx);
-                patientID = rs.getString(ptIDIdx);
-                sourceSystemCode = rs.getString(sourceSystemCodeIdx);
-                assayID = rs.getString(assayIDIdx);
-                probeID = rs.getString(probeIDIdx);
-                probesetID = rs.getString(probesetIDIdx);
-                logIntensityRS = rs.getString(logIntensityRSIdx);
-                geneID = rs.getString(geneIDIdx);
-                geneSymbolId = rs.getString(geneSymbolIdx);
+                rawIntensityRS = resultSet.getString(rawIntensityRSIdx);
+                zScoreRS = resultSet.getString(zScoreRSIdx);
+                patientID = resultSet.getString(ptIDIdx);
+                sourceSystemCode = resultSet.getString(sourceSystemCodeIdx);
+                assayID = resultSet.getString(assayIDIdx);
+                probeID = resultSet.getString(probeIDIdx);
+                probesetID = resultSet.getString(probesetIDIdx);
+                logIntensityRS = resultSet.getString(logIntensityRSIdx);
+                geneID = resultSet.getString(geneIDIdx);
+                geneSymbolId = resultSet.getString(geneSymbolIdx);
 
-                dataFound = true
+                returnValues["dataFound"] = true
 
                 //To use only GPL96 when same probe present in both platforms
                 if (gplIds.size() > 1) { // when there are more than one platforms
-                    gplID = rs.getString(gplIDIdx)
+                    gplID = resultSet.getString(gplIDIdx)
                     if (gplID.equals(platformToUse)) { // compared with the hard-coded value GPL96
                         patientProbePlatformValueMap.put(patientID + '_' + probeID + '_' + gplID, logIntensityRS)
                     } else {
@@ -618,16 +599,7 @@ class GeneExpressionDataService {
                 if (StringUtils.isNotEmpty(logIntensityRS)) {
                     output.write(logIntensityRS);
                     log2 = "1";
-                } /*
-				//Don't do the below for Global Normalized data as log_intensity must be present
-				else if(StringUtils.isNotEmpty(rawIntensityRS)){ // calculate log 2
-					rawIntensity =  Double.valueOf(rawIntensityRS);
-					output.write((Math.log(rawIntensity)/Math.log(2)).toString());
-					log2 ="1";
-				} else if(StringUtils.isNotEmpty(zScoreRS)){ // use zscore
-					output.write(zScoreRS);
-					log2 ="0";
-				}*/
+                }
 
                 output.write(valueDelimiter);
                 writeNotEmptyString(output, zScoreRS);
@@ -643,7 +615,7 @@ class GeneExpressionDataService {
                 writeNotEmptyString(output, geneSymbolId);
 
                 if (includePathwayInfo) {
-                    searchKeywordId = rs.getString(searchKeywordIdIdx);
+                    searchKeywordId = resultSet.getString(searchKeywordIdIdx);
                     output.write(valueDelimiter);
                     writeNotEmptyString(output, searchKeywordId);
                 }
@@ -657,39 +629,21 @@ class GeneExpressionDataService {
                     //log.info("# record processed:"+recCount);
                 }
             }
-            if (!dataFound) {
-                boolean delFile = outFile?.delete()
-                writeNotEmptyString(output, "No data found to add to file.");
-                /*log.debug("File deleted :: " + delFile)
-                if (!delFile) writeNotEmptyString(output, "Unable to delete this file.");
-                filePath = null*/
-            }
         } catch (Exception e) {
             log.error(e.getMessage(), e)
         } finally {
             output?.flush();
             output?.close()
-            filePath = outFile?.getAbsolutePath()
-            if (!dataFound) {
-                boolean delFile = outFile?.delete()
-                filePath = outFile?.getAbsolutePath()
+            returnValues["outFile"] = outFile?.getAbsolutePath()
+            if (!returnValues["dataFound"]) {
+                outFile?.delete()
             }
             log.info("completed file writing")
-            stmt?.close();
-            con?.close();
+            statement?.close();
+            connection?.close();
         }
 
-        // calculate elapse tim
-        elapsetime = System.currentTimeMillis() - elapsetime;
-        log.info("\n \t total seconds:" + (elapsetime / 1000) + "\n\n");
-
-        //We need to return a map with two key/values.
-        def mapReturnValues = [:]
-
-        mapReturnValues["outFile"] = filePath
-        mapReturnValues["dataFound"] = dataFound
-
-        return mapReturnValues
+        return returnValues
     }
 
     def determineSampleAttribute(sample) {
@@ -1032,7 +986,6 @@ class GeneExpressionDataService {
     /*
      * This method will check to see if we have multiple result instance ids and return a boolean.
      */
-
     def boolean isMultipleResultInstanceIds(str) {
         def strList = str?.tokenize(',')
         return (!strList.empty && strList.size() > 1)
