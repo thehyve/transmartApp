@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:sec="http://www.springframework.org/schema/security"
+       xmlns:oauth="http://www.springframework.org/schema/security/oauth2"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+                           http://www.springframework.org/schema/security
+                           http://www.springframework.org/schema/security/spring-security-3.2.xsd
+                           http://www.springframework.org/schema/security/oauth2
+                           http://www.springframework.org/schema/security/spring-security-oauth2-1.0.xsd">
+
+    <!-- Just for testing... -->
+    <sec:http pattern="/oauth/cache_approvals" security="none" />
+    <sec:http pattern="/oauth/uncache_approvals" security="none" />
+
+    <!-- define /oauth/authorization and /oauth/token endpoints -->
+    <oauth:authorization-server client-details-service-ref="clientDetails"
+                                token-services-ref="tokenServices"
+                                user-approval-handler-ref="userApprovalHandler">
+        <oauth:authorization-code /> <!-- uses InMemoryAuthorizationCodeServices -->
+        <oauth:implicit disabled="true" />
+        <oauth:refresh-token />
+        <oauth:client-credentials disabled="true" />
+        <oauth:password disabled="true" />
+    </oauth:authorization-server>
+
+    <sec:http pattern="/oauth/token"
+              create-session="stateless"
+              authentication-manager-ref="clientAuthenticationManager"
+              entry-point-ref="authenticationEntryPoint">
+        <sec:intercept-url pattern="/oauth/token" access="IS_AUTHENTICATED_FULLY" />
+        <sec:anonymous enabled="false" />
+        <sec:form-login login-page="/login/auth"
+                        authentication-failure-url="/login/auth?login_error=1"
+                        login-processing-url="/j_spring_security_check" />
+    </sec:http>
+
+    <sec:authentication-manager id="clientAuthenticationManager">
+        <sec:authentication-provider user-service-ref="clientDetailsUserService" />
+    </sec:authentication-manager>
+
+    <bean id="clientDetailsUserService" class="org.springframework.security.oauth2.provider.client.ClientDetailsUserDetailsService">
+        <constructor-arg ref="clientDetails" />
+    </bean>
+
+    <oauth:client-details-service id="clientDetails">
+        <oauth:client client-id="restful-api"
+                      authorized-grant-types="authorization_code,refresh_token"
+                      authorities="ROLE_CLIENT"
+                      scope="read"
+                      access-token-validity="7200" />
+    </oauth:client-details-service>
+
+
+    <bean id="tokenServices" class="org.springframework.security.oauth2.provider.token.DefaultTokenServices">
+        <property name="tokenStore" ref="tokenStore" />
+        <property name="supportRefreshToken" value="true" />
+        <property name="clientDetailsService" ref="clientDetails" />
+    </bean>
+
+    <bean id="tokenStore" class="org.springframework.security.oauth2.provider.token.InMemoryTokenStore" />
+
+    <bean id="userApprovalHandler" class="org.springframework.security.oauth2.provider.approval.TokenServicesUserApprovalHandler">
+        <property name="tokenServices" ref="tokenServices" />
+    </bean>
+
+
+</beans>

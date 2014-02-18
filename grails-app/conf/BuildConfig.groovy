@@ -102,6 +102,17 @@ grails.project.dependency.resolution = {
             //also remove xercesImpl because it breaks tomcat and is not otherwise needed
             excludes 'spring-security-config', 'spring-security-core', 'spring-security-web', 'xercesImpl'
         }
+
+        compile 'org.springframework.security.oauth:spring-security-oauth2:1.0.5.RELEASE', {
+            //too old (3.1.x). Spring security is on 3.1.x but doesn't need exclusion;
+            //versions are set next
+            excludes 'spring-beans', 'spring-core', 'spring-context', 'spring-webmvc'
+        }
+
+        def springSecurityVersion = '3.2.0.RC1'
+        compile "org.springframework.security:spring-security-core:$springSecurityVersion"
+        runtime "org.springframework.security:spring-security-web:$springSecurityVersion",
+                "org.springframework.security:spring-security-config:$springSecurityVersion"
     }
 
     plugins {

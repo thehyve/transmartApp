@@ -26,6 +26,8 @@ beans = {
         importBeans('classpath:/spring/spring-security-saml.xml')
     }
 
+    importBeans('classpath:/spring/spring-security-oauth2.xml')
+
     dataSourcePlaceHolder(com.recomdata.util.DataSourcePlaceHolder) {
 		dataSource = ref('dataSource')
 	}
