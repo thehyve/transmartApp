@@ -58,22 +58,6 @@ grails.project.dependency.resolution = {
     repositories {
         grailsCentral()
         mavenCentral()
-
-        if (!skipTransmartFoundationRepo()) {
-            /* Allow skipping the tranSMART foundation repository.
-             * We read extra repositories in the very limited externalized
-             * BuildConfig.groovy (see below), but they are append to this list.
-             * A company developing tranSMART may want not to use the tranSMART
-             * foundation repository, or it may want to give priority to its own.
-             * Setting grails.project.dependency.resolution in the externalized
-             * file will skip this repo. You may then include it in whatever order
-             * in the externalized file. */
-
-            mavenRepo([
-                    name: 'repo.transmartfoundation.org-public',
-                    url: 'https://repo.transmartfoundation.org/content/repositories/public/',
-            ])
-        }
     }
     dependencies {
         runtime 'postgresql:postgresql:9.0-801.jdbc4'
@@ -88,6 +72,9 @@ grails.project.dependency.resolution = {
 
         /* we need at least servlet-api 2.4 because of HttpServletResponse::setCharacterEncoding */
         compile "javax.servlet:servlet-api:$grails.servlet.version" /* delete from the WAR afterwards */
+
+        // not really needed but compilation fails without it?!
+        compile ("javassist:javassist:3.12.1.GA")
 
         /* for GeneGo web services: */
         compile 'axis:axis:1.4'
@@ -135,8 +122,6 @@ grails.war.resources = { stagingDir ->
 // Use new NIO connector in order to support sendfile
 grails.tomcat.nio = true
 
-grails.project.dependency.resolution.metaClass.skipTransmartFoundationRepo = { false }
-
 def buildConfigFile = new File("${userHome}/.grails/${appName}Config/" +
         "BuildConfig.groovy")
 if (buildConfigFile.exists()) {
@@ -178,7 +163,6 @@ if (buildConfigFile.exists()) {
         grails.project.dependency.resolution = {
             originalDepRes.delegate        = extraDepRes.delegate        = delegate
             originalDepRes.resolveStrategy = extraDepRes.resolveStrategy = resolveStrategy
-            originalDepRes.metaClass.skipTransmartFoundationRepo = { true }
             originalDepRes.call(it)
             extraDepRes.call(it)
         }
