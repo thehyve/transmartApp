@@ -16,9 +16,16 @@
  * 
  *
  ******************************************************************/
+
+import com.google.common.collect.ImmutableMultimap
 import org.springframework.security.core.session.SessionRegistryImpl
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy
 import org.springframework.security.web.session.ConcurrentSessionFilter
+import org.transmart.rmi.RmiReturnValueStubbingExporter
+import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
+import org.transmartproject.core.dataquery.highdim.HighDimensionResource
+import org.transmartproject.core.ontology.ConceptsResource
 
 beans = {
 
@@ -41,5 +48,15 @@ beans = {
     //overrides bean implementing GormUserDetailsService?
 	userDetailsService(com.recomdata.security.AuthUserDetailsService)
 
-
+    // Remoting
+    remoteHighDimensionResource(RmiReturnValueStubbingExporter) {
+        serviceName       = 'HighDimensionResource'
+        service           = ref('highDimensionResourceService')
+        serviceInterface  = HighDimensionResource
+        registryPort      = 1199
+        wrappedInterfaces = ImmutableMultimap.of(
+                HighDimensionDataTypeResource, 'getSubResourceForType',
+                TabularResult, 'retrieveData',
+                Iterator, 'getRows')
+    }
 }
