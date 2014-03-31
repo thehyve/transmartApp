@@ -87,6 +87,10 @@ grails.project.dependency.resolution = {
             //also remove xercesImpl because it breaks tomcat and is not otherwise needed
             excludes 'spring-security-config', 'spring-security-core', 'spring-security-web', 'xercesImpl'
         }
+
+        test 'org.gmock:gmock:0.8.3', {
+            transitive = false
+        }
     }
 
     plugins {
@@ -111,6 +115,7 @@ grails.project.dependency.resolution = {
 
         // Doesn't work with forked tests yet
         //test ":code-coverage:1.2.6"
+        test ':transmart-core-db-tests:1.0-SNAPSHOT'
     }
 }
 
