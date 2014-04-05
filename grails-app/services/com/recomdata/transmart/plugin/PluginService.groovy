@@ -95,20 +95,20 @@ class PluginService {
 		//return pluginInstance?.modules
 	}
 	
-	def getPluginModulesAsJSON(pluginName) {
-		def pluginInstance = Plugin.findByName(pluginName)
+	def getPluginModulesAsJSON(List<String> pluginNames) {
 		def result = new JSONObject()
-		def modulesJSON = new JSONArray()
-		
-		if (pluginName) {
-			def c = PluginModule.createCriteria()
+        def modulesJSON = new JSONArray()
+
+        if (pluginNames) {
+            def pluginInstances = Plugin.findAllByNameInList(pluginNames)
+            def c = PluginModule.createCriteria()
 			def modules = c {
 				projections {
 					property 'moduleName', 'moduleName'
 					property 'name', 'name'
 					property 'category', 'category'
 				}
-				eq('plugin', pluginInstance)
+				inList('plugin', pluginInstances)
 				eq('active', true)
 				order('name', 'asc')
 				order('category', 'asc')
