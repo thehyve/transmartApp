@@ -294,6 +294,13 @@ function getCRCRequestItem(el){
             item=item+'<value_constraint>'+el.getAttribute("setvaluehighlowselect").substring(0,1).toUpperCase()+'</value_constraint><value_type>FLAG</value_type></constrain_by_value>';
         	item=item+'<value_unit_of_measure>'+el.getAttribute("setvalueunits")+'</value_unit_of_measure>'               
         }
+      else if(el.getAttribute("selectiontype")=='highdim')
+      {
+          console.log("Highdim xml to server!!!");
+          item=item+'<constrain_by_vcf><position>'+el.getAttribute("chomosomeposition")+'</position>';
+          item=item+'<type>STATUS</type>';
+          item=item+'<value>MUTATED</value></constrain_by_vcf>';
+      }
        // else if (el.getAttribute("oktousevalues")=="Y" && el.getAttribute("setvaluemode")=="novalue")
        // {
        //item=item+'<constrain_by_value></constrain_by_value>'   

@@ -1264,10 +1264,75 @@ Ext.onReady(function()
 			setvaluewin.hide();
 		}
 
+        highDimPanel = new Ext.Panel(
+            {
+                id : 'highDimPanel',
+                region : 'center',
+                height : 100,
+                width : 490,
+                split : false,
+                autoLoad :
+                {
+                    url : pageInfo.basePath+'/panels/highDimDialog.html',
+                    scripts : true,
+                    nocache : true,
+                    discardUrl : true,
+                    method : 'POST'
+                }
+            }
+        );
+
+            if( ! this.highdimwin)
+            {
+                highdimwin = new Ext.Window(
+                    {
+                        id : 'highDimWindow',
+                        title : 'High dimensional selection',
+                        layout : 'border',
+                        width : 500,
+                        height : 240,
+                        closable : false,
+                        plain : true,
+                        modal : true,
+                        border : false,
+                        items : [highDimPanel],
+                        buttons : [
+                            {
+                                text : 'OK',
+                                handler : function()
+                                {
+                                    var chomosomeposition = document.getElementById("chomosomeposition").value;
+                                    var highdimselect = document.getElementById("highdimselect").value;
+
+                                    // make sure that there is a value set
+                                    if (chomosomeposition == "" ){
+                                        alert('You must specify a chromosomal position');
+                                    } else if (highdimselect == "") {
+                                        alert('You must specify a mutation.');
+                                    } else {
+                                        highdimwin.hide();
+                                        highDimDialogComplete(chomosomeposition, highdimselect);
+                                    }
+                                }
+                            }
+                            ,
+                            {
+                                text : 'Cancel',
+                                handler : function()
+                                {
+                                    highdimwin.hide();
+                                }
+                            }
+                        ],
+                        resizable : false
+                    }
+                );
+                highdimwin.show();
+                highdimwin.hide();
+            }
 
 		showLoginDialog();
 		var h=queryPanel.header;
-		//alert(h);
 		}
 
 
@@ -2043,7 +2108,7 @@ function setupDragAndDrop()
 					//alert(this.dragElId);
 					//if(document.elementFromPoint(x,y).id!=this.dragElId){return;} //hack to fix layers over each other
 					var concept = null;
-					if(data.node.attributes.oktousevalues != "Y")
+					if(data.node.attributes.oktousevalues != "Y" && data.node.attributes.visualattributes.indexOf("HIGH_DIMENSIONAL") == -1)
 					{
 						concept = createPanelItemNew(this.el, convertNodeToConcept(data.node));
 					}
@@ -2053,12 +2118,19 @@ function setupDragAndDrop()
 					}
 					// new hack to show setvalue box
 					selectConcept(concept);
+                    console.log(data.node.attributes);
 					if(data.node.attributes.oktousevalues == "Y")
 					{
 						STATE.Dragging = true;
 						STATE.Target = this.el;
 						showSetValueDialog();
 					}
+                    if(data.node.attributes.visualattributes.indexOf("HIGH_DIMENSIONAL") >= 0)
+                    {
+                        STATE.Dragging = true;
+                        STATE.Target = this.el;
+                        showHighDimDialog();
+                    }
 					/*new code to show next row*/
 					var panelnumber = Number(this.id.substr(18));
 					showCriteriaGroup(panelnumber+1);

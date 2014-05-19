@@ -430,6 +430,22 @@ function setValue(conceptnode, setvaluemode, setvalueoperator, setvaluehighlowse
 	invalidateSubset(subset);
 }
 
+function setHighDimValue(conceptnode, chomosomeposition, highdimselect)
+{
+    console.log(conceptnode);
+    console.log(chomosomeposition);
+    console.log(highdimselect);
+    conceptnode.setAttribute('chomosomeposition',chomosomeposition);
+    conceptnode.setAttribute('highdimselect',highdimselect);
+    conceptnode.setAttribute('selectiontype',"highdim");
+    var valuetext=chomosomeposition + highdimselect;
+    conceptnode.setAttribute('concepthighdimtext',valuetext);
+    var conceptshortname=conceptnode.getAttribute("conceptshortname");
+    Ext.get(conceptnode.id).update(conceptshortname+" "+valuetext);
+    var subset=getSubsetFromPanel(conceptnode.parentNode);
+    invalidateSubset(subset);
+}
+
 function showSetValueDialog()
 {		
 		var conceptnode=selectedConcept; //not dragging so selected concept is what im updating
@@ -492,6 +508,18 @@ function showSetValueDialog()
       	unitsinput.options[0]=option;   
 }
 
+function showHighDimDialog()
+{
+    var conceptnode=selectedConcept; //not dragging so selected concept is what im updating
+    highdimwin.setHeight(200); //set height back to old closed
+    highdimwin.show(viewport);
+
+    var chomosomeposition=conceptnode.getAttribute('chomosomeposition');
+    document.getElementById("chomosomeposition").value=chomosomeposition;
+    var highdimselect=conceptnode.getAttribute('highdimselect');
+    document.getElementById("highdimselect").value=highdimselect;
+}
+
 
 function setValueDialogComplete(mode, operator, highlowselect, highvalue, lowvalue, units)
 {
@@ -502,6 +530,16 @@ if(STATE.Dragging==true){
 	STATE.Dragging=false;
 	moveSelectedConceptFromHoldingToTarget();
 	}
+}
+
+function highDimDialogComplete(chomosomeposition, highdimselect)
+{
+    var conceptnode=selectedConcept;
+    setHighDimValue(conceptnode, chomosomeposition, highdimselect);
+    if(STATE.Dragging==true){
+        STATE.Dragging=false;
+        moveSelectedConceptFromHoldingToTarget();
+    }
 }
 
 function moveSelectedConceptFromHoldingToTarget()
