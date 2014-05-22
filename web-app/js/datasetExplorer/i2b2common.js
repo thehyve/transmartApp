@@ -430,15 +430,12 @@ function setValue(conceptnode, setvaluemode, setvalueoperator, setvaluehighlowse
 	invalidateSubset(subset);
 }
 
-function setHighDimValue(conceptnode, chomosomeposition, highdimselect)
+function setHighDimValue(conceptnode, genomiclocation, highdimselect)
 {
-    console.log(conceptnode);
-    console.log(chomosomeposition);
-    console.log(highdimselect);
-    conceptnode.setAttribute('chomosomeposition',chomosomeposition);
+    conceptnode.setAttribute('genomiclocation',genomiclocation);
     conceptnode.setAttribute('highdimselect',highdimselect);
     conceptnode.setAttribute('selectiontype',"highdim");
-    var valuetext=chomosomeposition + highdimselect;
+    var valuetext=genomiclocation + '/' + highdimselect.substr(0,3);
     conceptnode.setAttribute('concepthighdimtext',valuetext);
     var conceptshortname=conceptnode.getAttribute("conceptshortname");
     Ext.get(conceptnode.id).update(conceptshortname+" "+valuetext);
@@ -514,8 +511,8 @@ function showHighDimDialog()
     highdimwin.setHeight(200); //set height back to old closed
     highdimwin.show(viewport);
 
-    var chomosomeposition=conceptnode.getAttribute('chomosomeposition');
-    document.getElementById("chomosomeposition").value=chomosomeposition;
+    var genomiclocation=conceptnode.getAttribute('genomiclocation');
+    document.getElementById("genomiclocation").value=genomiclocation;
     var highdimselect=conceptnode.getAttribute('highdimselect');
     document.getElementById("highdimselect").value=highdimselect;
 }
@@ -532,10 +529,10 @@ if(STATE.Dragging==true){
 	}
 }
 
-function highDimDialogComplete(chomosomeposition, highdimselect)
+function highDimDialogComplete(genomiclocation, highdimselect)
 {
     var conceptnode=selectedConcept;
-    setHighDimValue(conceptnode, chomosomeposition, highdimselect);
+    setHighDimValue(conceptnode, genomiclocation, highdimselect);
     if(STATE.Dragging==true){
         STATE.Dragging=false;
         moveSelectedConceptFromHoldingToTarget();

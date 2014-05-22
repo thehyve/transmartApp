@@ -297,9 +297,9 @@ function getCRCRequestItem(el){
       else if(el.getAttribute("selectiontype")=='highdim')
       {
           console.log("Highdim xml to server!!!");
-          item=item+'<constrain_by_vcf><position>'+el.getAttribute("chomosomeposition")+'</position>';
+          item=item+'<constrain_by_vcf><position>'+el.getAttribute("genomiclocation")+'</position>';
           item=item+'<type>STATUS</type>';
-          item=item+'<value>MUTATED</value></constrain_by_vcf>';
+          item=item+'<value>'+el.getAttribute("highdimselect")+'</value></constrain_by_vcf>';
       }
        // else if (el.getAttribute("oktousevalues")=="Y" && el.getAttribute("setvaluemode")=="novalue")
        // {

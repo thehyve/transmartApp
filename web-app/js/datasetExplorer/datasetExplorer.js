@@ -1301,17 +1301,17 @@ Ext.onReady(function()
                                 text : 'OK',
                                 handler : function()
                                 {
-                                    var chomosomeposition = document.getElementById("chomosomeposition").value;
+                                    var genomiclocation = document.getElementById("genomiclocation").value;
                                     var highdimselect = document.getElementById("highdimselect").value;
 
                                     // make sure that there is a value set
-                                    if (chomosomeposition == "" ){
-                                        alert('You must specify a chromosomal position');
+                                    if (genomiclocation == "" ){
+                                        alert('You must specify a genomic location');
                                     } else if (highdimselect == "") {
                                         alert('You must specify a mutation.');
                                     } else {
                                         highdimwin.hide();
-                                        highDimDialogComplete(chomosomeposition, highdimselect);
+                                        highDimDialogComplete(genomiclocation, highdimselect);
                                     }
                                 }
                             }
