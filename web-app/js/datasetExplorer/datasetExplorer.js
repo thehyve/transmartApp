@@ -499,8 +499,13 @@ Ext.onReady(function () {
                 height: 90,
                 layout: 'fit',
                 listeners: {
-                    activate: function () {
-                        getSummaryGridData();
+                    activate: function (p) {
+                        if (isSubsetQueriesChanged(p.subsetQueries) || !Ext.get('analysis_title')) {
+                        	runAllQueries(null, p);
+                        	resultsTabPanel.setActiveTab('analysisPanel');
+                        }else{
+                        	storeLoaded();
+                        }
                     }
                 }
             }
@@ -2181,7 +2186,7 @@ function runAllQueries(callback, panel) {
             if (panel) {
                 panel.subsetQueries[i] = getSubsetQuery(i); // set subset queries to the selected tab
             }
-            runQuery(i, callback);
+            if(callback) runQuery(i, callback);
         }
     }
 }
@@ -3348,6 +3353,7 @@ function getSummaryStatistics() {
             method: 'POST',
             success: function (result, request) {
                 getSummaryStatisticsComplete(result);
+                getSummaryGridData();
                 analysisPanel.body.unmask();
             },
             failure: function (result, request) {
