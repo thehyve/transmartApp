@@ -119,7 +119,7 @@ grails.project.dependency.resolution = {
         compile ':build-info:1.2.5'
         compile ':hibernate:3.6.10.7'
         compile ':quartz:1.0-RC2'
-        compile ':rdc-rmodules:0.3-SNAPSHOT'
+        compile ':rdc-rmodules:0.3-Oncoprint-SNAPSHOT'
         compile ':spring-security-core:2.0-RC2'
         compile ":spring-security-oauth2-provider:1.0.5.2"
 
