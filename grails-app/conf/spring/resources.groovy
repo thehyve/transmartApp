@@ -27,13 +27,14 @@ import org.transmart.authorization.CurrentUserBeanFactoryBean
 import org.transmart.authorization.CurrentUserBeanProxyFactory
 import org.transmart.authorization.QueriesResourceAuthorizationDecorator
 import org.transmart.marshallers.MarshallerRegistrarService
+import org.transmartproject.export.BEDExporter
 import org.transmartproject.export.HighDimExporter
 import org.transmart.spring.QuartzSpringScope
 import org.transmartproject.core.users.User
 
 beans = {
     xmlns context:"http://www.springframework.org/schema/context"
-    
+
     if (grailsApplication.config.org.transmart.security.samlEnabled) {
         importBeans('classpath:/spring/spring-security-saml.xml')
     }
@@ -87,5 +88,7 @@ beans = {
     //overrides bean implementing GormUserDetailsService?
 	userDetailsService(com.recomdata.security.AuthUserDetailsService)
 
-
+    bedExporter(BEDExporter) {
+        dataSource = ref('dataSource')
+    }
 }
