@@ -113,7 +113,7 @@ class BEDExporter implements HighDimExporter {
             List<AssayColumn> assayList = tabularResult.indicesList
 
             // Start looping
-            writer << "track" + "\t" + "name = tranSMART export" + "\t" + "description = " + "\t" + "url = "
+//            writer << "track" + "\t" + "name = tranSMART export" + "\t" + "description = " + "\t" + "url = " + "\n"
 
             writeloop:
             for (DataRow datarow : tabularResult) {
