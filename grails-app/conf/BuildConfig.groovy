@@ -51,6 +51,8 @@ grails.project.dependency.resolution = {
                 'org.apache.lucene:lucene-highlighter:2.4.0'
         compile 'org.transmartproject:transmart-core-api:1.0-SNAPSHOT'
 
+        runtime 'org.javassist:javassist:3.16.1-GA'
+
         test 'org.hamcrest:hamcrest-library:1.3',
                 'org.hamcrest:hamcrest-core:1.3'
 
