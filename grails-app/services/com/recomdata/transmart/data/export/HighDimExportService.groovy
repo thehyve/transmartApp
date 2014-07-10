@@ -86,9 +86,9 @@ class HighDimExportService {
         header += splitAttributeColumn ? ["SAMPLE TYPE", "TIMEPOINT", "TISSUE TYPE", "GPL ID"] : ["SAMPLE"]
         header += ["ASSAY ID", "SAMPLE CODE"]
 
-        Map<String, String> dataKeys = projection.dataProperties.collectEntries {[it, dataFieldHeaders.get(it, it).toUpperCase()]}
+        Map<String, String> dataKeys = projection.dataProperties.keySet().collectEntries {[it, dataFieldHeaders.get(it, it).toUpperCase()]}
 
-        Map<String, String> rowKeys = projection.rowProperties.collectEntries {[it, rowFieldHeaders.get(it, it).toUpperCase()]}
+        Map<String, String> rowKeys = projection.rowProperties.keySet().collectEntries {[it, rowFieldHeaders.get(it, it).toUpperCase()]}
 
         header += dataKeys.values()
         header += rowKeys.values()
