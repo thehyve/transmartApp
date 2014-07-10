@@ -914,7 +914,6 @@ class FmFolderController {
 
         def folder
         def subFolders
-        def subFolderLayout
         def bioDataObject
         def amTagTemplate
         def metaDataTagItems
@@ -960,7 +959,6 @@ class FmFolderController {
                     if (subFolders != null && subFolders.size() > 0) {
                         log.debug "${subFolders.size()} subFolders == $subFolders"
                         def subFoldersAccessLevelMap = fmFolderService.getAccessLevelInfoForFolders(user, subFolders)
-                        subFolderLayout = formLayoutService.getLayout(it.toLowerCase());
                         String gridTitle = "Associated " + StringUtils.capitalize(subFolders[0].pluralFolderTypeName.toLowerCase())
                         String gridData = createDataTable(subFoldersAccessLevelMap, gridTitle)
                         //	log.info gridData
