@@ -776,26 +776,26 @@ class I2b2HelperService {
 		else {
 			// If a folder is dragged in, we want the contents of the folder to be added to the data
 			// That is possible if the folder contains only categorical values and no subfolders.
-			
+
 			// Check whether the folder is valid: first find all children of the current code
 			def item = conceptsResourceService.getByKey( concept_key )
-			
+
 			if( !item.children ) {
 				log.debug( "Can not show data in gridview for empty node: " + concept_key )
 			}
-			
+
 			// All children should be leaf categorical values
-			if( item.children.any { 
-				return !it.cVisualattributes.contains( "L" ) || nodeXmlRepresentsValueConcept( it.metadataxml )  
+			if( item.children.any {
+				return !it.cVisualattributes.contains( "L" ) || nodeXmlRepresentsValueConcept( it.metadataxml )
 			}) {
 				log.debug( "Can not show data in gridview for foldernodes with mixed type of children" )
 				return tablein
 			}
-			
+
 			// Find the concept names
 			String columnid=getShortNameFromKey(concept_key).replace(" ", "_").replace("...", "");
 			String columnname=getColumnNameFromKey(concept_key).replace(" ", "_");
-			
+
 			/*add the column to the table if its not there*/
 			if(tablein.getColumn("subject")==null)
 			{
@@ -804,20 +804,19 @@ class I2b2HelperService {
 			if(tablein.getColumn(columnid)==null) {
 				tablein.putColumn(columnid, new ExportColumn(columnid, columnname, "", "string"));
 			}
-			
+
 			// Store the concept paths to query
 			def paths = item.children*.fullName
-			
+
 			// Find the concept codes for the given children
 			def conceptCriteria = ConceptDimension.createCriteria()
 			def concepts = conceptCriteria.list {
 				'in'( "conceptPath", paths )
 			}
-			
+
 			// Determine the patients to query
 			def queryResultInstance = QtQueryResultInstance.read( result_instance_id )
 			def patientSet = queryResultInstance.patientSet
-			def patientIds =  patientSet.collect { BigDecimal.valueOf( it.patient.id ) }
 
 			// If nothing is found, return
 			if( !concepts || !patientSet ) {
@@ -831,10 +830,10 @@ class I2b2HelperService {
 					eqProperty( "modifierCd", "sourcesystemCd" )
 				}
 				'in'( "conceptCode", concepts*.conceptCode )
-				'in'( "patient", patientIds )
+				'in'( "patient", patientSet )
 			}
 			results.each { row ->
-				
+
 				/*If I already have this subject mark it in the subset column as belonging to both subsets*/
 				String subject=row.patientNum
 				String value=row.tvalChar
@@ -851,7 +850,7 @@ class I2b2HelperService {
 					tablein.putRow(subject, newrow);
 				}
 			}
-			
+
 			//pad all the empty values for this column
 			for(ExportRowNew row: tablein.getRows())
 			{
@@ -859,7 +858,7 @@ class I2b2HelperService {
 					row.put(columnid, "N");
 				}
 			}
-			
+
 			log.trace("must be a folder dont add to grid");
 		}
 		return tablein;
