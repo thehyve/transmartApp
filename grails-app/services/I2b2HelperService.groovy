@@ -824,20 +824,20 @@ class I2b2HelperService {
 				return
 			}
 			// After that, retrieve all data entries for the children
-			def c  = ObservationFact.createCriteria()
-			def results = c.list {
-				or {
-					eq( "modifierCd", "@" )
-					eqProperty( "modifierCd", "sourcesystemCd" )
-				}
-				'in'( "conceptCode", concepts*.conceptCode )
-				'in'( "patient", patientIds )
-			}
+            def results = ObservationFact.executeQuery(
+                    '''SELECT o.patient.id, o.textValue
+                       FROM ObservationFact o
+                       WHERE conceptCode IN (:conceptCodes)
+                        AND o.patient.id IN (:patientNums)''',
+                    [ conceptCodes: concepts*.conceptCode,
+                      patientNums: patientIds.collect { it?.toLong() } ]
+            )
+
 			results.each { row ->
 				
 				/*If I already have this subject mark it in the subset column as belonging to both subsets*/
-				String subject=row.patientNum
-				String value=row.tvalChar
+                String subject=row[0]
+                String value=row[1]
 				if(value==null){
 					value="Y";
 				}
