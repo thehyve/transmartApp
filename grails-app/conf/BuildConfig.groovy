@@ -49,7 +49,7 @@ grails.project.dependency.resolution = {
         compile 'org.apache.lucene:lucene-core:2.4.0',
                 'org.apache.lucene:lucene-demos:2.4.0',
                 'org.apache.lucene:lucene-highlighter:2.4.0'
-        compile 'org.transmartproject:transmart-core-api:1.0-SNAPSHOT'
+        compile 'org.transmartproject:transmart-core-api:1.2.1-SNAPSHOT'
 
         runtime 'org.javassist:javassist:3.16.1-GA'
 
@@ -73,7 +73,7 @@ grails.project.dependency.resolution = {
 
         runtime ':prototype:1.0'
         //runtime ':jquery:1.7.1'
-        runtime ':transmart-core:1.0-SNAPSHOT'
+        runtime ':transmart-core:1.2.1-SNAPSHOT'
         runtime ':resources:1.2.1'
 
         // Doesn't work with forked tests yet

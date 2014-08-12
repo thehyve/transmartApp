@@ -201,6 +201,8 @@ grails.spring.bean.packages = []
 
 org.transmart.security.spnegoEnabled = false
 
+org.transmartproject.enableAcrossTrials = false
+
 // Uncomment and edit the following lines to start using Grails encoding & escaping improvements
 
 /* remove this line 
