@@ -59,10 +59,12 @@
 		    	<tr>
 		    		<th width="150">&nbsp;</th>
 	   				<%--<g:if test="${'search'==app}"><th class="menuVisited">Search</th></g:if>
-		   			<g:else><th class="menuLink"><g:link controller="search">Search</g:link></th></g:else>--%>
+		   			<g:else><th class="menuLink"><g:link controller="search">Search</g:link></th></g:else>
             
 			       	<g:if test="${'rwg'==app}"><th class="menuVisited">Browse</th></g:if>
 	       			<g:else><th class="menuLink"><g:link controller="RWG">Browse</g:link></th></g:else>
+	       			--%>
+
 			       	<g:if test="${'datasetExplorer'==app}"><th class="menuVisited">Analyze</th></g:if>
 	       			<g:else><th class="menuLink"><g:link controller="datasetExplorer">Analyze</g:link></th></g:else>
 	       			
