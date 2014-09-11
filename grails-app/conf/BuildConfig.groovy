@@ -125,7 +125,7 @@ grails.project.dependency.resolution = {
 
         runtime ':prototype:1.0'
         runtime ':jquery:1.7.1'
-        runtime ':transmart-core:1.0-SNAPSHOT'
+        runtime ':transmart-core:1.0-GST-SNAPSHOT'
         runtime ':resources:1.2.1'
         runtime ':transmart-mydas:0.1-SNAPSHOT'
         runtime ':dalliance-plugin:0.2-SNAPSHOT'
@@ -133,7 +133,7 @@ grails.project.dependency.resolution = {
 
         // Doesn't work with forked tests yet
         //test ":code-coverage:1.2.6"
-        test ':transmart-core-db-tests:1.0-SNAPSHOT'
+        test ':transmart-core-db-tests:1.0-GST-SNAPSHOT'
     }
 }
 
