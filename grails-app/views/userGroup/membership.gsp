@@ -12,7 +12,7 @@
   
   This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
   
-  You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+  You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
   
  
 -->
@@ -33,8 +33,7 @@
         position: static !important;
     }
     </style>
-    <script type="text/javascript"	src="${resource(dir:'js', file:'ext/adapter/ext/ext-base.js')}"></script>
-    <script type="text/javascript"	src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
+    <g:setProvider library="prototype"/>
 </head>
 
 <body>
@@ -43,12 +42,11 @@
     <g:if test="${flash.message}">
         <div class="message">${flash.message}</div>
     </g:if>
-    <div id="divuser" style="width:100%; font-size: 11px; font-familiy: 'tahoma, arial, helvetica, sans-serif'">
-        <br/> please select a user then select groups<br/>
-        <br/><b>Search User</b><br>
-        <input type="text" size="80" id="searchUsers" autocomplete="off"/>
-    </div>
-
+    <div id="divuser"
+         style="width:100%; font:11px tahoma, arial, helvetica, sans-serif">
+        <br> please select a user then select groups</br>
+        <br><b>Search User<b></b><br>
+        <input type="text" size="80" id="searchUsers" autocomplete="off"/></div>
     <r:script>
 
         var pageInfo = {
@@ -64,19 +62,26 @@
                 return false;
             }
 
-	  ${remoteFunction(action:'searchGroupsWithoutUser',update:[success:'groups', failure:''], params:'jQuery(\'#searchtext\').serialize()+\'&id=\'+pid')};
+            ${remoteFunction(action:'searchGroupsWithoutUser',update:[success:'groups', failure:''], params:'$(\'searchtext\').serialize()+\'&id=\'+pid')};
             return false;
         }
     </r:script>
     <table>
-        <tr><td></td><td></td><td><input name="searchtext" id="searchtext">
-            <button class="" onclick="searchgroup();">Search Groups</button></td></tr>
-        <tr><td><b>Member of these groups</b></td><td></td><td><b>Available groups</b></td></tr>
+        <tr><td></td><td></td><td>
+            <input name="searchtext" id="searchtext" />
+            <button class="" onclick="searchgroup();">Search Groups</button>
+        </td>
+        <tr><td><b>Member of these groups</b>
+        </td><td></td><td><b>Available groups</b></td></tr>
         <tr id="groups">
-            <g:render template="addremoveg" model="['groupswithoutuser': groupswithoutuser]"/>
+            <g:render template="addremoveg"
+                      model="['groupswithoutuser': groupswithoutuser]"/>
         </tr>
     </table>
-    <input type="hidden" id="currentprincipalid"/>
 </div>
+</td>
+</tr>
+</tbody>
+<input type="hidden" id="currentprincipalid">
 </body>
 </html>

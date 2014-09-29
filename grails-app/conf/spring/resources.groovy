@@ -12,33 +12,40 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
 
+
 import com.google.common.collect.ImmutableMap
+import org.apache.log4j.Logger
 import org.codehaus.groovy.grails.commons.spring.DefaultBeanConfiguration
 import org.springframework.beans.factory.config.CustomScopeConfigurer
 import org.springframework.security.core.session.SessionRegistryImpl
+// plugin is not functional at this point
+//import org.springframework.security.extensions.kerberos.web.SpnegoAuthenticationProcessingFilter
+import org.springframework.security.web.DefaultRedirectStrategy
+import org.springframework.security.web.access.AccessDeniedHandlerImpl
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy
 import org.springframework.security.web.session.ConcurrentSessionFilter
 import org.transmart.authorization.CurrentUserBeanFactoryBean
 import org.transmart.authorization.CurrentUserBeanProxyFactory
 import org.transmart.authorization.QueriesResourceAuthorizationDecorator
 import org.transmart.marshallers.MarshallerRegistrarService
-import org.transmartproject.export.HighDimExporter
 import org.transmart.spring.QuartzSpringScope
 import org.transmartproject.core.users.User
+import org.transmartproject.export.HighDimExporter
+
+def logger = Logger.getLogger('com.recomdata.conf.resources')
 
 beans = {
     xmlns context:"http://www.springframework.org/schema/context"
-    
+
     if (grailsApplication.config.org.transmart.security.samlEnabled) {
         importBeans('classpath:/spring/spring-security-saml.xml')
     }
-
-    marshallerRegistrarService(MarshallerRegistrarService)
 
     /* core-api authorization wrapped beans */
     queriesResourceAuthorizationDecorator(QueriesResourceAuthorizationDecorator) {
@@ -65,9 +72,12 @@ beans = {
         bean.scope = 'request'
     }
 
-    dataSourcePlaceHolder(com.recomdata.util.DataSourcePlaceHolder) {
-		dataSource = ref('dataSource')
-	}
+    context.'component-scan'('base-package': 'org.transmartproject.export') {
+        context.'include-filter'(
+                type:       'assignable',
+                expression: HighDimExporter.canonicalName)
+    }
+
 	sessionRegistry(SessionRegistryImpl)
 	sessionAuthenticationStrategy(ConcurrentSessionControlStrategy, sessionRegistry) {
 		maximumSessions = 10
@@ -77,15 +87,45 @@ beans = {
 		expiredUrl = '/login'
 	}
 
-    context.'component-scan'('base-package': 'org.transmartproject.export') {
-        context.'include-filter'(
-                type:       'assignable',
-                expression: HighDimExporter.canonicalName)
+    redirectStrategy(DefaultRedirectStrategy)
+    accessDeniedHandler(AccessDeniedHandlerImpl) {
+        errorPage = '/login'
     }
-    
-    
+    failureHandler(SimpleUrlAuthenticationFailureHandler) {
+        defaultFailureUrl = '/login'
+    }
+
     //overrides bean implementing GormUserDetailsService?
-	userDetailsService(com.recomdata.security.AuthUserDetailsService)
+    userDetailsService(com.recomdata.security.AuthUserDetailsService)
 
+    marshallerRegistrarService(MarshallerRegistrarService)
 
+    if (grailsApplication.config.org.transmart.security.spnegoEnabled) {
+        // plugin is not functional at this point
+//        SpnegoAuthenticationProcessingFilter(SpnegoAuthenticationProcessingFilter) {
+//            authenticationManager = ref('authenticationManager')
+//            failureHandler = ref('failureHandler')
+//        }
+        ldapUserDetailsMapper(com.recomdata.security.CustomUserDetailsContextMapper) {
+            dataSource = ref("dataSource")
+        }
+    } else {
+        // plugin is not functional at this point
+//        SpringSecurityKerberosGrailsPlugin.metaClass.getDoWithSpring = {->
+//            logger.info "Skipped Kerberos Grails plugin initialization"
+//            return {}
+//        }
+        SpringSecurityLdapGrailsPlugin.metaClass.getDoWithSpring = {->
+            logger.info "Skipped LDAP Grails plugin initialization"
+            return {}
+        }
+    }
+
+    if (!('clientCredentialsAuthenticationProvider' in
+            grailsApplication.config.grails.plugin.springsecurity.providerNames)) {
+        SpringSecurityOauth2ProviderGrailsPlugin.metaClass.getDoWithSpring = {->
+            logger.info "Skipped Oauth2 Grails plugin initialization"
+            return {}
+        }
+    }
 }

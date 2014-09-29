@@ -12,11 +12,13 @@
   
   This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
   
-  You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+  You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
   
  
 -->
-<%@ page import="org.transmart.searchapp.SecureObjectAccess"%>
+
+
+
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -47,7 +49,7 @@
                    	        <th><g:message code="secureObjectAccessInstance.accessLevel" default="Access Level"/></th>
                    	   
                         
-                   	        <th><g:message code="secureObjectAccessInstance.secureObject" default="Study"/></th>
+                   	        <th><g:message code="secureObjectAccessInstance.secureObject" default="Secure Object"/></th>
                    	   
                         
                         </tr>
@@ -72,7 +74,7 @@
                 </table>
             </div>
             <div class="paginateButtons">
-                <g:paginate total="${SecureObjectAccess.count()}" />
+                <g:paginate total="${org.transmart.searchapp.SecureObjectAccess.count()}" />
             </div>
         </div>
     </body>

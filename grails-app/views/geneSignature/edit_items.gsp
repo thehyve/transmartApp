@@ -12,7 +12,7 @@
   
   This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
   
-  You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+  You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
   
  
 -->
@@ -39,9 +39,9 @@
 			var metricItem = document.getElementById(metricId);
 					
 			// remove and reset
-			if (geneItem) {geneItem.value="";}
-			if (probesetItem) {probesetItem.value="";}
-			if (metricItem) {metricItem.value="";}
+			geneItem.value="";
+			probesetItem.value="";
+			metricItem.value=""
 			rowItem.style.display="none";
 		}
 		
@@ -91,8 +91,9 @@
 	</table>    
    	<br>
   
- 	<g:form frm="geneSignatureItemFrm" method="post">   
- 	<g:hiddenField name="id" value="${gs.id}" />		
+ 	<g:form frm="geneSignatureItemFrm" method="post">   	
+	<g:hiddenField name="id" value="${gs.id}" />	 	 
+   	
    	<!-- existing items -->
    	<table class="detail">    	
        	<thead>
@@ -109,24 +110,16 @@
       		<tr>
       			<td style="color: gray;">${i+1}</td>
 				<g:if test="${gs?.fileSchema.id!=3}"> <td>${item.bioMarker?.name}</td> </g:if>
-				<g:if test="${gs?.fileSchema.id==3}"> <td>${item.probeset?.name}</td> </g:if>
+				<g:if test="${gs?.fileSchema.id==3}"> <td>${item.probeset}</td> </g:if>
             	<g:if test="${gs.foldChgMetricConceptCode?.bioConceptCode!='NOT_USED'}"><td>${item.foldChgMetric}</td></g:if>  								
 				<td style="text-align: center;"><input type="checkbox" name="delete" value="${item.id}" /></td>
 			</tr>		     
 		</g:each>			
 		</tbody>
     </table>       	
-    
-    <div class="buttons">
-		<g:actionSubmit class="delete" action="deleteItems" value="Delete Checked" onclick="return confirm('Are you sure you want to delete these items?')" />
-		<g:actionSubmit class="cancel" action="refreshSummary" onclick="return confirm('Are you sure you want to exit?')" value="Cancel" />
-	</div>	
-	</g:form>
      
   	<!-- new items -->
   	<br>
-  	<g:form frm="geneSignatureAddItemFrm" method="post">   
-  	<g:hiddenField name="gsId" value="${gs.id}" />	
     <table class="detail">
 		<g:tableHeaderToggle label="Expand to Add Items" divPrefix="${gs.id}_new_items" colSpan="${(gs.foldChgMetricConceptCode.bioConceptCode!='NOT_USED') ? '4' : '3'}" />
 		<tbody id="${gs.id}_new_items_detail" style="display: none;">

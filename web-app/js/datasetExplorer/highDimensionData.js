@@ -12,7 +12,7 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
@@ -24,23 +24,17 @@
  * @param divId
  */
 function gatherHighDimensionalData(divId){
-	var spinnerMask = new Ext.LoadMask(Ext.getBody(), {msg:"Please wait..."});
-	spinnerMask.show();
-	
 	if(!variableDivEmpty(divId)
 			&& ((GLOBAL.CurrentSubsetIDs[1]	== null) ||	(multipleSubsets() && GLOBAL.CurrentSubsetIDs[2]== null))){
-		spinnerMask.hide();
 		runAllQueriesForSubsetId(function(){gatherHighDimensionalData(divId);}, divId);
 		return;
 	}
 	if(variableDivEmpty(divId)){
-		spinnerMask.hide();
 		Ext.Msg.alert("No cohort selected!", "Please select a cohort first.");
 		return;
 	}
 	//genePatternReplacement();
 	//Send a request to generate the heatmapdata that we use to populate the dropdowns in the popup.
-	
 	Ext.Ajax.request(
 			{
 				url : pageInfo.basePath+"/analysis/heatmapvalidate",
@@ -55,35 +49,28 @@ function gatherHighDimensionalData(divId){
 				),
 				success : function(result, request)
 				{
-					spinnerMask.hide();
 					determineHighDimVariableType(result);
 					readCohortData(result,divId);
 				},
 				failure : function(result, request)
 				{
-                    Ext.Msg.alert("Error", "Communication failed.");
+                    Ext.Msg.alert("Error", "Ajax call is failed.");
 				}
 			}
 	);
 }
 
 function gatherHighDimensionalDataSingleSubset(divId, currentSubsetId){
-	var spinnerMask = new Ext.LoadMask(Ext.getBody(), {msg:"Please wait..."});
-	spinnerMask.show();
-	
 	if((!variableDivEmpty(divId) && currentSubsetId== null)){
-		spinnerMask.hide();
 		runQueryForSubsetidSingleSubset(function(sId){gatherHighDimensionalDataSingleSubset(divId, sId);}, divId);
 		return;
 	}
 	if(variableDivEmpty(divId)){
-		spinnerMask.hide();
 		Ext.Msg.alert("No cohort selected!", "Please select a cohort first.");
 		return;
 	}
 	//genePatternReplacement();
 	//Send a request to generate the heatmapdata that we use to populate the dropdowns in the popup.
-	
 	Ext.Ajax.request(
 			{
 				url : pageInfo.basePath+"/analysis/heatmapvalidate",
@@ -98,15 +85,12 @@ function gatherHighDimensionalDataSingleSubset(divId, currentSubsetId){
 				),
 				success : function(result, request)
 				{
-					spinnerMask.hide();
 					determineHighDimVariableType(result);
 					readCohortData(result,divId);
 				},
 				failure : function(result, request)
 				{
-					spinnerMask.hide();
-					determineHighDimVariableType(result);
-					readCohortData(result,divId);
+                    Ext.Msg.alert("Error", "Ajax call is failed.");
 				}
 			}
 	);
@@ -123,13 +107,13 @@ function determineHighDimVariableType(result){
 /**
  * read the result from heatmapvalidate call.
  * @param result
- * @param divId
+ * @param completedFunction
  */
 function readCohortData(result, divId)
 {
 	//Get the JSON string we got from the server into a real JSON object.
 	var mobj=result.responseText.evalJSON();
-	
+
 	//If we failed to retrieve any test from the heatmap server call, we alert the user here. Otherwise, show the popup.
 	if(mobj.NoData && mobj.NoData == "true")
 	{
@@ -274,7 +258,7 @@ function runQueryForSubsetidSingleSubset(callback, divId){
 function getCRCRequest(subset, queryname, divId){
 	if(queryname=="" || queryname==undefined){
 		var d=new Date();
-		queryname=GLOBAL.Username+"'s Query at "+ d.toString();
+		queryname=GLOBAL.Username+"'s Query at "+ d.toUTCString();
 		}
 	var query= '<ns4:query_definition xmlns:ns4="http://www.i2b2.org/xsd/cell/crc/psm/1.1/">\
 	                <query_name>'+queryname+'</query_name>\
@@ -296,19 +280,18 @@ function getCRCRequest(subset, queryname, divId){
 		}
 	}
 	
-	query=query+getSecurityPanel()+"</ns4:query_definition>";
-	//query=query+"</query_definition>"+getCRCRequestFooter();
+	query=query+"</ns4:query_definition>";
 	return query;
 }
 
 function getCRCRequestSingleSubset(divId, queryname){
 	if(queryname=="" || queryname==undefined){
 		var d=new Date();
-		queryname=GLOBAL.Username+"'s Query at "+ d.toString();
+		queryname=GLOBAL.Username+"'s Query at "+ d.toUTCString();
 		}
 	var query= '<ns4:query_definition xmlns:ns4="http://www.i2b2.org/xsd/cell/crc/psm/1.1/">\
-        <query_name>'+queryname+'</query_name>\
-        <specificity_scale>0</specificity_scale>';
+	                <query_name>'+queryname+'</query_name>\
+	                <specificity_scale>0</specificity_scale>';
 	
 	var qcd=Ext.get(divId);
 	
@@ -317,8 +300,7 @@ function getCRCRequestSingleSubset(divId, queryname){
 		query=query+getCRCRequestPanel(qcd.dom, 1);
 	}
 	
-	query=query+getSecurityPanel()+"</ns4:query_definition>";
-	//query=query+"</query_definition>"+getCRCRequestFooter();
+	query=query+"</ns4:query_definition>";
 	return query;
 }
 
@@ -380,13 +362,13 @@ function displayHighDimSelectionSummary(subsetCount, divId, probesAgg, snpType){
 	var innerHtml = summaryString+ 
 	'<br> <b>Pathway:</b> '+selectedSearchPathway+
 	'<br> <b>Marker Type:</b> '+GLOBAL.HighDimDataType;
-	
-	if(GLOBAL.HighDimDataType=="Gene Expression")
+
+	if(GLOBAL.HighDimDataType==HIGH_DIMENSIONAL_DATA["mrna"].type)
 	{
 		if(isProbesAggregationSupported()){
 			innerHtml += '<br><b> Aggregate Probes:</b> '+ probesAgg.checked;
 		}
-	}else if(GLOBAL.HighDimDataType=="SNP"){
+	} else if(GLOBAL.HighDimDataType==HIGH_DIMENSIONAL_DATA["snp"].type){
 		if(isProbesAggregationSupported()){
 			innerHtml += '<br><b> Aggregate Probes:</b> '+ probesAgg.checked;
 		}
@@ -436,8 +418,8 @@ function clearHighDimDataSelections(divId){
 	window[divId+'markerType']			="";
 	
 	//invalidate the two global subsets
-	GLOBAL.CurrentSubsetIDs[1]			=null;
-	GLOBAL.CurrentSubsetIDs[2]			=null;
+//	GLOBAL.CurrentSubsetIDs[1]			=null;
+//	GLOBAL.CurrentSubsetIDs[2]			=null;
 	
 	GLOBAL.CurrentPathway				=null;
 	GLOBAL.CurrentPathwayName			=null;
@@ -494,22 +476,21 @@ function toggleDataAssociationFields(extEle){
 	}
 	
 	//toggle display of SNP type dropdown
-	if (document.getElementById("divSNPType") != null) {
-		if(GLOBAL.Analysis=='Advanced'){
-			document.getElementById("divSNPType").style.display="none";
-		}else if(GLOBAL.Analysis=="dataAssociation"){
-			if(GLOBAL.HighDimDataType=='Gene Expression'){
-				document.getElementById("divSNPType").style.display="none";
-			}else if (GLOBAL.HighDimDataType=='SNP'){
-				document.getElementById("divSNPType").style.display="";
-			}else if (GLOBAL.HighDimDataType==''){
-			document.getElementById("divSNPType").style.display="none";
-			}
-		}
-	}
-	
-	//display the appropriate submit button
-	if(GLOBAL.Analysis=="dataAssociation" || GLOBAL.Analysis=='MetaCoreEnrichment'){
+    if (document.getElementById("divSNPType") != null) {
+        if (GLOBAL.Analysis == 'Advanced') {
+            document.getElementById("divSNPType").style.display = "none";
+        } else if (GLOBAL.Analysis == "dataAssociation") {
+
+            if (GLOBAL.HighDimDataType == HIGH_DIMENSIONAL_DATA["snp"].type)
+                document.getElementById("divSNPType").style.display = "";
+            else
+                document.getElementById("divSNPType").style.display = "none";
+
+        }
+    }
+
+    //display the appropriate submit button
+	if(GLOBAL.Analysis=="dataAssociation"){
 		document.getElementById("compareStepPathwaySelectionOKButton").style.display="none";
 		document.getElementById("dataAssociationApplyButton").style.display="";
 	}else if(GLOBAL.Analysis=='Advanced'){
@@ -523,6 +504,7 @@ function isProbesAggregationSupported(){
 	//The checkbox is displayd only for the dataAssociation tab.
 	if(GLOBAL.Analysis=="dataAssociation"){
 		var highDimDataTypeSupported=false;
+
 		if(["Gene Expression", "SNP"].indexOf(GLOBAL.HighDimDataType)>-1){
 			highDimDataTypeSupported=true;
 		}

@@ -12,7 +12,7 @@
   
   This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
   
-  You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+  You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
   
  
 -->
@@ -30,7 +30,7 @@
 		<g:if test='${"comparison".equals(analysis.analysisMethodCode)}'>
 			<tr class="prop">
 				<td valign="top" class="name" style="text-align: right">p-Value	Cut Off:</td>
-				<td valign="top" class="value">${fieldValue(bean:analysis, field:'pValueCutoff')}</td>
+				<td valign="top" class="value">${fieldValue(bean:analysis, field:'pvalueCutoff')}</td>
 			</tr>
 			<tr class="prop">
 				<td valign="top" class="name" style="text-align: right">Fold Change Cut Off:</td>

@@ -1,5 +1,4 @@
 import grails.util.Environment
-import org.codehaus.groovy.grails.commons.GrailsApplication
 
 /*************************************************************************
  * tranSMART - translational medicine data mart
@@ -15,11 +14,20 @@ import org.codehaus.groovy.grails.commons.GrailsApplication
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
-  
+def console
+if (!Environment.isWarDeployed() && Environment.isWithinShell()) {
+    console = grails.build.logging.GrailsConsole.instance
+} else {
+    console = [
+            info: { println "[INFO] $it" },
+            warn: { println "[WARN] $it" },
+    ]
+}
+
 /**
  * Running externalized configuration
  * Assuming the following configuration files
@@ -40,10 +48,10 @@ grails.config.locations = []
 def defaultConfigFiles
 if (Environment.current != Environment.TEST) {
     defaultConfigFiles = [
-            "${userHome}/.grails/${appName}Config/Config.groovy",
-            "${userHome}/.grails/${appName}Config/RModulesConfig.groovy",
-            "${userHome}/.grails/${appName}Config/DataSource.groovy"
-    ]
+	"${userHome}/.grails/${appName}Config/Config.groovy",
+	"${userHome}/.grails/${appName}Config/RModulesConfig.groovy",
+	"${userHome}/.grails/${appName}Config/DataSource.groovy"
+]
 } else {
     // settings for the test environment
     org.transmart.configFine = true
@@ -52,11 +60,13 @@ if (Environment.current != Environment.TEST) {
 defaultConfigFiles.each { filePath ->
 	def f = new File(filePath)
 	if (f.exists()) {
-        if (f.name.equals('RModulesConfig.groovy')) {
-            println "[WARN] RModulesConfig.groovy is deprecated, it has been merged into Config.groovy. " +
+        if (f.name == 'RModulesConfig.groovy') {
+            console.warn "RModulesConfig.groovy is deprecated, it has been merged into Config.groovy. " +
                     "Loading it anyway."
         }
 		grails.config.locations << "file:${filePath}"
+    } else if (f.name != 'RModulesConfig.groovy') {
+        console.info "Configuration file ${filePath} does not exist."
 	}
 }
 String bashSafeEnvAppName = appName.toString().toUpperCase(Locale.ENGLISH).replaceAll(/-/, '_')
@@ -69,8 +79,7 @@ def externalDataSource = System.getenv("${bashSafeEnvAppName}_DATASOURCE_LOCATIO
 if (externalDataSource) {
 	grails.config.locations << "file:" + externalDataSource
 }
-grails.config.locations.each { println "[INFO] Including configuration file [${it}] in configuration building." }
-
+grails.config.locations.each { console.info "Including configuration file [${it}] in configuration building." }
 
 /* 
  *  The following lines are copied from the previous COnfig.groovy
@@ -117,7 +126,7 @@ grails.enable.native2ascii = true
 
 com.recomdata.search.autocomplete.max=20
 // default paging size
-com.recomdata.search.paginate.max=10
+com.recomdata.search.paginate.max=20
 com.recomdata.search.paginate.maxsteps=5
 com.recomdata.admin.paginate.max=20
 
@@ -126,7 +135,7 @@ com.recomdata.admin.paginate.max=20
 //SUBJECT Data.
 com.recomdata.i2b2.subject.domain = 'i2b2demo'
 com.recomdata.i2b2.subject.projectid = 'i2b2demo'
-com.recomdata.i2b2.subject.username = 'i2b2'
+com.recomdata.i2b2.subject.username = 'Demo'
 com.recomdata.i2b2.subject.password = 'demouser'
 
 //SAMPLE Data.
@@ -139,8 +148,6 @@ com.recomdata.i2b2.sample.password = 'manager'
 org.transmartproject.i2b2.user_id = 'i2b2'
 org.transmartproject.i2b2.group_id = 'Demo'
 //**************************
-
-
 
 // max genes to display after disease search
 com.recomdata.search.gene.max=250;
@@ -155,7 +162,7 @@ com.recomdata.transmart.data.export.max.export.jobs.loaded=20
 com.recomdata.transmart.data.export.dataTypesMap=[
 	'CLINICAL':'Clinical & Low Dimensional Biomarker Data', 
 	'MRNA':'Gene Expression Data', 
-	'SNP':'SNP Data',
+        'SNP': 'SNP data (Microarray)',
 	'STUDY':'Study Metadata',
 	'ADDITIONAL':'Additional Data'
 	//,'GSEA':'Gene Set Enrichment Analysis (GSEA)'
@@ -191,10 +198,10 @@ com.recomdata.analysis.genepattern.file.dir = "data"; // Relative to the app roo
 
 com.recomdata.analysis.data.file.dir = "data"; // Relative to the app root "web-app"
 
-//StringBuilder disclaimer = new StringBuilder()
-//disclaimer.append("<p></p>")
-//com.recomdata.disclaimer=disclaimer.toString()
-
+// Disclaimer
+StringBuilder disclaimer = new StringBuilder()
+disclaimer.append("<p></p>")
+com.recomdata.disclaimer = disclaimer.toString()
 
 // customization views
 //com.recomdata.view.studyview='_clinicaltrialdetail'
@@ -202,9 +209,12 @@ com.recomdata.skipdisclaimer=true
 
 grails.spring.bean.packages = []
 
+org.transmart.security.spnegoEnabled = false
+
 // requires NIO connector though. If you use apache in front of tomcat in the
 // same server, you can set this to false and set .apache = true
-grails.plugins.sendfile.tomcat = true
+// Bear in mind bug GRAILS-11376 with Tomcat NIO and Grails 2.3.6+
+grails.plugins.sendfile.tomcat = false
 
 log4j = {
     environments {
@@ -212,10 +222,40 @@ log4j = {
             warn 'org.codehaus.groovy.grails.commons.spring'
             warn 'org.codehaus.groovy.grails.domain.GrailsDomainClassCleaner'
             warn 'org.codehaus.groovy.grails.plugins.DefaultGrailsPluginManager' //info to show plugin versions
+            warn 'org.codehaus.groovy.grails.orm.hibernate.cfg.GrailsDomainBinder' //info to show joined-subclass indo
 
             root {
                 info('stdout')
             }
         }
+        }
+    }
+
+// Uncomment and edit the following lines to start using Grails encoding & escaping improvements
+
+/* remove this line 
+// GSP settings
+grails {
+    views {
+        gsp {
+            encoding = 'UTF-8'
+            htmlcodec = 'xml' // use xml escaping instead of HTML4 escaping
+            codecs {
+                expression = 'html' // escapes values inside null
+                scriptlet = 'none' // escapes output from scriptlets in GSPs
+                taglib = 'none' // escapes output from taglibs
+                staticparts = 'none' // escapes output from static template parts
+            }
+        }
+        // escapes all not-encoded output at final stage of outputting
+        filteringCodecForContentType {
+            //'text/html' = 'html'
+        }
     }
 }
+remove this line */
+
+
+/*
+// MetaCore plugin
+com.thomsonreuters.transmart.metacoreAnalyticsEnable=true */

@@ -12,7 +12,7 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
@@ -20,19 +20,12 @@
 
 package com.recomdata.transmart.data.export
 
-import java.io.File
-import java.util.ArrayList
-import java.util.List
-import java.util.Map
-
-import org.apache.commons.lang.StringUtils
-import org.apache.log4j.Logger
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
-import org.rosuda.REngine.REXP
-import org.rosuda.REngine.Rserve.RConnection
-
 import com.recomdata.dataexport.util.ExportUtil
 import com.recomdata.transmart.data.export.util.FileWriterUtil
+import grails.util.Holders
+import org.apache.commons.lang.StringUtils
+import org.rosuda.REngine.REXP
+import org.rosuda.REngine.Rserve.RConnection
 
 import static org.transmart.authorization.QueriesResourceAuthorizationDecorator.checkQueryResultAccess
 
@@ -44,6 +37,7 @@ class ClinicalDataService {
 	def i2b2HelperService
 	def springSecurityService
 	def utilService
+
 	//Logger log = Logger.getLogger(getClass()) // log4j
 
 	//This is the SQL query we use to get our data.
@@ -51,8 +45,6 @@ class ClinicalDataService {
 
 	//This is the list of parameters passed to the SQL statement.
 	//def parameterList = null;
-
-	def config = ConfigurationHolder.config
 
 	boolean dataFound = false
 	
@@ -66,7 +58,7 @@ class ClinicalDataService {
 	public boolean getData(List studyList, File studyDir, String fileName, String jobName, String resultInstanceId, 
 		String[] conceptCodeList, List retrievalTypes, boolean parPivotData, boolean parFilterHighLevelConcepts, 
 		Map snpFilesMap, String subset, Map filesDoneMap, List platformsList,String[] parentConceptCodeList, Boolean includeConceptContext) 	{
-
+		
         checkQueryResultAccess resultInstanceId
 		
 		def sqlQuery = new StringBuilder();
@@ -81,18 +73,16 @@ class ClinicalDataService {
 			sqlQuery <<= "SELECT ofa.PATIENT_NUM, cd.CONCEPT_PATH, cd.CONCEPT_CD, cd.NAME_CHAR, "
 			sqlQuery <<= "case ofa.VALTYPE_CD "
 			sqlQuery <<= " WHEN 'T' THEN TVAL_CHAR "
-			sqlQuery <<= " WHEN 'N' THEN CAST(NVAL_NUM AS VARCHAR (30)) "
-			sqlQuery <<= "END AS VALUE, ? SUBSET , pd.sourcesystem_cd "
+            sqlQuery <<= " WHEN 'N' THEN CAST(NVAL_NUM AS varchar(30)) "
+            sqlQuery <<= "END as VALUE, ? SUBSET , pd.sourcesystem_cd, ed.days_since_enroll "
 			
 			//If we are going to union in the codes that have parent concepts, we include the parent columns here too.
-			if(parentConceptCodeList.size() > 0)
-			{
+            if (parentConceptCodeList.size() > 0) {
 				sqlQuery <<= ", '' AS PARENT_PATH,'' AS  PARENT_CODE "
 			}
 			
 			//If we are including the concepts context, add the columns to the statement here.
-			if(includeConceptContext)
-			{
+            if (includeConceptContext) {
 				sqlQuery <<= ", DC.DE_CONTEXT_NAME "
 			}
 			
@@ -102,10 +92,10 @@ class ClinicalDataService {
 			
 			sqlQuery <<= "FROM qt_patient_set_collection qt "
 			sqlQuery <<= "INNER JOIN OBSERVATION_FACT ofa ON qt.PATIENT_NUM = ofa.PATIENT_NUM "
+            sqlQuery <<= "LEFT OUTER JOIN DE_OBS_ENROLL_DAYS ed on ofa.encounter_num = ed.encounter_num "
 			
 			//If we are including the concepts context, add the tables to the statement here.
-			if(includeConceptContext)
-			{
+            if (includeConceptContext) {
 				sqlQuery <<= " LEFT JOIN DEAPP.DE_CONCEPT_CONTEXT DCC ON DCC.CONCEPT_CD = ofa.CONCEPT_CD "
 				sqlQuery <<= " LEFT JOIN DEAPP.DE_CONTEXT DC ON DC.DE_CONTEXT_ID = DCC.DE_CONTEXT_ID "
 			}
@@ -117,16 +107,14 @@ class ClinicalDataService {
 				sqlQuery <<= "LEFT JOIN DE_SUBJECT_SAMPLE_MAPPING ssm ON ssm.PATIENT_ID = ofa.PATIENT_NUM  "
 			}
 			
-            //MODIFIER_CD used to be used to store the study name as well
-			sqlQuery <<= "WHERE qt.RESULT_INSTANCE_ID = CAST(? AS numeric) AND ofa.SOURCESYSTEM_CD = ? " +
-                    "AND ( ofa.MODIFIER_CD = '@' OR ofa.MODIFIER_CD = ofa.SOURCESYSTEM_CD )"
+            sqlQuery <<= "WHERE qt.RESULT_INSTANCE_ID = ?"
 
 			if (!retrievalTypeMRNAExists && parFilterHighLevelConcepts) {
-				sqlQuery <<= " AND cd.concept_cd NOT IN (SELECT DISTINCT coalesce(sample_type_cd,'-1') as gene_expr_concept"
+                sqlQuery <<= " AND cd.concept_cd NOT IN (SELECT DISTINCT coalesce(sample_type_cd,'-1') as gene_expr_concept"
 				sqlQuery <<= " FROM de_subject_sample_mapping WHERE trial_name = ?"
-				sqlQuery <<= " UNION SELECT DISTINCT coalesce(tissue_type_cd,'-1') as gene_expr_concept "
+                sqlQuery <<= " UNION SELECT DISTINCT coalesce(tissue_type_cd,'-1') as gene_expr_concept "
 				sqlQuery <<= " FROM de_subject_sample_mapping WHERE trial_name = ?"
-				sqlQuery <<= " UNION SELECT DISTINCT coalesce(platform_cd,'-1') as gene_expr_concept "
+                sqlQuery <<= " UNION SELECT DISTINCT coalesce(platform_cd,'-1') as gene_expr_concept "
 				sqlQuery <<= " FROM de_subject_sample_mapping WHERE trial_name = ?)"
 			}
 			
@@ -138,8 +126,7 @@ class ClinicalDataService {
 			if(conceptCodeList.size() > 0) sqlQuery <<= " AND cd.CONCEPT_CD IN (" + quoteCSV(conceptCodeList.join(",")) + ") "
 			
 			//If we have the parent codes, add the UNION to bring in the child concepts.
-			if(parentConceptCodeList.size() > 0)
-			{
+            if (parentConceptCodeList.size() > 0) {
 				includeParentInfo = true
 				
 				sqlQuery <<= getParentConceptUnion(parentConceptCodeList,includeConceptContext)
@@ -152,9 +139,8 @@ class ClinicalDataService {
 			//Add the name of the subset to the parameter list.
 			parameterList.add(subset)
 			//Add the value of the result instance ID to the parameter list.
-			parameterList.add(resultInstanceId.toInteger())
-			//Add study to the parameter list.
-			parameterList.add(study)
+            parameterList.add(resultInstanceId)
+
 			if (!retrievalTypeMRNAExists && parFilterHighLevelConcepts) {
 				parameterList.add(study)
 				parameterList.add(study)
@@ -162,11 +148,9 @@ class ClinicalDataService {
 			}
 			
 			//Add the parameters for the UNION with parent codes.
-			if(parentConceptCodeList.size() > 0)
-			{
+            if (parentConceptCodeList.size() > 0) {
 				parameterList.add(subset)
 				parameterList.add(resultInstanceId)
-				parameterList.add(study)
 				
 				//We need to get the concept code for this path.
 				String parentConceptCode = i2b2HelperService.getConceptCodeFromKey("\\\\"+parentConceptCodeList[0].trim())
@@ -180,16 +164,13 @@ class ClinicalDataService {
 			log.debug("Retrieving Clinical data : " + parameterList)
 			
 			//Only pivot the data if the parameter specifies it.
-			if(parPivotData)
-			{
+            if (parPivotData) {
 				boolean mRNAExists =  retrievalTypeMRNAExists && null != filesDoneMap['MRNA.TXT'] && filesDoneMap['MRNA.TXT']
 				boolean snpExists =  retrievalTypeSNPExists && null != filesDoneMap['SNP.PED, .MAP & .CNV'] && filesDoneMap['SNP.PED, .MAP & .CNV']
 				pivotData((studyList?.size() > 1), study, 
 					writeData(sqlQuery, parameterList, studyDir, filename, jobName, retrievalTypes, snpFilesMap), 
 					mRNAExists, snpExists)
-			}
-			else
-			{
+            } else {
 				writeData(sqlQuery, parameterList, studyDir, filename, jobName, retrievalTypes,null,includeParentInfo,includeConceptContext)
 			}
 		}
@@ -197,9 +178,7 @@ class ClinicalDataService {
 		return dataFound
 	}
 
-	private String writeData(StringBuilder sqlQuery, List parameterList, File studyDir, String fileName, String jobName, List retrievalTypes, Map snpFilesMap = null,Boolean includeParentInfo = false,Boolean includeConceptContext = false)
-	{
-
+    private String writeData(StringBuilder sqlQuery, List parameterList, File studyDir, String fileName, String jobName, List retrievalTypes, Map snpFilesMap = null, Boolean includeParentInfo = false, Boolean includeConceptContext = false) {
 		//TODO Get the dataTypeName from the list of DataTypeNames either from DB or from config file
 		def dataTypeName = "Clinical";
 		//TODO set this to either "Raw_Files/Findings" or NULL for processed_files
@@ -215,8 +194,6 @@ class ClinicalDataService {
 			
 			
 			log.debug('Clinical Data Query :: ' + sqlQuery.toString())
-			println('Clinical Data Query :: ' + sqlQuery.toString())
-			println('Parameter List :: ' + parameterList)
 			def rows = sql.rows(sqlQuery.toString(), parameterList)
 			if (rows.size() > 0) {
 				log.debug('Writing Clinical File')
@@ -255,6 +232,10 @@ class ClinicalDataService {
 		
 					//Actual Concept Path is required for Data Association
 					values.add(row.CONCEPT_PATH)
+
+                    //NOD Data field
+                    values.add(row.DAYS_SINCE_ENROLL);
+
 					if (retrievalTypeExists("MRNA", retrievalTypes)) {
 						values.add(row.ASSAY_ID?.toString())
 					}
@@ -278,14 +259,12 @@ class ClinicalDataService {
 						}
 					}
 					
-					if(includeParentInfo)
-					{
+                    if (includeParentInfo) {
 						values.add(row.PARENT_PATH?.toString())
 						values.add(row.PARENT_CODE?.toString())
 					}
 					
-					if(includeConceptContext)
-					{
+                    if (includeConceptContext) {
 						values.add(row.DE_CONTEXT_NAME?.toString())
 					}
 					
@@ -295,7 +274,6 @@ class ClinicalDataService {
 			filePath = writerUtil?.outputFile?.getAbsolutePath()
 		} catch (Exception e) {
 			log.info(e.getMessage())
-			throw(e)
 		} finally {
 			writerUtil?.finishWriting()	
 			sql?.close()
@@ -316,37 +294,32 @@ class ClinicalDataService {
 				//Run the R command to set the working directory to our temp directory.
 				REXP x = c.eval(workingDirectoryCommand)
 
-				String rScriptDirectory = config.com.recomdata.transmart.data.export.rScriptDirectory
+                String rScriptDirectory = Holders.config.com.recomdata.transmart.data.export.rScriptDirectory
 				String compilePivotDataCommand = ''
 				if (mRNAExists) {
 					compilePivotDataCommand = "source('${rScriptDirectory}/PivotData/PivotClinicalDataWithAssays2.R')"
 				} else {
 					compilePivotDataCommand = "source('${rScriptDirectory}/PivotData/PivotClinicalData.R')"
 				}
-				log.info "compilePivotDataCommand ${compilePivotDataCommand} '${mRNAExists}' snpExists '${snpExists}'"
 				REXP comp = c.eval(compilePivotDataCommand)
 				//Prepare command to call the PivotClinicalData.R script
 				String pivotDataCommand = "PivotClinicalData.pivot('$inputFile.name', '$snpExists', '$multipleStudies', '$study')"
 				//, '"+mRNAExists+"','"+snpExists+"'
-				log.info "pivotDataCommand '${pivotDataCommand}' mRNAExists"
 				//Run the R command to pivot the data in the clinical.i2b2trans file.
 				REXP pivot = c.eval(pivotDataCommand)
 			}
 		}
 	}
 
-	def String quoteCSV(String val)
-	{
+    def String quoteCSV(String val) {
 		String[] inArray;
 		StringBuilder s = new StringBuilder();
 
-		if (val != null && val.length() > 0)
-		{
+        if (val != null && val.length() > 0) {
 			inArray= val.split(",");
 			s.append("'" +inArray[0] + "'");
 
-			for (int i=1; i < inArray.length; i++)
-			{
+            for (int i = 1; i < inArray.length; i++) {
 				s.append(",'" +inArray[i] + "'");
 			}
 		}
@@ -384,6 +357,7 @@ class ClinicalDataService {
 		columnNames.add("CONCEPT PATH")
 		columnNames.add("VALUE")
 		columnNames.add("CONCEPT_PATH_FULL")
+        columnNames.add("NOD")
 		if (retrievalTypeExists("MRNA", retrievalTypes)) {
 			columnNames.add("ASSAY ID")
 		}
@@ -409,8 +383,7 @@ class ClinicalDataService {
 	}
 	
 	//Give a list of concept codes that represent parents to other codes, create a union statement to retrieve the children and indicate their parents.
-	private String getParentConceptUnion(String[] parentConceptCodeList, Boolean includeConceptContext)
-	{
+    private String getParentConceptUnion(String[] parentConceptCodeList, Boolean includeConceptContext) {
 		def queryToReturn = new StringBuilder();
 		
 		queryToReturn <<= " UNION SELECT	ofa.PATIENT_NUM, "
@@ -419,14 +392,13 @@ class ClinicalDataService {
 		queryToReturn <<= "			C1.NAME_CHAR, "
 		queryToReturn <<= "			CASE ofa.VALTYPE_CD "
 		queryToReturn <<= "				WHEN 'T' THEN TVAL_CHAR "
-		queryToReturn <<= "				WHEN 'N' THEN CAST(NVAL_NUM AS VARCHAR2(30)) "
-		queryToReturn <<= "			END VALUE, ? SUBSET , pd.sourcesystem_cd, "
+		queryToReturn <<= "				WHEN 'N' THEN CAST(NVAL_NUM AS VARCHAR(30)) "
+		queryToReturn <<= "			END as VALUE, ? SUBSET , pd.sourcesystem_cd, "
 		queryToReturn <<= "			C2.CONCEPT_PATH AS PARENT_PATH, "
 		queryToReturn <<= "			C2.CONCEPT_CD AS PARENT_CODE "
 		
 		//If we are including the concepts context, add the columns to the statement here.
-		if(includeConceptContext)
-		{
+        if (includeConceptContext) {
 			queryToReturn <<= ", DC.DE_CONTEXT_NAME "
 		}
 		
@@ -434,8 +406,7 @@ class ClinicalDataService {
 		queryToReturn <<= "INNER JOIN OBSERVATION_FACT ofa ON qt.PATIENT_NUM = ofa.PATIENT_NUM  "
 
 		//If we are including the concepts context, add the columns to the statement here.
-		if(includeConceptContext)
-		{
+        if (includeConceptContext) {
 			queryToReturn <<= " LEFT JOIN DEAPP.DE_CONCEPT_CONTEXT DCC ON DCC.CONCEPT_CD = ofa.CONCEPT_CD "
 			queryToReturn <<= " LEFT JOIN DEAPP.DE_CONTEXT DC ON DC.DE_CONTEXT_ID = DCC.DE_CONTEXT_ID "
 		}
@@ -444,9 +415,7 @@ class ClinicalDataService {
 		queryToReturn <<= "INNER JOIN DE_XTRIAL_CHILD_MAP XMAP ON XMAP.CONCEPT_CD = ofa.CONCEPT_CD "
 		queryToReturn <<= "INNER JOIN CONCEPT_DIMENSION C1 ON C1.CONCEPT_CD = XMAP.CONCEPT_CD "
 		queryToReturn <<= "INNER JOIN CONCEPT_DIMENSION C2 ON C2.CONCEPT_CD = XMAP.PARENT_CD "
-		queryToReturn <<= "WHERE	qt.RESULT_INSTANCE_ID = CAST(? AS numeric) "
-        //ofa.MODIFIER_CD used to be used to store the study name
-		queryToReturn <<= "AND		ofa.SOURCESYSTEM_CD = ? AND ( ofa.MODIFIER_CD = '@' OR ofa.MODIFIER_CD = ofa.SOURCESYSTEM_CD ) "
+        queryToReturn <<= "WHERE	qt.RESULT_INSTANCE_ID = ? "
 		queryToReturn <<= "AND		ofa.CONCEPT_CD IN "
 		queryToReturn <<= "( "
 		queryToReturn <<= "		SELECT	C_BASECODE "
@@ -461,4 +430,7 @@ class ClinicalDataService {
 	}
 	
 	
+    def newExportData() {
+
+    }
 }

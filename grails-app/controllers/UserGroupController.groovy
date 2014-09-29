@@ -12,7 +12,7 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
@@ -27,14 +27,12 @@ import org.transmart.searchapp.Principal
 import org.transmart.searchapp.UserGroup
 
 class UserGroupController {
-    /**
-     * Dependency injection for the springSecurityService.
-     */
-    def springSecurityService
-    def dataSource
 
-    def index = { 
-		redirect(action:'list',params:params) }
+    def dataSource
+    def springSecurityService
+
+
+    def index = { redirect(action: 'list', params: params) }
 
     // the delete, save and update actions only accept POST requests
     def allowedMethods = [delete:'POST', save:'POST', update:'POST']
@@ -56,8 +54,9 @@ class UserGroupController {
         if(!userGroupInstance) {
             flash.message = "UserGroup not found with id ${params.id}"
             redirect(action:'list')
+        } else {
+            return [userGroupInstance: userGroupInstance]
         }
-        else { return [ userGroupInstance : userGroupInstance ] }
     }
 
     def delete = {
@@ -66,8 +65,7 @@ class UserGroupController {
             userGroupInstance.delete()
             flash.message = "UserGroup ${params.id} deleted"
             redirect(action:'list')
-        }
-        else {
+        } else {
             flash.message = "UserGroup not found with id ${params.id}"
             redirect(action:'list')
         }
@@ -79,8 +77,7 @@ class UserGroupController {
         if(!userGroupInstance) {
             flash.message = "UserGroup not found with id ${params.id}"
             redirect(action:'list')
-        }
-        else {
+        } else {
             return [ userGroupInstance : userGroupInstance ]
         }
     }
@@ -92,12 +89,10 @@ class UserGroupController {
             if(!userGroupInstance.hasErrors() && userGroupInstance.save()) {
                 flash.message = "UserGroup ${params.id} updated"
                 redirect(action:'show',id:userGroupInstance.id)
-            }
-            else {
+            } else {
                 render(view:'edit',model:[userGroupInstance:userGroupInstance])
             }
-        }
-        else {
+        } else {
             flash.message = "UserGroup not found with id ${params.id}"
             redirect(action:'edit',id:params.id)
         }
@@ -113,12 +108,12 @@ class UserGroupController {
         def userGroupInstance = new UserGroup(params)
 
         try {
-            userGroupInstance.save(failOnError: true)
+            userGroupInstance.save()
             def msg = "Group: ${userGroupInstance.name} created.";
             new AccessLog(username: springSecurityService.principal.username,
-                    event: "Group created",
-                    eventmessage: msg,
-                    accesstime: new Date()).save()
+                          event: "Group created",
+                          eventmessage: msg,
+                          accesstime: new Date()).save()
 
             redirect action: 'show', id: userGroupInstance.id
         } catch (ValidationException validationException) {
@@ -127,7 +122,9 @@ class UserGroupController {
         }
     }
 
-    def ajaxGetUserSearchBoxData = {
+
+    def ajaxGetUserSearchBoxData =
+        {
         def userData = AuthUser.withCriteria {
             // TODO: searchText is not escaped for like special characters.
             // This is not trivial to do in a database agnostic way afaik, see:
@@ -139,24 +136,24 @@ class UserGroupController {
         }.collect { AuthUser user ->
             [name: user.name, username :user.username, type: user.type,
                     description: user.description, uid: user.id]
-        }
+			}
         def result = [rows: userData]
         render text: params.callback + "(" + (result as JSON) + ")",
                 contentType:"application/javascript"
     }
 
-    def searchUsersNotInGroup = {
+
+
+    def searchUsersNotInGroup =
+        {
     	def userGroupInstance = UserGroup.get( params.id )
     	def groupid=Long.parseLong(params.id);
-		
     	def searchtext=params.searchtext;
-		
     	def users=searchForUsersNotInGroup(groupid, searchtext);
-		
-    	render(template:'addremove',model:[userGroupInstance:userGroupInstance, usersToAdd:users]).toString()
+            render(template: 'addremove', model: [userGroupInstance: userGroupInstance, usersToAdd: users])
    }
-
-    def searchGroupsWithoutUser = {
+    def searchGroupsWithoutUser =
+        {
     	def userInstance = AuthUser.get( params.id )
     	def searchtext=params.searchtext;
     	def groupswithuser=getGroupsWithUser(userInstance.id);
@@ -164,11 +161,13 @@ class UserGroupController {
     	render(template:'addremoveg',model:[userInstance: userInstance, groupswithuser: groupswithuser, groupswithoutuser: groupswithoutuser])
    }
 
-    def addUserToGroups = { UserGroupCommand fl ->
+
+    def addUserToGroups =
+        { UserGroupCommand fl ->
         def userInstance = AuthUser.get params.currentprincipalid
         def groupsToAdd = UserGroup.findAllByIdInList fl.groupstoadd.collect { it.toLong() }
-        if (userInstance) {
-            groupsToAdd.each { g ->
+        if(userInstance) {
+                groupsToAdd.each { g ->
                 g.addToMembers userInstance
                 g.save failOnError: true, flush: true
             }
@@ -186,11 +185,12 @@ class UserGroupController {
     }
 
 
-    def removeUserFromGroups = { UserGroupCommand fl ->
+    def removeUserFromGroups =
+        { UserGroupCommand fl ->
         def userInstance = AuthUser.get params.currentprincipalid
         def groupsToRemove = UserGroup.findAllByIdInList fl.groupstoremove.collect { it.toLong() }
-        if (userInstance) {
-            groupsToRemove.each { g ->
+        if(userInstance) {
+                groupsToRemove.each { g ->
                 g.removeFromMembers userInstance
                 g.save failOnError: true, flush: true
             }
@@ -207,9 +207,10 @@ class UserGroupController {
                         groupswithoutuser: groupsWithoutUser]
     }
 
-    def addUsersToUserGroup = {UserGroupCommand fl ->
+    def addUsersToUserGroup =
+        { UserGroupCommand fl ->
 
-//        println("INCOMOING to add Group:"+params.userstoadd);
+            println("INCOMOING to add Group:" + params.userstoadd);
     		def userGroupInstance = UserGroup.get( params.id )
     		fl.userstoadd.collect{println("collecting:"+it.toLong())};
     		def usersToAdd = AuthUser.findAll("from AuthUser r where r.id in (:p)", [p:fl.userstoadd.collect{it.toLong()}]);
@@ -222,28 +223,31 @@ class UserGroupController {
                         render(template:'addremove',model:[userGroupInstance:userGroupInstance])
                     }
                 }
-                usersToAdd.each{ r -> userGroupInstance.members.add(r);
+                usersToAdd.each { r ->
+                    userGroupInstance.members.add(r);
                 	println("Adding user:"+r.id);
                 };
 
                 if(!userGroupInstance.hasErrors() && userGroupInstance.save(flush:true)) {
                     flash.message = "UserGroup ${params.id} updated"
                     	render(template:'addremove',model:[userGroupInstance:userGroupInstance, usersToAdd: searchForUsersNotInGroup(params.id.toLong(), fl.searchtext) ])
+                } else {
+                    render(template: 'addremove', model: [userGroupInstance: userGroupInstance, usersToAdd: searchForUsersNotInGroup(params.id.toLong(), fl.searchtext)])
                 }
-                else {
-                	render(template:'addremove',model:[userGroupInstance:userGroupInstance, usersToAdd: searchForUsersNotInGroup(params.id.toLong(), fl.searchtext) ])
-                }
-            }
-            else {
+            } else {
                 flash.message = "UserGroup not found with id ${params.id}"
                 	render(template:'addremove',model:[userGroupInstance:userGroupInstance, usersToAdd: searchForUsersNotInGroup(params.id.toLong(), fl.searchtext) ])
             }
     }
 
-    def removeUsersFromUserGroup = {
+
+    def removeUsersFromUserGroup =
+        {
     		UserGroupCommand fl ->
     		def userGroupInstance = UserGroup.get( params.id )
-    		if(!fl.hasErrors()){println("no errors")}
+                if (!fl.hasErrors()) {
+                    println("no errors")
+                }
     		fl.errors.allErrors.each {
 		        println it
 		    }
@@ -258,55 +262,52 @@ class UserGroupController {
                         render(template:'addremove',model:[userGroupInstance:userGroupInstance])
                     }
                 }
-                usersToRemove.each{ r -> userGroupInstance.members.remove(r);
+                    usersToRemove.each { r ->
+                        userGroupInstance.members.remove(r);
                 	println("Removing user:"+r.id);
                 };
                 if(!userGroupInstance.hasErrors() && userGroupInstance.save(flush:true)) {
                     flash.message = "UserGroup ${params.id} updated"
                     	render(template:'addremove',model:[userGroupInstance:userGroupInstance, usersToAdd: searchForUsersNotInGroup(params.id.toLong(), fl.searchtext) ])
+                    } else {
+                        render(template: 'addremove', model: [userGroupInstance: userGroupInstance, usersToAdd: searchForUsersNotInGroup(params.id.toLong(), fl.searchtext)])
                 }
-                else {
-                	render(template:'addremove',model:[userGroupInstance:userGroupInstance, usersToAdd: searchForUsersNotInGroup(params.id.toLong(), fl.searchtext) ])
-                }
-            }
-            else {
+                } else {
                 flash.message = "UserGroup not found with id ${params.id}"
                 	render(template:'addremove',model:[userGroupInstance:userGroupInstance, usersToAdd: searchForUsersNotInGroup(params.id.toLong(), fl.searchtext) ])
             }
     }
 
-    def searchForUsersNotInGroup(groupid, insearchtext)
-    {
+
+    def searchForUsersNotInGroup(groupid, insearchtext) {
       	def searchtext='%'+insearchtext.toString().toUpperCase()+'%';
       	return AuthUser.executeQuery('from AuthUser us WHERE us NOT IN (select u.id from UserGroup g, IN (g.members) u where g.id=?) AND upper(us.name) LIKE ? ORDER BY us.userRealName',[groupid, searchtext]).sort{it.name};
     }
 
-    def ajaxGetUsersAndGroupsSearchBoxData = {
+    def ajaxGetUsersAndGroupsSearchBoxData =
+        {
 	    	String searchText = request.getParameter("query");
 			def userdata=[];
 			 def users=Principal.executeQuery("from Principal p where upper(p.name) like upper ('%"+searchText+"%') order by p.name");
 				users.each{user ->
 
-						if(user.type=='USER')
-						{
+                if (user.type == 'USER') {
 						userdata.add([name:user.name, username:user.username,  type:user.type, description:user.description, uid:user.id ])
-						}
-						else
-						{
+                } else {
 						userdata.add([name:user.name, username:"No Login", type:user.type, description:user.description, uid:user.id ])
 						}
 					}
 			def result = [rows:userdata]
-            render(text:params.callback + "(" + (result as JSON) + ")", contentType:"application/javascript")
+            //println(result as JSON)
+            render(contentType:"text/javascript", text: "${params.callback}(${result as JSON})")
 	    }
     
-	private getGroupsWithUser(userid)
-	{
+
+    def getGroupsWithUser(userid) {
         return UserGroup.executeQuery('Select g FROM UserGroup g, IN (g.members) m WHERE m.id=?', userid);
 	}
 
-	private getGroupsWithoutUser(userid, insearchtext)
-	{
+    def getGroupsWithoutUser(userid, insearchtext) {
 		def searchtext='%'+insearchtext.toString().toUpperCase()+'%'
 		return UserGroup.executeQuery('from UserGroup g WHERE g.id<>-1 AND g.id NOT IN (SELECT g2.id from UserGroup g2, IN (g2.members) m WHERE m.id=?) AND upper(g.name) like ?', [userid, searchtext] );
 	} 

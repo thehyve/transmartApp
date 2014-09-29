@@ -12,7 +12,7 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
@@ -20,13 +20,8 @@
 
 package com.recomdata.util
 
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.Set;
-
-import oracle.net.aso.e;
-
-import groovy.sql.Sql;
+import groovy.sql.Sql
+import oracle.net.aso.e
 
 /**
 Procedure of SNP Annotation Data Loading

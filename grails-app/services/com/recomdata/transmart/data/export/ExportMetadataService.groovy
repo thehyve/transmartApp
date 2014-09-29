@@ -21,14 +21,14 @@
 package com.recomdata.transmart.data.export
 
 import grails.util.Holders
-
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.export.HighDimExporter
 
 class ExportMetadataService {
 
-    static transactional = true
+    static transactional = false
+
 	def dataCountService
     def highDimensionResourceService
     def highDimExporterRegistry

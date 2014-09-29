@@ -12,12 +12,12 @@
 *
 * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 *
-* You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
 *
 ******************************************************************/
  
-package com.recomdata.transmart.externaltool;
+package com.recomdata.transmart.externaltool
 
 import com.recomdata.export.IgvFiles
 import org.transmartproject.core.exceptions.UnexpectedResultException;
@@ -39,7 +39,6 @@ class IgvDataService {
 		s.append("</application-desc>")
 		
 		ftext= ftext.replaceAll("</application-desc>",s.toString())
-		
 		
 		//println("jnlp file:"+ftext)
 		return ftext;
@@ -82,13 +81,13 @@ class IgvDataService {
 		return file.getName().toLowerCase().endsWith("vcf");
 			
 	}
-
-
-    def createVCFIndexFile(File vcfFile) {
-        String[] argv = ["index", vcfFile.absolutePath]
+	
+	
+	def createVCFIndexFile(File vcfFile){
+		String[]argv = ["index", vcfFile.absolutePath]
 
         Class igvToolsClass
-        try {
+		try{
             igvToolsClass = Class.forName 'org.broad.igv.tools.IgvTools'
         } catch (e) {
             log.error 'Could not load IgvTools. The igvtools jar is not ' +
@@ -100,13 +99,13 @@ class IgvDataService {
         igvToolsClass.newInstance().run argv
 
         File idxFile = File(vcfFile.absolutePath + ".idx")
-
+		
         idxFile.exists() || {
             throw new UnexpectedResultException('Could not create index ' +
                     "file for ${vcfFile.absolutePath}")
         }()
-
+		
         idxFile
-    }
+	}
 	
 }

@@ -12,21 +12,30 @@
   
   This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
   
-  You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+  You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
   
  
 -->
+
 <g:setProvider library="prototype"/>
 
-                        <td> <g:select class="addremoveselect" name="userstoremove" from="${userGroupInstance?.members.sort{it.name.toUpperCase()}}" size="15" multiple="yes" optionKey="id" /></td>
-						  <td class="addremovebuttonholder">
-							<button class="ltarrowbutton" onclick="${remoteFunction(action:'addUsersToUserGroup',update:[success:'groupmembers', failure:''], id:userGroupInstance?.id, params:'$(\'userstoadd\').serialize()+\'&searchtext=\'+document.getElementById(\'searchtext\').value'  )}; return false;">&LT;&LT;Add</button><br>
-							<button class="ltarrowbutton" onclick="${remoteFunction(action:'removeUsersFromUserGroup',update:[success:'groupmembers', failure:''], id:userGroupInstance?.id, params:'$(\'userstoremove\').serialize()+\'&searchtext=\'+document.getElementById(\'searchtext\').value'  )}; return false;">Remove&GT;&GT;</button>
-							</td>
-							<td>
-							<div id="addfrombox">
-							<g:select class="addremoveselect" width="100px" size="15" name="userstoadd" from="${usersToAdd}" multiple="yes" optionKey="id" ></g:select></td>
-							</div>
-							</td>
+<td><g:select class="addremoveselect" name="userstoremove"
+              from="${userGroupInstance?.members.sort {it.name.toUpperCase()}}"
+              size="15" multiple="yes" optionKey="id"/></td>
+<td class="addremovebuttonholder">
+    <button class="ltarrowbutton"
+            onclick="${remoteFunction(action:'addUsersToUserGroup',update:[success:'groupmembers', failure:''], id:userGroupInstance?.id, params:'$(\'userstoadd\').serialize()+\'&searchtext=\'+document.getElementById(\'searchtext\').value'  )};
+            return false;">&LT;&LT;Add</button><br>
+    <button class="ltarrowbutton"
+            onclick="${remoteFunction(action:'removeUsersFromUserGroup',update:[success:'groupmembers', failure:''], id:userGroupInstance?.id, params:'$(\'userstoremove\').serialize()+\'&searchtext=\'+document.getElementById(\'searchtext\').value'  )};
+            return false;">Remove&GT;&GT;</button>
+</td>
+<td>
+    <div id="addfrombox">
+    <g:select class="addremoveselect" width="100px" size="15" name="userstoadd"
+              from="${usersToAdd}" multiple="yes" optionKey="id"></g:select>
+</td>
+</div>
+</td>
 
 

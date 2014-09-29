@@ -12,30 +12,29 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
  * 
  *
  ******************************************************************/
+
 
 import grails.plugin.springsecurity.SecurityFilterPosition
 import grails.plugin.springsecurity.SpringSecurityUtils
 import org.codehaus.groovy.grails.exceptions.GrailsConfigurationException
 import org.codehaus.groovy.grails.plugins.GrailsPluginUtils
 import org.slf4j.LoggerFactory
-import org.transmart.marshallers.MarshallerRegistrarService
 
 class BootStrap {
 
     final static logger = LoggerFactory.getLogger(this)
 
-	def securityContextPersistenceFilter
+    def securityContextPersistenceFilter
 
     def grailsApplication
 
-	def init = { servletContext ->
-		securityContextPersistenceFilter.forceEagerSessionCreation = true
-		
-		SpringSecurityUtils.clientRegisterFilter('concurrentSessionFilter', SecurityFilterPosition.CONCURRENT_SESSION_FILTER)
+    def init = { servletContext ->
+        securityContextPersistenceFilter.forceEagerSessionCreation = true
+
+        SpringSecurityUtils.clientRegisterFilter('concurrentSessionFilter', SecurityFilterPosition.CONCURRENT_SESSION_FILTER)
 
         if (grailsApplication.config.org.transmart.security.samlEnabled) {
             SpringSecurityUtils.clientRegisterFilter(

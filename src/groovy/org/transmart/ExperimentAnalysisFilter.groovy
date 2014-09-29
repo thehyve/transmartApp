@@ -13,7 +13,7 @@ package org.transmart
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
@@ -41,17 +41,17 @@ public class ExperimentAnalysisFilter {
 	//Double foldChange = 1.2
 	//Double pValue = 0.05
 	Double foldChange
-	Double pValue
+	Double pvalue
 
 	def isUsed(){
-		return validString(species) || validString(expDesign)||validString(expType)||validString(dataSource)||bioCompoundId!=null || bioDiseaseId!=null || foldChange!=null || pValue!=null || validString(cellLine);
+		return validString(species) || validString(expDesign)||validString(expType)||validString(dataSource)||bioCompoundId!=null || bioDiseaseId!=null || foldChange!=null || pvalue!=null || validString(cellLine);
 	}
 	def filterFoldChange(){
 		return foldChange!=null && foldChange>0;
 	}
 
 	def filterPValue(){
-		return pValue!=null && pValue>0;
+		return pvalue!=null && pvalue>0;
 	}
 
 	def filterDisease(){

@@ -12,39 +12,27 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
-  
 
-import com.recomdata.export.GenePatternFiles;
-
-import grails.converters.JSON
-
-import groovy.time.*
-
-import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
-
-//import org.genepattern.webservice.JobResult
-import org.json.*
-import org.quartz.JobDataMap
-import org.quartz.JobDetail
-import org.quartz.JobExecutionContext
-import org.quartz.SimpleTrigger
-import org.transmart.searchapp.AccessLog;
-import org.transmart.searchapp.SearchKeyword
-import org.transmart.ExperimentData;
-import org.transmart.HeatmapValidator;
-import org.transmart.CohortInformation;
 
 import com.rdc.snp.haploview.PEDFormat
-
-import com.recomdata.export.GwasFiles;
 import com.recomdata.export.GenePatternFiles
+import com.recomdata.export.GwasFiles
 import com.recomdata.export.SurvivalAnalysisFiles
 import com.recomdata.genepattern.JobStatus
 import com.recomdata.genepattern.WorkflowStatus
+import grails.converters.JSON
+import org.json.JSONObject
+import org.quartz.JobDataMap
+import org.quartz.JobDetail
+import org.quartz.SimpleTrigger
+import org.transmart.CohortInformation
+import org.transmart.ExperimentData
+import org.transmart.HeatmapValidator
+import org.transmart.searchapp.AccessLog
 
 class GenePatternController {
 	def quartzScheduler	
@@ -65,8 +53,7 @@ class GenePatternController {
 	def runheatmap=	{
 		
 		//If debug mode is enabled, write all the parameters to the debug log.
-		if (log.isDebugEnabled())	
-		{			
+        if (log.isDebugEnabled()) {
 			request.getParameterMap().keySet().each{_key ->	log.debug("${_key} -> ${request.getParameter(_key)}")}
 		}
 		
@@ -132,7 +119,9 @@ class GenePatternController {
 		jobResultsService[jobName]["StatusList"] = statusList
 		
 		//This updates the status and checks to see if the job has been cancelled.
-		if (asyncJobService.updateStatus(jobName, statusList[0])){return}
+        if (asyncJobService.updateStatus(jobName, statusList[0])) {
+            return
+        }
 		
 		//Create the object which represents the gene pattern files we use to run the job.
 		GenePatternFiles gpf = new GenePatternFiles()		
@@ -150,8 +139,7 @@ class GenePatternController {
 				
 		//We once again validate to make sure two subsets were selected when we run a Comparative Marker Analysis.
 		log.debug("Ensuring at least two subsets for comparative marker selection...")
-		if (analysis == "Select" &&	(rID1 == null || rID2 == null)) 
-		{
+        if (analysis == "Select" && (rID1 == null || rID2 == null)) {
 			def error = "Comparative marker selection requires two subsets"
 			jobResultsService[jobName]["Status"] = "Error"
 			jobResultsService[jobName]["Exception"] = error
@@ -160,7 +148,9 @@ class GenePatternController {
 		} 
 		
 		//This updates the status and checks to see if the job has been canceled.
-		if (asyncJobService.updateStatus(jobName, statusList[1])){return}
+        if (asyncJobService.updateStatus(jobName, statusList[1])) {
+            return
+        }
 		
 		//Create stringwriters which we use for writing the query definition to the debug log.
 		StringWriter def1 = new StringWriter()
@@ -177,29 +167,31 @@ class GenePatternController {
 		}
 
 		//This updates the status and checks to see if the job has been canceled.
-		if (asyncJobService.updateStatus(jobName, statusList[2])){return}
+        if (asyncJobService.updateStatus(jobName, statusList[2])) {
+            return
+        }
 		
 		//Get the subject IDs from the result instance id.
 		def subjectIds1 = i2b2HelperService.getSubjects(rID1)
 		def subjectIds2 = i2b2HelperService.getSubjects(rID2)
 		
 		//If debug is enabled, write the subject IDs to the log.
-		if (log.isDebugEnabled())	
-		{
+        if (log.isDebugEnabled()) {
 			log.debug("subjectIds1: ${subjectIds1}")
 			log.debug("subjectIds2: ${subjectIds2}")
 		}	
 		
 		//This updates the status and checks to see if the job has been canceled.
-		if (asyncJobService.updateStatus(jobName, statusList[3])){return}
+        if (asyncJobService.updateStatus(jobName, statusList[3])) {
+            return
+        }
 		
 		//Get the concept codes based on the result instance id.
 		def concepts1=i2b2HelperService.getConcepts(rID1)
 		def concepts2=i2b2HelperService.getConcepts(rID2)
 		
 		//If debug is enabled, write the concept IDs to the log.
-		if (log.isDebugEnabled())	
-		{
+        if (log.isDebugEnabled()) {
 			log.debug("concepts1: ${concepts1}")
 			log.debug("concepts2: ${concepts2}")
 		}
@@ -210,7 +202,9 @@ class GenePatternController {
 		boolean rawdata = analysis == "Select"
 				
 		//This updates the status and checks to see if the job has been canceled.
-		if (asyncJobService.updateStatus(jobName, statusList[4])){return}
+        if (asyncJobService.updateStatus(jobName, statusList[4])) {
+            return
+        }
 		try {
 			i2b2HelperService.getHeatMapData(pathway_name, subjectIds1, subjectIds2,
 				concepts1, concepts2, timepoints1, timepoints2, sample1, sample2,
@@ -257,7 +251,6 @@ class GenePatternController {
 		response.setContentType("text/json")
 		response.outputStream << jsonResult.toString()
 	}
-	
 	
 	/**
 	* Method that is called asynchronously from the datasetExplorer Javascript
@@ -307,7 +300,9 @@ class GenePatternController {
 	   jobResultsService[jobName]["StatusList"] = statusList
 	   
 	   //This updates the status and checks to see if the job has been canceled.
-	   if (asyncJobService.updateStatus(jobName, statusList[0])){return}
+        if (asyncJobService.updateStatus(jobName, statusList[0])) {
+            return
+        }
 	   
 	   //Set a flag based on the type of analysis we are doing.
 	   boolean fixlast = analysis == "Compare"
@@ -337,12 +332,16 @@ class GenePatternController {
 	   experimentData.pathwayName = pathway_name;
 	   
 	   //
-	   if (asyncJobService.updateStatus(jobName, statusList[1])){return}
+        if (asyncJobService.updateStatus(jobName, statusList[1])) {
+            return
+        }
 	   
 	   experimentData.getHeatMapDataSample();
 	   
 	   //
-	   if (asyncJobService.updateStatus(jobName, statusList[2])){return}
+        if (asyncJobService.updateStatus(jobName, statusList[2])) {
+            return
+        }
 	   
 	   experimentData.writeGpFiles();
 
@@ -369,7 +368,9 @@ class GenePatternController {
 	   jobDetail.setJobDataMap(jdm)
 
 	   //
-	   if (asyncJobService.updateStatus(jobName, statusList[3])){return}
+        if (asyncJobService.updateStatus(jobName, statusList[3])) {
+            return
+        }
 	   
 	   def trigger = new SimpleTrigger("triggerNow", group)
 	   quartzScheduler.scheduleJob(jobDetail, trigger)
@@ -582,8 +583,7 @@ class GenePatternController {
 		   def subsetSampleList = subsetItem.value
 
 		   //Don't add a subset if there are no items in the subset.
-		   if(subsetSampleList.size() > 0)
-		   {
+                        if (subsetSampleList.size() > 0) {
 			   statusList.add("Creating haploview for subset " + subsetItem.key)
 		   }
 	   }
@@ -608,8 +608,7 @@ class GenePatternController {
 	   //We need to increment the status as we generate the Halplo data for each set.
 	   def statusIndex = 1
 	   
-	   try	
-	   {
+        try {
 		   //Create the connection we will use for our SQL statements.
 		   def con=dataSource.getConnection()
 		   
@@ -621,8 +620,7 @@ class GenePatternController {
 			   def subsetSampleList = subsetItem.value
 	
 			   //Don't use a subset if there are no items in the subset.
-			   if(subsetSampleList.size() > 0)
-			   {
+                            if (subsetSampleList.size() > 0) {
 				   //Make a note of which subset we are working on.
 				   asyncJobService.updateStatus(jobName, statusList[statusIndex])
 				   
@@ -645,7 +643,7 @@ class GenePatternController {
 	   sb.append("</tr></table>")
 	   jobResultsService[jobName]["Results"] = sb.toString()
    }
-
+	
     private void callHaploText(String[] args) {
         try {
             // yes, this class does all the work in the constructor and
@@ -688,7 +686,7 @@ class GenePatternController {
 		boolean s1=ped.createPEDFile(genes, ids, pathin, con)
 		
 		String[] args=["-nogui", "-quiet","-pedfile" ,pathinped, "-info", pathininfo, "-png"]
-
+		
         callHaploText(args)
 		String filename=filenamein+".ped.LD.PNG"
 
@@ -724,8 +722,7 @@ class GenePatternController {
 	   File tempFile = File.createTempFile("haplo", ".tmp", new File(fileroot))
 	   def filenamein=tempFile.getName()
 			   
-	   if(!fileroot.endsWith(File.separator))	
-	   {
+        if (!fileroot.endsWith(File.separator)) {
 		   fileroot=fileroot+File.separator;
 	   }
 	   
@@ -738,11 +735,10 @@ class GenePatternController {
 	   boolean s1=ped.createPEDFile(genes, ids, pathin, con)
 	   
 	   //If we were able to write the file, 	   
-	   if(s1)	
-	   {
+        if (s1) {
 		   //Create argument array.
 		   String[] args=["-nogui", "-quiet","-pedfile" ,pathinped, "-info", pathininfo, "-png"]
-
+		   
            callHaploText(args)
 		   
 		   //This is the filename of the image.

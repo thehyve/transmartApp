@@ -12,7 +12,7 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
@@ -20,9 +20,10 @@
 
 package com.recomdata.export;
 
-import java.util.*;
-import java.io.*;
-import org.apache.log4j.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CSVGenerator {
 	
@@ -32,7 +33,7 @@ public class CSVGenerator {
 		String rowValues="";
 		String export="";
 		try{
-		    //csvWriter=new FileWriter("export.csv");
+			csvWriter=new FileWriter("export.csv");
 			
 			for(int i=0;i<headers.size();i++)
 				columnNames=columnNames+headers.get(i)+",";
@@ -57,13 +58,13 @@ public class CSVGenerator {
 		
 		}catch(Exception e){
 			e.printStackTrace();
-		}//finally{
-		//	try{
-		//		csvWriter.close();
-		//	}catch(IOException e){
-		//		e.printStackTrace();
-		//	}
-		//}
+		}finally{
+			try{
+				csvWriter.close();
+			}catch(IOException e){
+				e.printStackTrace();
+			}
+		}
 		return(export.getBytes());
 	}
 }

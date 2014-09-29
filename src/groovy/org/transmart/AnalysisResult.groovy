@@ -1,4 +1,7 @@
 package org.transmart
+
+import org.transmart.biomart.BioAssayAnalysis
+
 /*************************************************************************
  * tranSMART - translational medicine data mart
  * 
@@ -13,18 +16,10 @@ package org.transmart
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
-  
-
-import org.transmart.AssayAnalysisValue;
-import org.transmart.biomart.BioAssayAnalysis;
-import org.transmart.biomart.BioAssayAnalysisData;
-
-import com.recomdata.util.BinomialDistribution
-
 /**
  * $Id: AnalysisResult.groovy 9178 2011-08-24 13:50:06Z mmcduffie $
  *@author $Author: mmcduffie $
@@ -38,7 +33,7 @@ public class AnalysisResult implements Comparable {
 	boolean bSignificantTEA = false
 	int defaultTop = 5;
 
-	org.transmart.biomart.BioAssayAnalysis analysis
+	BioAssayAnalysis analysis
 	def experimentId;
 	def experimentAccession;
 	List assayAnalysisValueList =[] // collection of AssayAnalysisValue objects

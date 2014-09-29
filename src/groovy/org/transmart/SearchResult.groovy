@@ -13,7 +13,7 @@ package org.transmart
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
@@ -37,9 +37,6 @@ class SearchResult {
 	int experimentCount = 0
 	int allAnalysiCount = 0
 	
-	// Cortellis tab - currently not used
-	int cortellisCount = 0
-	
 	int documentCount = 0
 	int litJubOncAltCount = 0
 	int litJubOncInhCount = 0
@@ -55,7 +52,7 @@ class SearchResult {
 	String resultType
 
 	def totalCount = {
-		return experimentCount + literatureCount() + trialCount + documentCount+ profileCount + cortellisCount
+		return experimentCount + literatureCount() + trialCount + documentCount+ profileCount
 	}
 
 	def litJubOncCount = {

@@ -1,4 +1,4 @@
-<!--
+<%--
   tranSMART - translational medicine data mart
   
   Copyright 2008-2012 Janssen Research & Development, LLC.
@@ -12,22 +12,21 @@
   
   This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
   
-  You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
-  
+  You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  
--->
+--%>
 
 <html>
 	<head>
 		<title><g:layoutTitle default="" /></title>
         <r:require module="admin"/>
         <g:setProvider library="jquery"/>
-
 		<r:script>
 			Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";
 
 			// set ajax to 90*1000 milliseconds
 			Ext.Ajax.timeout = 180000;
+			var pageInfo;
 
 			Ext.onReady(function()
 		    {
@@ -42,26 +41,26 @@
 	                layout: "border",
 	                items:[new Ext.Panel({                          
                        region: "center",  
-                       tbar: createUtilitiesMenu(helpURL, contact, appTitle,'${request.getContextPath()}', buildVer, 'admin-utilities-div'), 
+                       //tbar: createUtilitiesMenu(helpURL, contact, appTitle,'${request.getContextPath()}', buildVer, 'admin-utilities-div'),
                        autoScroll:true,                     
                        contentEl: "page"
                     })]
 	            });
 	            viewport.doLayout();
 
-	            var pageInfo = {
+	            pageInfo = {
 					basePath :"${request.getContextPath()}"
 				}
 	        });
 		</r:script>
 		<g:layoutHead />
-        <r:layoutResources />
+        <r:layoutResources/>
 	</head>
 	<body>
 		<div id="page">
 			<div id="header-div"><g:render template="/layouts/commonheader"	model="['app':'accesslog']" /></div>
  			<div id='navbar'><g:render template="/layouts/adminnavbar" /></div>
-			<div id="content"><g:layoutBody /></div>
+			<div id="content"><g:layoutBody /></div>    
             <r:layoutResources />
 		</div>
 	</body>

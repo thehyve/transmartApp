@@ -12,7 +12,7 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
@@ -20,21 +20,11 @@
 
 package com.recomdata.transmart.data.export
 
-import java.io.File
-import java.util.ArrayList
-import java.util.List
-import java.util.Map
-
-import org.apache.commons.logging.LogFactory
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
-import org.springframework.context.ApplicationContext
-
-import org.transmart.biomart.ClinicalTrial;
+import com.recomdata.transmart.data.export.util.FileWriterUtil
+import org.transmart.biomart.ClinicalTrial
 import org.transmart.biomart.Compound
 import org.transmart.biomart.Experiment
 import org.transmart.biomart.Taxonomy
-
-import com.recomdata.transmart.data.export.util.FileWriterUtil
 
 import static org.transmart.authorization.QueriesResourceAuthorizationDecorator.checkQueryResultAccess
 
@@ -45,14 +35,12 @@ class MetadataService {
     def dataSource
 	def springSecurityService
 	def fileDownloadService
-	def dataTypeName = "Study";
-	def dataTypeFolder = null;
-	def char separator = '\t';
+    def dataTypeName = "Study"
+    def dataTypeFolder = null
+    def char separator = '\t'
 	
 	//This is the list of parameters passed to the SQL statement.
-	ArrayList parameterList = new ArrayList();
-	
-	def config = ConfigurationHolder.config
+    ArrayList parameterList = new ArrayList()
 	
 	/**
 	 * This method will gather study data and write it to a file.
@@ -61,8 +49,7 @@ class MetadataService {
 	 * @param jobName
 	 * @param studyAccessions
 	 */
-	public void getData(File studyDir, String fileName, String jobName, List<String> studyAccessions) 
-	{
+    public void getData(File studyDir, String fileName, String jobName, List<String> studyAccessions) {
 		//Log the action of data access.
 		//def al = new AccessLog(username:springSecurityService.getPrincipal().username, event:"i2b2DAO - getData", eventmessage:"RID:"+result_instance_ids.toString()+" Concept:"+conceptCodeList.toString(), accesstime:new java.util.Date())
 		//al.save()
@@ -219,7 +206,7 @@ class MetadataService {
 				  select distinct s.sample_cd from de_subject_sample_mapping s
 				  where s.trial_name = ? and patient_id in (
 					SELECT DISTINCT sc.patient_num FROM qt_patient_set_collection sc, patient_dimension pd
-					WHERE sc.result_instance_id = CAST(? AS numeric) AND sc.patient_num = pd.patient_num
+					WHERE sc.result_instance_id = ? AND sc.patient_num = pd.patient_num
 				  ) and s.sample_cd is not null and b.file_name like s.sample_cd||'%'
 				)
 			"""
@@ -240,7 +227,7 @@ class MetadataService {
 		def filesList = findAdditionalDataFiles(resultInstanceId, study)
 		if (filesList?.size > 0) {
 			def char separator = '\t';
-			File additionalDataDir = FileWriterUtil.createDir(studyDir, 'Additional_Data')
+            File additionalDataDir = (new FileWriterUtil()).createDir(studyDir, 'Additional_Data')
 			
 			def fileURLsList = []
 			for (file in filesList) {

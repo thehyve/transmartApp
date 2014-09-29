@@ -12,21 +12,20 @@
   
   This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
   
-  You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+  You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
   
  
 -->
-<%@ page import="org.transmart.searchapp.SecureObjectAccess" %>
 
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
         <meta name="layout" content="admin" />
-        <title>Show Study</title>
+        <title>Show SecureObject</title>
     </head>
     <body>
         <div class="body">
-            <h1>Show Study</h1>
+            <h1>Show SecureObject</h1>
             <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
             </g:if>
@@ -87,7 +86,7 @@
 						<td valign="top" class="name">User/Group With Access:</td>
 						<td valign="top" class="value">
 							<ul>
-							<g:each in="${SecureObjectAccess.findAllBySecureObject(secureObjectInstance,[sort:accessLevel])}" var='soa'>
+							<g:each in="${org.transmart.searchapp.SecureObjectAccess.findAllBySecureObject(secureObjectInstance,[sort:accessLevel])}" var='soa'>
 								<g:if test="${soa.principal.type=='GROUP'}">
 								<li><g:link controller="userGroup" action="show" id="${soa.principal.id}">${soa.getPrincipalAccessName()}</g:link></li>
 								</g:if>

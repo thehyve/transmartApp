@@ -12,7 +12,7 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
@@ -20,10 +20,9 @@
 
 package com.recomdata.transmart.data.export
 
-import com.recomdata.snp.SnpDataObject
 import com.recomdata.transmart.data.export.util.FileWriterUtil
+import grails.util.Holders
 import org.apache.commons.lang.StringUtils
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import org.rosuda.REngine.REXP
 import org.rosuda.REngine.Rserve.RConnection
 import org.transmart.searchapp.SearchKeyword
@@ -45,9 +44,7 @@ class SnpDataService {
 	def plinkService
 	def fileDownloadService
 	def utilService
-	def grailsApplication
-	def config = ConfigurationHolder.config
-
+	
 	def Map getData(studyDir, fileName, jobName, resultInstanceId) {
 		def snpFilesMap = [:]
 		snpFilesMap.put("PEDFiles", writePEDFiles(studyDir, fileName, jobName, resultInstanceId))
@@ -77,7 +74,7 @@ class SnpDataService {
 						WHERE platform = 'SNP' and patient_id in (
 							SELECT DISTINCT patient_num 
 							FROM qt_patient_set_collection 
-							WHERE result_instance_id = CAST(? AS numeric))
+							WHERE result_instance_id = ?)
 					"""
 		def patientDataMap = [:]
 		sql.eachRow(query, [resultInstanceId]) { row ->
@@ -91,8 +88,7 @@ class SnpDataService {
 		return patientDataMap
 	}
 
-	def public getDataByPatientByProbes(studyDir, resultInstanceId, jobName)
-	{
+    def public getDataByPatientByProbes(studyDir, resultInstanceId, jobName) {
         checkQueryResultAccess resultInstanceId
 
 		def dataTypeName = 'SNP'
@@ -118,9 +114,24 @@ class SnpDataService {
 		//Grab the connection from the grails object.
 		conn = dataSource.getConnection()
 		
+        //check if there are data for copy number. If not, don't create files for this
+        def query="""SELECT count(*)
+                FROM de_snp_copy_number 
+                WHERE patient_num in (
+                select distinct patient_num from
+                qt_patient_set_collection where result_instance_id = ?)"""
+        pStmt = conn.prepareStatement(query)
+        pStmt.setBigDecimal(1, Integer.valueOf(resultInstanceId))
+        rs = pStmt.executeQuery()
+        if(rs.next()){
+            if(rs.getInt(1)==0) {
+                log.info("No copy number data for these cohorts. Skip copy number export")
+                return
+            }
+        }
 		//Grab the configuration that sets the fetch size.
-		def rsize = config.com.recomdata.plugins.resultSize;
-		Integer fetchSize = 5000;
+        def rsize = Holders.config.com.recomdata.plugins.resultSize;
+        Integer fetchSize = 10000;
 		if(rsize!=null){
 			try{
 				fetchSize = Integer.parseInt(rsize);
@@ -137,14 +148,10 @@ class SnpDataService {
 			/**
 			 * Prepare the query to extract the records for this subject 
 			 */
-			def query = """
-							SELECT dscg.gsm_num, dscg.patient_num, dscg.snp_calls, dscg.snp_name, dscn.copy_number
-							FROM de_snp_calls_by_gsm dscg
-							LEFT JOIN (SELECT patient_num, snp_name, copy_number 
-							      FROM de_snp_copy_number 
-							      WHERE patient_num = ?) dscn ON dscg.patient_num = dscn.patient_num AND dscg.snp_name = dscn.snp_name
-							WHERE dscg.patient_num = ?
-						"""
+    	      query = """SELECT dssm.sample_cd as gsm_num, dscn.snp_name, dscn.copy_number
+    				FROM de_snp_copy_number dscn, de_subject_sample_mapping dssm
+    				WHERE dscn.patient_num = ?
+                             and dssm.patient_id=dscn.patient_num"""
 			
 			def filename = subjectId + '.CNV'
 			def FileWriterUtil writerUtil = new FileWriterUtil(studyDir, filename, jobName, dataTypeName, dataTypeFolder, separator)
@@ -155,7 +162,6 @@ class SnpDataService {
 			//Prepare the SQL statement.
 			pStmt = conn.prepareStatement(query)
 			pStmt.setBigDecimal(1, patientData?.omicPatientId)
-			pStmt.setBigDecimal(2, patientData?.omicPatientId)
 			pStmt.setFetchSize(fetchSize)
 			
 			rs = pStmt.executeQuery()
@@ -190,7 +196,7 @@ class SnpDataService {
 		INNER JOIN de_subject_sample_mapping dssm on ssd.patient_num=dssm.omic_patient_id
 		WHERE dssm.patient_id IN (SELECT DISTINCT patient_num
 							FROM qt_patient_set_collection 
-							WHERE result_instance_id = CAST(? AS numeric))"""
+							WHERE result_instance_id = ?)"""
 		
 		def firstRow = sql.firstRow(platformQuery, [resultInstanceId])
 		def platformName = firstRow.title
@@ -208,7 +214,7 @@ class SnpDataService {
 		//Run the R command to set the working directory to our temp directory.
 		REXP x = c.eval(workingDirectoryCommand)
 
-		String rScriptDirectory = config.com.recomdata.transmart.data.export.rScriptDirectory
+        String rScriptDirectory = Holders.config.com.recomdata.transmart.data.export.rScriptDirectory
 		String compilePivotDataCommand = "source('${rScriptDirectory}/PivotData/PivotSNPCNVData.R')"
 		REXP comp = c.eval(compilePivotDataCommand)
 		//Prepare command to call the PivotSNPCNVData.R script
@@ -406,7 +412,7 @@ class SnpDataService {
 	}
 	
 	private void downloadCELFiles(studyList, File studyDir, resultInstanceId, String jobName) {
-		String studies=convertList(studyList, false, 1000)
+        String studies = "(" + convertList(studyList, true, 1000) + ")"
 		
 		def groovy.sql.Sql sql = new groovy.sql.Sql(dataSource)
 		
@@ -415,7 +421,7 @@ class SnpDataService {
 			FROM bio_content b
 			WHERE b.study_name in ${studies}
 			AND b.file_name IN (SELECT DISTINCT sg.gsm_num FROM de_snp_calls_by_gsm sg WHERE sg.patient_num IN (
-			    SELECT DISTINCT patient_num FROM qt_patient_set_collection WHERE result_instance_id = CAST(? AS numeric)
+			    SELECT DISTINCT patient_num FROM qt_patient_set_collection WHERE result_instance_id = ?
 					 AND patient_num IN (SELECT patient_num FROM patient_dimension WHERE sourcesystem_cd NOT LIKE '%:S:%')))
 		"""
 		
@@ -426,8 +432,8 @@ class SnpDataService {
 			filesList.add(fileURL)
 		}
 		
-		File snpDir = FileWriterUtil.createDir(studyDir, 'SNP')
-		File rawDataDir = FileWriterUtil.createDir(snpDir, 'Raw_data')
+        File snpDir = (new FileWriterUtil()).createDir(studyDir, 'SNP')
+        File rawDataDir = (new FileWriterUtil()).createDir(snpDir, 'Raw_data')
 		
 		fileDownloadService.getFiles(filesList, rawDataDir.getPath())
 	}
@@ -435,8 +441,7 @@ class SnpDataService {
 	//This tells us whether we need to include the pathway information or not.
 	private Boolean includePathwayInfo = false
 	
-	def getSnpDataByResultInstanceAndGene(resultInstanceId,study,pathway,sampleType,timepoint,tissueType,rowProcessor,fileLocation,genotype,copyNumber)
-	{
+    def getSnpDataByResultInstanceAndGene(resultInstanceId, study, pathway, sampleType, timepoint, tissueType, rowProcessor, fileLocation, genotype, copyNumber) {
 		//This boolean tells us whether we retrieved data or not.
 		Boolean retrievedData = false;
 		
@@ -454,14 +459,14 @@ class SnpDataService {
 		StringBuilder sTables = new StringBuilder()
 		
 		sSelect.append("""
-						SELECT  SNP_GENO.SNP_NAME AS SNP,
+						SELECT  SNP.SNP_NAME AS SNP,
 						DSM.PATIENT_ID, DSM.SUBJECT_ID, 
 						bm.BIO_MARKER_NAME AS GENE,
 						DSM.sample_type,
 						DSM.timepoint,
 						DSM.tissue_type,
-						SNP_GENO.SNP_CALLS AS GENOTYPE,
-						SNP_COPY.COPY_NUMBER AS COPYNUMBER,
+						SNP.SNP_CALLS AS GENOTYPE,
+						SNP.COPY_NUMBER AS COPYNUMBER,
 						PD.sourcesystem_cd,
 						DSM.GPL_ID
 					""")
@@ -469,16 +474,14 @@ class SnpDataService {
 		//This from statement needs to be in all selects.
 		sTables.append(""" 	FROM DE_SUBJECT_SAMPLE_MAPPING DSM
 							INNER JOIN patient_dimension PD ON DSM.patient_id = PD.patient_num 
-							INNER JOIN qt_patient_set_collection qt ON qt.result_instance_id = CAST(? AS numeric) AND qt.PATIENT_NUM = DSM.PATIENT_ID
-							LEFT JOIN DE_SNP_CALLS_BY_GSM SNP_GENO ON DSM.OMIC_PATIENT_ID = SNP_GENO.PATIENT_NUM AND DSM.SAMPLE_CD = SNP_GENO.GSM_NUM
-							LEFT JOIN DE_SNP_COPY_NUMBER SNP_COPY ON DSM.OMIC_PATIENT_ID = SNP_COPY.PATIENT_NUM AND SNP_GENO.snp_name = SNP_COPY.snp_name
-							INNER JOIN DE_SNP_GENE_MAP D2 ON D2.SNP_NAME = SNP_GENO.SNP_NAME
+							INNER JOIN qt_patient_set_collection qt ON qt.result_instance_id = ? AND qt.PATIENT_NUM = DSM.PATIENT_ID
+							INNER JOIN DE_SAMPLE_SNP_DATA SNP ON DSM.SAMPLE_CD = SNP.SAMPLE_ID
+							INNER JOIN DE_SNP_GENE_MAP D2 ON D2.SNP_NAME = SNP.SNP_NAME
 							INNER JOIN bio_marker bm ON bm.PRIMARY_EXTERNAL_ID = to_char(D2.ENTREZ_GENE_ID)
 						""")
 
 		//If a list of genes was entered, look up the gene ids and add them to the query. If a gene signature or list was supplied then we modify the query to join on the tables that link the list to the gene ids.
-		if (pathway != null && pathway.length() > 0 && !(pathway.startsWith("GENESIG") || pathway.startsWith("GENELIST")))
-		{
+        if (pathway != null && pathway.length() > 0 && !(pathway.startsWith("GENESIG") || pathway.startsWith("GENELIST"))) {
 			String genes;
 			//Get the list of gene ids based on the search ids.
 			//genes = getGenes(pathway);
@@ -495,9 +498,7 @@ class SnpDataService {
 			sTables.append(" AND sk.unique_id IN ").append(convertStringToken(pathway)).append(" ");
 			
 			includePathwayInfo = true
-		}
-		else if(pathway.startsWith("GENESIG") || pathway.startsWith("GENELIST"))
-		{
+        } else if (pathway.startsWith("GENESIG") || pathway.startsWith("GENELIST")) {
 			//If we are querying by a pathway, we need to include that id in the final output.
 			sSelect.append(",sk.SEARCH_KEYWORD_ID ")
 			
@@ -512,15 +513,12 @@ class SnpDataService {
 			sTables.append(" AND sk.unique_id IN ").append(convertStringToken(pathway)).append(" ");
 			
 			includePathwayInfo = true
-		}
-		else
-		{
+        } else {
 			sTables.append(" WHERE DSM.trial_name = ?")
 		}
 		
 		 //If we have a sample type, append it to the query.
-		 if(sampleType!=null && sampleType.length()>0)
-		 {
+        if (sampleType != null && sampleType.length() > 0) {
 			 sTables.append(" AND DSM.sample_type_cd IN ").append(convertStringToken(sampleType));
 		 }
 	
@@ -547,7 +545,7 @@ class SnpDataService {
 		conn = dataSource.getConnection()
 		
 		//Grab the configuration that sets the fetch size.
-		def rsize = config.com.recomdata.plugins.resultSize;
+        def rsize = Holders.config.com.recomdata.plugins.resultSize;
 		Integer fetchSize = 5000;
 		if(rsize!=null){
 			try{
@@ -593,30 +591,21 @@ class SnpDataService {
 				snpDataObject.timepoint = rs?.getString("timepoint")
 				snpDataObject.tissue = rs?.getString("tissue_type")
 				
-				if(genotype)
-				{
+                if (genotype) {
 					snpDataObject.genotype = rs?.getString("GENOTYPE")
-				}
-				else
-				{
+                } else {
 					snpDataObject.genotype = "NA"
 				}
 				
-				if(copyNumber)
-				{
+                if (copyNumber) {
 					snpDataObject.copyNumber = rs?.getString("COPYNUMBER")
-				}
-				else
-				{
+                } else {
 					snpDataObject.copyNumber = "NA"
 				}
 				
-				if(includePathwayInfo)
-				{
+                if (includePathwayInfo) {
 					snpDataObject.searchKeywordId = StringUtils.isNotEmpty(rs?.getString("SEARCH_KEYWORD_ID")?.toString()) ? rs?.getString("SEARCH_KEYWORD_ID")?.toString() : ''
-				}
-				else
-				{
+                } else {
 					snpDataObject.searchKeywordId = null
 				}
 				
@@ -644,17 +633,14 @@ class SnpDataService {
 		return s.toString();
 	}
 	
-	private String derivePathwayName( pathway_name)
-	{
-		if (pathway_name == null || pathway_name.length() == 0 || pathway_name == "null" )
-		{
+    private String derivePathwayName(pathway_name) {
+        if (pathway_name == null || pathway_name.length() == 0 || pathway_name == "null") {
 			pathway_name = null
 		}
 		
-		boolean nativeSearch = grailsApplication.config.com.recomdata.search.genepathway=='native'
+        boolean nativeSearch = Holders.config.com.recomdata.search.genepathway == 'native'
 		
-		if(!nativeSearch && pathway_name != null)
-		{
+        if (!nativeSearch && pathway_name != null) {
 			//If we have multiple genes they will be comma separated. We need to split the string and find the unique ID for each.
 			def pathwayGeneList = pathway_name.split(",")
 			
@@ -731,4 +717,17 @@ class SnpDataService {
 	  }
 	  return s.toString();
   }
+}
+
+class SnpDataObject {
+    String patientNum
+    String probeName
+    String genotype
+    String copyNumber
+    String geneName
+    String searchKeywordId
+    String sample
+    String timepoint
+    String tissue
+    String gplId
 }

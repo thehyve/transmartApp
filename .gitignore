@@ -1,4 +1,6 @@
 target/
+target-eclipse/
+bin/
 .buildpath
 .classpath
 .settings
@@ -6,7 +8,9 @@ target/
 .project
 .idea/
 *.iml
-*.iml
 *.ipr
 *.iws
 *.log
+*.sw[op]
+.DS_Store
+System.out

@@ -12,12 +12,11 @@
   
   This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
   
-  You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+  You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
   
  
 -->
-<%@ page import="org.transmart.searchapp.AuthUserSecureAccess"%>
-<%@ page import="org.transmart.searchapp.SecureObjectAccess"%>
+
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -94,7 +93,7 @@
 						<td valign="top" class="name">Studies Assigned:</td>
 						<td valign="top" class="value">
 							<ul>
-							<g:each in="${SecureObjectAccess.findAllByPrincipal(person,[sort:accessLevel])}" var='soa'>
+							<g:each in="${org.transmart.searchapp.SecureObjectAccess.findAllByPrincipal(person,[sort:accessLevel])}" var='soa'>
 								<li>${soa.getObjectAccessName()}</li>
 							</g:each>
 							</ul>
@@ -105,7 +104,7 @@
 						<td valign="top" class="name">Studies with Access(via groups):</td>
 						<td valign="top" class="value">
 							<ul>
-							<g:each in="${AuthUserSecureAccess.findAllByAuthUser(person,[sort:accessLevel])}" var='soa'>
+							<g:each in="${org.transmart.searchapp.AuthUserSecureAccess.findAllByAuthUser(person,[sort:accessLevel])}" var='soa'>
 								<li><g:link controller="secureObject" action="show" id="${soa.secureObject.id}"> ${soa.getObjectAccessName()}</g:link></li>
 							</g:each>
 							</ul>

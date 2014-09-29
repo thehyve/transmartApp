@@ -12,7 +12,7 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
@@ -82,31 +82,31 @@ function getSelectedAsCommaSeparatedList(ob)
         '</div></tpl>'
     );
     var search = new Recom.rc.ComboBox({
-        store           : ds,
-        displayField    : 'title',
-        typeAhead       : false,
-        loadingText     : 'Searching...',
-        width           : boxwidth,
-        //listWidth     : 430,
-        listHeight      : 500,
-        valueField      : 'uid',
-        hideTrigger     : true,
-        //forceSelection: true,
-        allowBlank      : false,
-        name            : 'searchText',
-        mode            : 'remote',
-        value           : ivalue,
-        tpl             : resultTpl,
-        minChars        : 1,
-        applyTo         : 'searchUsers',
-        //renderTo      : 'search',
-        itemSelector    : 'div.search-item',
-        onSelect: function (record) { // override default onSelect to do redirect
-            var sp = Ext.get("searchUsers");
-            sp.dom.value = record.data.name;
-            var h = Ext.get("currentprincipalid");
-            h.dom.value = record.data.uid;
-            search.collapse();
+        store: ds,
+        displayField:'title',
+        typeAhead: false,
+        loadingText: 'Searching...',
+        width: boxwidth,
+        //listWidth: 430,
+        listHeight:500,
+        valueField:'uid',
+        hideTrigger:true,
+        //forceSelection:true,
+        allowBlank:false,
+        name:'searchText',
+        mode:'remote',
+        value:ivalue,
+        tpl: resultTpl,
+        minChars:1,
+        applyTo: 'searchUsers',
+        //renderTo: 'search',
+        itemSelector: 'div.search-item',
+        onSelect: function(record){ // override default onSelect to do redirect
+             var sp=Ext.get("searchUsers");
+             sp.dom.value=record.data.name;
+             var h=Ext.get("currentprincipalid");
+             h.dom.value=record.data.uid;
+             search.collapse();
             jQuery.ajax({
                 url:          pageInfo.basePath + '/secureObjectAccess/listAccessForPrincipal',
                 asynchronous: true,
@@ -293,17 +293,6 @@ Ext.extend(Recom.rc.ComboBox, Ext.form.ComboBox, {
 		}
     });
 
-var originalRefresh=Ext.DataView.prototype.refresh;
-Ext.override(Ext.DataView, {
-
-	refresh: function(){
-	originalRefresh.call(this, arguments);
-	this.fireEvent("refresh", this);
-	}
-
-});
-
-
 function doHighlight(rootelement, searchTerm, highlightStartTag, highlightEndTag)
 {
 	var elements=Ext.query(".dohighlight");
@@ -329,7 +318,7 @@ Recom.rc.serializeFormElements = function(elements, form /* jquery el or undef *
         form = jQuery(this).closest('form')
         if (!form.length) {
             // if form is not set, search in the whole document
-            form = $(window.document);
+            form = jQuery(window.document);
         }
     }
     var data = {};

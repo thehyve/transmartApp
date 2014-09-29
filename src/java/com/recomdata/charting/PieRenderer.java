@@ -12,21 +12,19 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
   
 
 package com.recomdata.charting;
-import java.awt.Color;
-import java.io.File;
-import java.util.List;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtilities;
-import org.jfree.chart.JFreeChart;
+
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.PieDataset;
+
+import java.awt.*;
+import java.util.List;
 public class PieRenderer
 {
     private Color[] color;

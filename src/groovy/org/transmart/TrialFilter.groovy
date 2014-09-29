@@ -13,7 +13,7 @@ package org.transmart
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
@@ -33,8 +33,8 @@ class TrialFilter {
 	//Double foldChange = 1.2 
 	//Double pValue = 0.05 
 	Double foldChange
-	Double pValue
-	Double rValue
+	Double pvalue
+	Double rvalue
 	Long bioDiseaseId
 	Long bioCompoundId
 	String phase
@@ -66,11 +66,11 @@ class TrialFilter {
 	}
 
 	def hasPValue(){
-		return (pValue != null && pValue > 0);
+		return (pvalue != null && pvalue > 0);
 	}
 
 	def hasRValue(){
-		return (rValue != null);
+		return (rvalue != null);
 
 	}
 

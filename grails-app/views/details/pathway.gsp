@@ -12,23 +12,24 @@
   
   This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
   
-  You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+  You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
   
  
 -->
 
 <html>
 <head>
-	<title>${grailsApplication.config.com.recomdata.appTitle}</title>
+	<title>${grailsApplication.config.com.appTitle}</title>
 
 	<link rel="stylesheet" href="${resource(dir:'js',file:'ext/resources/css/ext-all.css')}" />
 	<link rel="stylesheet" href="${resource(dir:'js',file:'ext/resources/css/xtheme-gray.css')}" />
 	<link rel="stylesheet" href="${resource(dir:'css',file:'main.css')}" />
 
+	<g:javascript library="prototype" />
 	<script type="text/javascript" src="${resource(dir:'js', file:'ext/adapter/ext/ext-base.js')}"></script>
 	<script type="text/javascript" src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 	<script type="text/javascript" src="${resource(dir:'js', file:'ext/miframe.js')}"></script>
-	<script type="text/javascript" src="${resource(dir:'js', file:'application.js')}"></script>
+	<g:javascript library="application" />
 
 	<script type="text/javascript">
 		Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";

@@ -12,12 +12,11 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
   
-
  /**
  * $Id: LoginController.groovy 10098 2011-10-19 18:39:32Z mmcduffie $
  * @author $Author: mmcduffie $
@@ -33,8 +32,6 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.transmart.searchapp.AccessLog
-
-import javax.servlet.http.HttpServletResponse
 
 /**
  * Login Controller
@@ -58,8 +55,7 @@ class LoginController {
     def index = {
 		if (springSecurityService.isLoggedIn()) {
 			redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
-		}
-		else {
+        } else {
 			redirect action: auth, params: params
 		}
 	}
@@ -76,8 +72,8 @@ class LoginController {
 		
 		def guestAutoLogin = grailsApplication.config.com.recomdata.guestAutoLogin;
 		boolean guestLoginEnabled = (guestAutoLogin == 'true' || guestAutoLogin.is(true))
-		log.info("enabled guest login?: " + guestLoginEnabled);
-		//log.info("request:"+request.getQueryString())
+        log.info("enabled guest login")
+        //log.info("requet:"+request.getQueryString())
 		boolean forcedFormLogin = request.getQueryString() != null
 		log.info("User is forcing the form login? : " + forcedFormLogin)
 		
@@ -85,33 +81,24 @@ class LoginController {
 		if(guestLoginEnabled && !forcedFormLogin){
 				log.info("proceeding with auto guest login")
 				def guestuser = grailsApplication.config.com.recomdata.guestUserName;
+
 				UserDetails ud = userDetailsService.loadUserByUsername(guestuser)
 				if(ud!=null){
 					log.debug("We have found user: ${ud.username}")
 					springSecurityService.reauthenticate(ud.username)
 					redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
-					return
+
 				}else{
 					log.info("can not find the user:"+guestuser);
 				}
 			}
 
-		// patch for null pointer exception, see JIRA: http://transmartproject.org/jira/browse/TMPSTGSQL-146
-		boolean isLoggedIn = springSecurityService.isLoggedIn()
-		
-		if (isLoggedIn) {
+        /*if (springSecurityService.isLoggedIn()) {
 			redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
 		} else	{
             render view: 'auth', model: [postUrl: request.contextPath + SpringSecurityUtils.securityConfig.apf.filterProcessesUrl]
-		}
-	}
-
-	/**
-	 * The redirect action for Ajax requests.
-	 */
-	def authAjax = {
-		response.setHeader 'Location', SpringSecurityUtils.securityConfig.auth.ajaxLoginFormUrl
-		response.sendError HttpServletResponse.SC_UNAUTHORIZED
+        }*/
+        render view: 'auth', model: [postUrl: request.contextPath + SpringSecurityUtils.securityConfig.apf.filterProcessesUrl]
 	}
 
 	/**
@@ -147,26 +134,22 @@ class LoginController {
 				new AccessLog(username: username, event:"Account Expired",
 					eventmessage: msg,
 					accesstime:new Date()).save()
-			}
-			else if (exception instanceof CredentialsExpiredException) {
+            } else if (exception instanceof CredentialsExpiredException) {
 				msg = SpringSecurityUtils.securityConfig.errors.login.passwordExpired
 				new AccessLog(username: username, event:"Password Expired",
 					eventmessage: msg,
 					accesstime:new Date()).save()
-			}
-		    else if (exception instanceof DisabledException) {
+            } else if (exception instanceof DisabledException) {
 				msg = SpringSecurityUtils.securityConfig.errors.login.disabled
 				new AccessLog(username: username, event:"Login Disabled",
 					eventmessage: msg,
 					accesstime:new Date()).save()
-			}
-			else if (exception instanceof LockedException) {
+            } else if (exception instanceof LockedException) {
 				msg = SpringSecurityUtils.securityConfig.errors.login.locked
 				new AccessLog(username: username, event:"Login Locked",
 					eventmessage: msg,
 					accesstime:new Date()).save()
-		   	}
-		    else {
+            } else {
 				msg = SpringSecurityUtils.securityConfig.errors.login.fail
 				new AccessLog(username: username, event:"Login Failed",
 					eventmessage: msg,

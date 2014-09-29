@@ -12,21 +12,21 @@
   
   This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
   
-  You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+  You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
   
  
 --%>
-<g:if test="${flash.message}">
-    <td colspan=3><div class="message">${flash.message}</div></td>
-</g:if>
-<g:else>
+            <g:if test="${flash.message}">
+                <td colspan=3><div class="message">${flash.message}</div></td>
+            </g:if>
+            <g:else>
     <td>
         <g:select class="addremoveselect" name="sobjectstoremove"
                   from="${secureObjectAccessList}" size="15"
                   multiple="yes" optionKey="id" optionValue="objectAccessName" />
     </td>
 
-    <td class="addremovebuttonholder">
+						  <td class="addremovebuttonholder">
         <button class="ltarrowbutton"
                 onclick="${remoteFunction(action: 'addSecObjectsToPrincipal',
                                           update: [success: 'permissions', failure: ''],
@@ -40,17 +40,17 @@
                                           params: 'addremoveAccess_remove_data(this)')}; return false;">
             Remove&gt;&gt;
         </button>
-    </td>
-    <td>
-        <div id="addfrombox">
+							</td>
+							<td>
+							<div id="addfrombox">
         <g:select class="addremoveselect"
                   width="100px" size="15"
                   name="sobjectstoadd"
                   from="${objectswithoutaccess}"
                   multiple="yes" optionKey="id" optionValue="displayName" />
-        </div>
-    </td>
-</g:else>
+							</div>
+							</td>
+			</g:else>
 
 <r:script>
     (function() {

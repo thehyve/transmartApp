@@ -12,7 +12,7 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
@@ -20,10 +20,13 @@
 
 package com.recomdata.export;
 
-import java.util.*;
-import java.util.logging.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import org.json.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 /**
  * 
@@ -66,5 +69,16 @@ public class ExportRowNew {
 			json.put(column, values.get(column));
 		}
 		return json;
+	}
+	
+	public JSONArray toJSONArray() throws JSONException {
+		
+		JSONArray jsonArray = new JSONArray();
+		
+		for (Iterator<String> i = values.keySet().iterator(); i.hasNext(); ) {
+			String column=i.next();
+			jsonArray.put(values.get(column));
+		}
+		return jsonArray;
 	}
 }

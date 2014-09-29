@@ -12,7 +12,7 @@
   
   This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
   
-  You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+  You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
   
  
 -->
@@ -21,11 +21,11 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
         <meta name="layout" content="admin" />
-        <title>Concept Path Link List</title>
+        <title>SecureObjectPath List</title>
     </head>
     <body>
         <div class="body">
-            <h1>Concept Path Link List</h1>
+            <h1>SecureObjectPath List</h1>
             <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
             </g:if>
@@ -38,7 +38,7 @@
                         
                    	        <g:sortableColumn property="conceptPath" title="Concept Path" />
                         
-                   	        <th>Study</th>
+                   	        <th>Secure Object</th>
                    	    
                         </tr>
                     </thead>
@@ -47,8 +47,10 @@
                         <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
                         
                             <td><g:link action="show" id="${secureObjectPathInstance.id}">${fieldValue(bean:secureObjectPathInstance, field:'id')}</g:link></td>
+                        
                             <td>${fieldValue(bean:secureObjectPathInstance, field:'conceptPath')}</td>
-                            <td>${fieldValue(bean:secureObjectPathInstance, field:'secureObject.displayName')}</td>
+                        
+                            <td>${fieldValue(bean:secureObjectPathInstance, field:'secureObject')}</td>
                         
                         </tr>
                     </g:each>

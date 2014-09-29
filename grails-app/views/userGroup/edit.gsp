@@ -12,18 +12,19 @@
   
   This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
   
-  You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+  You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
   
  
 -->
 
 
-<g:setProvider library="prototype"/>
+
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
         <meta name="layout" content="admin" />
         <title>Edit UserGroup</title>
+        <g:setProvider library="prototype"/>
     </head>
     <body>
 
@@ -75,13 +76,21 @@
                                     <label for="reports">Members:</label>
                                 </td>
                                 <td valign="top" class="value ${hasErrors(bean:userGroupInstance,field:'members','errors')}">
-                               <table>
-                				<tr><td></td><td></td><td><input name="searchtext" id="searchtext"><button class="" onclick="${remoteFunction(action:'searchUsersNotInGroup',update:[success:'groupmembers', failure:''], id:userGroupInstance?.id, params:'$(\'searchtext\').serialize()' )}; return false;">Search Users</button></td>
-                     				<tr><td>Members of group:</td><td></td><td>Available users:</td></tr>
-                     				<tr id="groupmembers">
-                                    <g:render template="addremove" bean="${userGroupInstance}" />
-                                    </tr>
-                                     </table>
+                                    <table>
+                                        <tr><td></td><td></td><td><input
+                                                name="searchtext"
+                                                id="searchtext"></input><button
+                                                class=""
+                                                onclick="${remoteFunction(action:'searchUsersNotInGroup',update:[success:'groupmembers', failure:''], id:userGroupInstance?.id, params:'$(\'searchtext\').serialize()' )};
+                                                return false;">Search Users</button>
+                                        </td>
+                                        <tr><td>Members of group:</td><td></td><td>Available users:</td>
+                                        </tr>
+                                        <tr id="groupmembers">
+                                            <g:render template="addremove"
+                                                      bean="${userGroupInstance}"/>
+                                        </tr>
+                                    </table>
                                 	</div>
                                 </td>
                             </tr>

@@ -1,4 +1,7 @@
 package org.transmart
+
+import org.transmart.searchapp.SearchKeyword
+
 /*************************************************************************
  * tranSMART - translational medicine data mart
  * 
@@ -13,21 +16,16 @@ package org.transmart
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
-  
-
-import org.transmart.searchapp.SearchKeyword
-import grails.validation.Validateable
 /**
  *
  * $Id: GlobalFilter.groovy 9178 2011-08-24 13:50:06Z mmcduffie $
  * @author $Author: mmcduffie $
  * @version $Revision: 9178 $
  */
-@Validateable
 public class GlobalFilter{
 
 	def CATEGORY_GENE = "GENE"
@@ -208,7 +206,7 @@ public class GlobalFilter{
 	}
 
 
-	def addKeywordFilter(org.transmart.searchapp.SearchKeyword keyword){
+	def addKeywordFilter(SearchKeyword keyword){
 		def klist = categoryFilterMap.get(keyword.dataCategory)
 		if(klist == null){
 			// make sure no dup
@@ -219,7 +217,7 @@ public class GlobalFilter{
 
 	}
 
-	def removeKeywordFilter(org.transmart.searchapp.SearchKeyword keyword) {
+	def removeKeywordFilter(SearchKeyword keyword) {
 		KeywordSet set = categoryFilterMap.get(keyword.dataCategory)
 		if (set != null) {
 			set.removeKeyword(keyword)

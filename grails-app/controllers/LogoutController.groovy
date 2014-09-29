@@ -12,12 +12,11 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
   
-
  /**
   * $Id: LogoutController.groovy 10098 2011-10-19 18:39:32Z mmcduffie $
   * @author $Author: mmcduffie $
@@ -37,7 +36,7 @@ class LogoutController {
 	 * Index action. Redirects to the Spring security logout uri.
 	 */	
 	def index = {		
-		new AccessLog(username: springSecurityService.getPrincipal().username, event:"Logout", accesstime:new Date()).save()		
-		redirect uri: SpringSecurityUtils.securityConfig.logout.filterProcessesUrl
+		new AccessLog(username: springSecurityService.getPrincipal().username, event:"Logout", accesstime:new Date()).save()
+		redirect uri: SpringSecurityUtils.securityConfig.logout.filterProcessesUrl 
 	}
 }

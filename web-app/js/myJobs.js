@@ -12,20 +12,19 @@
  * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  *
  ******************************************************************/
   
 
-function getJobsData(tab)
-{
+function getJobsData(tab) {
 	jobsstore = new Ext.data.JsonStore(
 			{
    				url : pageInfo.basePath+'/asyncJob/getjobs',
    				root : 'jobs',
    				totalProperty : 'totalCount',
-   				fields : ['name', 'status', 'runTime', 'startDate', 'viewerURL', 'altViewerURL', 'jobInputsJson']
+            fields: ['name', 'status', 'runTime', 'startDate', 'viewerURL', 'altViewerURL']
 			}
 	);
 	jobsstore.on('load', jobsstoreLoaded);
@@ -37,12 +36,10 @@ function getJobsData(tab)
 	);
 }
 
-function jobsstoreLoaded()
-{
+function jobsstoreLoaded() {
 	var foo = jobsstore;
 	var ojobs = Ext.getCmp('ajobsgrid');
-	if(ojobs!=null)
-	{
+    if (ojobs != null) {
 		analysisJobsPanel.remove(ojobs);
 	}
     var jobs = new Ext.grid.GridPanel({    		
@@ -56,8 +53,7 @@ function jobsstoreLoaded()
 		          {name:'viewerURL', header: "Viewer URL", width: 120, sortable: false, dataIndex: 'viewerURL', hidden: true},
 		          {name:'altViewerURL', header: "Alt Viewer URL", width: 120, sortable: false, dataIndex: 'altViewerURL', hidden: true}
 		],
-		listeners : {cellclick : function (grid, rowIndex, columnIndex, e) 
-			{
+        listeners: {cellclick: function (grid, rowIndex, columnIndex, e) {
 				var colHeader = grid.getColumnModel().getColumnHeader(columnIndex);
 				if (colHeader == "Name") {
 					var viewerURL = grid.getStore().getAt(rowIndex).get('viewerURL');
@@ -83,9 +79,9 @@ function jobsstoreLoaded()
 								loadAnalysisPage(jobType, true, jobName);
 								return;
 							} else { // otherwise .. using visualizer
-								runVisualizerFromSpan(viewerURL, altViewerURL);
-							}
-						} else	{
+                                runVisualizerFromSpan(viewerURL, altViewerURL);
+                            }
+						} else {
 							Ext.Ajax.request({
 								url: pageInfo.basePath+"/asyncJob/getjobresults",
 								method: 'POST',
@@ -106,7 +102,7 @@ function jobsstoreLoaded()
 							});							
 						}							
 					} else if (status == "Error")	{
-						Ext.Msg.alert("Job Failure", "Unfortunately, an error occurred on this job.");
+                    Ext.Msg.alert("Job Failure", "Unfortunately, an error occurred generating this heatmap");
 					} else if (status == "Cancelled")	{
 						Ext.Msg.alert("Job Cancelled", "The job has been cancelled");
 					} else	{
@@ -121,12 +117,14 @@ function jobsstoreLoaded()
 		sm : new Ext.grid.RowSelectionModel({singleSelect : true}),
 		layout : 'fit',
 		width : 600,
-		buttons: [{
+        buttons: [
+            {
 			text:'Refresh',
 			handler: function()	{
       		  jobsstore.reload();
 			}      	
-       }],
+            }
+        ],
         buttonAlign:'center',
         tbar:['->',{
             id:'help',
@@ -182,7 +180,8 @@ function showJobStatusWindow(result, messages)	{
 		        		  }
 		        		  jobWindow.close();
 		        	  }
-		          }],
+            }
+        ],
 	   autoLoad: {
 		   url: pageInfo.basePath+'/asyncJob/showJobStatus',
 		   scripts: true,
@@ -219,7 +218,7 @@ function checkJobStatus(jobName)	{
 	// Add the handler for the cancel button in the statusbar
 	cancBtn.setVisible(true);
 	cancBtn.setHandler(function()	{
-		Ext.TaskMgr.stop(checkTask);
+        runner.stopAll();
 		sb.setStatus({
 		    text: 'Job cancelled',
 		    clear: true
@@ -231,12 +230,12 @@ function checkJobStatus(jobName)	{
 	var updateJobStatus = function(){
 		
 		secCount=secCount+3; // 3 seconds
+
 		Ext.Ajax.request(
 			{
 				url : pageInfo.basePath+"/asyncJob/checkJobStatus",
 				method : 'POST',
-				success : function(result, request)
-				{
+                success: function (result, request) {
 					var jobStatusInfo = Ext.util.JSON.decode(result.responseText);					 
 					var status = jobStatusInfo.jobStatus;
 					var viewerURL = jobStatusInfo.jobViewerURL;
@@ -257,22 +256,21 @@ function checkJobStatus(jobName)	{
 							jWindow.close();							
 						}
 						Ext.Msg.alert('Please, Contact a tranSMART Administrator', 'Unable to complete: ' + exception);
-						Ext.TaskMgr.stop(checkTask);
+                        runner.stopAll();
 					
 						sb.setStatus({
 						    text: "Status: Error",
 						    clear: true
 						});								
 						cancBtn.setVisible(false);
-					}
-					else if(status =='Completed')	{
+                    } else if (status == 'Completed') {
 						singletonflag++;
 						
 						if (jWindow != null && jWindow.isVisible())	{
 							jWindow.close();
 						}
 						
-						Ext.TaskMgr.stop(checkTask);
+                        runner.stopAll();
 						
 						sb.setStatus({
 						    text: "Status: " + status,
@@ -286,7 +284,8 @@ function checkJobStatus(jobName)	{
 							// < 120 seconds, just popup the heatmap.
 							// >= 120 seconds then popup a message to indicate that the heatmap is finished.
 							if (secCount < 120) {  
-								runVisualizerFromSpan(viewerURL, altViewerURL);	
+								//runVisualizerFromSpan(viewerURL, altViewerURL);
+                                window.location.href = pageInfo.basePath+"/dataExport/downloadFile?jobname=" + jobName;
 							} else	{
 								Ext.Msg.buttonText.yes = 'View Now';
 								Ext.Msg.buttonText.no = 'View Later';
@@ -296,7 +295,8 @@ function checkJobStatus(jobName)	{
 									buttons: Ext.Msg.YESNO,	
 									fn: function(btn) {
 										if (btn == 'yes')	{
-											runVisualizerFromSpan(viewerURL, altViewerURL);
+											//runVisualizerFromSpan(viewerURL, altViewerURL);
+                                            window.location.href = pageInfo.basePath+"/dataExport/downloadFile?jobname=" + jobName;
 										}										
 									},
 									icon: Ext.MessageBox.QUESTION
@@ -314,7 +314,7 @@ function checkJobStatus(jobName)	{
 						if (jWindow != null && jWindow.isVisible())	{
 							jWindow.close();
 						}
-						Ext.TaskMgr.stop(checkTask);
+                        runner.stopAll();
 						sb.setStatus({
 						    text: 'Job cancelled',
 						    clear: true
@@ -328,10 +328,9 @@ function checkJobStatus(jobName)	{
 						sb.showBusy("Status: " + jobStatusInfo.jobStatus + ", running for " + String(secCount) + secLabel);						
 					} 
 				},
-				failure : function(result, request)
-				{
+                failure: function (result, request) {
 					Ext.Msg.alert('Failed', 'Could not complete the job, please contact an administrator');
-					Ext.TaskMgr.stop(checkTask);
+                    runner.stopAll();
 					sb.setStatus({
 						text: "Status: Failed",
 					    clear: true
@@ -349,6 +348,7 @@ function checkJobStatus(jobName)	{
 			run: updateJobStatus,
 	  	    interval: pollInterval	
 	}	
-	Ext.TaskMgr.start(checkTask);
+    var runner = new Ext.util.TaskRunner();
+    runner.start(checkTask);
 }
 
