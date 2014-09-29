@@ -11,6 +11,8 @@ def forkSettingsOther = [
         debug:     false,
 ]
 
+//grails.plugin.location.'rdc-rmodules' = "../Rmodules"
+
 grails.project.fork = [
         test:    forkSettingsOther,
         run:     forkSettingsRun,
@@ -114,7 +116,6 @@ grails.project.dependency.resolution = {
         compile ':build-info:1.2.5'
         compile ':hibernate:3.6.10.10'
         compile ':quartz:1.0-RC2'
-        compile ':rdc-rmodules:0.3-rnaseq-dge-galaxy-SNAPSHOT'
         //compile ':spring-security-kerberos:0.1'
         compile ':spring-security-ldap:2.0-RC2'
         compile ':spring-security-core:2.0-RC4'
@@ -129,7 +130,7 @@ grails.project.dependency.resolution = {
         compile ":codenarc:0.21"
 
         if (!dm) {
-            compile ':rdc-rmodules:1.2.2-SNAPSHOT'
+            compile ':rdc-rmodules:0.3-rnaseq-dge-galaxy-SNAPSHOT'
             runtime ':transmart-core:1.2.2-SNAPSHOT'
             compile ':transmart-gwas:1.2.2-SNAPSHOT'
             //// already included in transmart-gwas
