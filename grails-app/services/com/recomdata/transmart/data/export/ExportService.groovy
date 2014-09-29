@@ -103,7 +103,6 @@ class ExportService {
             JSON.parse(it.toString())
         }.each { Map checkbox ->
             def fileType = checkbox.fileType[1..-1]
-            }
 
             if (!formats.containsKey(checkbox.subset)) {
                 formats[checkbox.subset] = [:]
