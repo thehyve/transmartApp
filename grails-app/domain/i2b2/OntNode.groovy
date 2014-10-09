@@ -20,6 +20,8 @@
 
 package i2b2
 
+//TODO Replace usage of this class on org.transmartproject.db.ontology.I2b2Secure everywhere
+@Deprecated
 class OntNode {
     Long hlevel
     String id
@@ -44,8 +46,6 @@ class OntNode {
     String sourcesystemcd
     String valuetypecd
     String securitytoken
-    List tags = []
-    static hasMany = [tags: OntNodeTag]
     static mapping = {
         table 'I2B2_SECURE'
         version false
@@ -73,8 +73,6 @@ class OntNode {
             sourcesystemcd column: 'SOURCESYSTEM_CD'
             valuetypecd column: 'VALUETYPE_CD'
             securitytoken column: 'SECURE_OBJ_TOKEN'
-            //tags joinTable:[name:'I2B2_TAGS', key:'PATH', column: 'TAG_ID']
-            tags column: 'PATH' //joinTable: false
         }
     }
     static constraints = {

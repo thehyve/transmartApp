@@ -23,6 +23,10 @@
 import annotation.AmTagItem
 import fm.FmFolderAssociation
 import grails.converters.JSON
+import i2b2.OntNodeTag
+import bio.Experiment
+import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.db.ontology.I2b2
 
 class OntologyController {
 
@@ -36,9 +40,9 @@ class OntologyController {
     def showOntTagFilter = {
         def tagtypesc = []
         tagtypesc.add("ALL")
-        def tagtypes = i2b2.OntNodeTag.executeQuery("SELECT DISTINCT o.tagtype FROM i2b2.OntNodeTag as o order by o.tagtype")
+        def tagtypes = OntNodeTag.executeQuery("SELECT DISTINCT o.tagtype FROM i2b2.OntNodeTag as o order by o.tagtype")
         tagtypesc.addAll(tagtypes)
-        def tags = i2b2.OntNodeTag.executeQuery("SELECT DISTINCT o.tag FROM i2b2.OntNodeTag o order by o.tag")  /*WHERE o.tagtype='"+tagtypesc[0]+"'*/
+        def tags = OntNodeTag.executeQuery("SELECT DISTINCT o.tag FROM i2b2.OntNodeTag o order by o.tag")  /*WHERE o.tagtype='"+tagtypesc[0]+"'*/
         log.trace(tags as JSON)
         render(template: 'filter', model: [tagtypes: tagtypesc, tags: tags])
     }
@@ -46,7 +50,7 @@ class OntologyController {
     def ajaxGetOntTagFilterTerms = {
         def tagtype = params.tagtype
         log.trace("calling search for tagtype:" + tagtype)
-        def tags = i2b2.OntNodeTag.executeQuery("SELECT DISTINCT o.tag FROM i2b2.OntNodeTag o WHERE o.tagtype='" + tagtype + "' order by o.tag")
+        def tags = OntNodeTag.executeQuery("SELECT DISTINCT o.tag FROM i2b2.OntNodeTag o WHERE o.tagtype='" + tagtype + "' order by o.tag")
         log.trace(tags as JSON)
         render(template: 'depSelectTerm', model: [tagtype: tagtype, tags: tags])
     }
@@ -88,40 +92,31 @@ class OntologyController {
             log.trace(access as JSON)
         }
 
-    def showConceptDefinition =
-        {
-            def conceptPath = i2b2HelperService.keyToPath(params.conceptKey);
-            def node = i2b2.OntNode.get(conceptPath);
+    def showConceptDefinition = {
+            def conceptPath = i2b2HelperService.keyToPath(params.conceptKey)
+            def node = I2b2.findByFullName(conceptPath)
 
-            //Disabled check for trial - show all study metadata in the same way as the Browse view
-            //def testtag=new i2b2.OntNodeTag(tag:'test', tagtype:'testtype');
-            //node.addToTags(testtag);
-            //node.save();
-//		def trial=node.tags.find{ w -> w.tagtype =="Trial" }
-//		if(trial!=null)
-//		{
-//			def trialid=trial.tag;
-//			chain(controller:'trial', action:'trialDetailByTrialNumber', id:trialid)
-//		}
-            //Check for study by visual attributes
-            if (node.visualattributes.contains("S")) {
-                def accession = node.sourcesystemcd
-                def study = bio.Experiment.findByAccession(accession.toUpperCase())
-                def folder
+            if (node.visualAttributes.contains(OntologyTerm.VisualAttributes.STUDY)) {
+                def accession = node.sourcesystemCd
+                def study = Experiment.findByAccession(accession.toUpperCase())
                 if (study) {
-                    folder = FmFolderAssociation.findByObjectUid(study.getUniqueId().uniqueId)?.fmFolder
-                } else {
-                    render(status: 200, text: "No study definition found for accession: " + accession)
-                    return
+                    def folder = FmFolderAssociation.findByObjectUid(study.getUniqueId().uniqueId)?.fmFolder
+                    if (folder) {
+                        def amTagTemplate = amTagTemplateService.getTemplate(folder.getUniqueId())
+                        if(amTagTemplate) {
+                            List<AmTagItem> metaDataTagItems = amTagItemService.getDisplayItems(amTagTemplate.id)
+                            render(template: 'showStudy', model: [folder: folder, bioDataObject: study, metaDataTagItems: metaDataTagItems])
+                            return
+                        }
+                    }
                 }
-
-                def amTagTemplate = amTagTemplateService.getTemplate(folder.getUniqueId())
-                List<AmTagItem> metaDataTagItems = amTagItemService.getDisplayItems(amTagTemplate.id)
-
-                render(template: 'showStudy', model: [folder: folder, bioDataObject: study, metaDataTagItems: metaDataTagItems])
-            } else {
-                render(template: 'showDefinition', model: [tags: node.tags])
             }
+            def tags = OntNodeTag.createCriteria().list {
+                eq 'path', conceptPath
+                order 'index'
+                order 'tag'
+            }
+            render(template: 'showDefinition', model: [tags: tags])
         }
 
 }
