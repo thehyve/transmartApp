@@ -94,23 +94,6 @@ class OntologyController {
 
     def showConceptDefinition = {
             def conceptPath = i2b2HelperService.keyToPath(params.conceptKey)
-            def node = I2b2.findByFullName(conceptPath)
-
-            if (node.visualAttributes.contains(OntologyTerm.VisualAttributes.STUDY)) {
-                def accession = node.sourcesystemCd
-                def bioData = Experiment.findByAccession(accession.toUpperCase())?.uniqueId
-                if(bioData) {
-                    def folder = FmFolderAssociation.findByObjectUid(bioData.uniqueId)?.fmFolder
-                    if (folder) {
-                        def amTagTemplate = amTagTemplateService.getTemplate(folder.uniqueId)
-                        if(amTagTemplate) {
-                            List<AmTagItem> metaDataTagItems = amTagItemService.getDisplayItems(amTagTemplate.id)
-                            render(template: 'showStudy', model: [folder: folder, bioDataObject: study, metaDataTagItems: metaDataTagItems])
-                            return
-                        }
-                    }
-                }
-            }
             def tags = OntNodeTag.createCriteria().list {
                 eq 'path', conceptPath
                 order 'index'
