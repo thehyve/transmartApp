@@ -98,11 +98,11 @@ class OntologyController {
 
             if (node.visualAttributes.contains(OntologyTerm.VisualAttributes.STUDY)) {
                 def accession = node.sourcesystemCd
-                def study = Experiment.findByAccession(accession.toUpperCase())
-                if (study) {
-                    def folder = FmFolderAssociation.findByObjectUid(study.getUniqueId().uniqueId)?.fmFolder
+                def bioData = Experiment.findByAccession(accession.toUpperCase())?.uniqueId
+                if(bioData) {
+                    def folder = FmFolderAssociation.findByObjectUid(bioData.uniqueId)?.fmFolder
                     if (folder) {
-                        def amTagTemplate = amTagTemplateService.getTemplate(folder.getUniqueId())
+                        def amTagTemplate = amTagTemplateService.getTemplate(folder.uniqueId)
                         if(amTagTemplate) {
                             List<AmTagItem> metaDataTagItems = amTagItemService.getDisplayItems(amTagTemplate.id)
                             render(template: 'showStudy', model: [folder: folder, bioDataObject: study, metaDataTagItems: metaDataTagItems])
