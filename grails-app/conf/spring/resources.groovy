@@ -56,14 +56,18 @@ beans = {
             authenticationManager = ref('authenticationManager')
             failureHandler = ref('failureHandler')
         }
-        ldapUserDetailsMapper(com.recomdata.security.CustomUserDetailsContextMapper) {
-            dataSource = ref("dataSource")
-        }
     } else {
         SpringSecurityKerberosGrailsPlugin.metaClass.getDoWithSpring = {->
             logger.info "Skipped Kerberos Grails plugin initialization"
             return {}
         }
+    }
+
+    if (grailsApplication.config.org.transmart.security.ldapEnabled) {
+        ldapUserDetailsMapper(com.recomdata.security.CustomUserDetailsContextMapper) {
+            dataSource = ref("dataSource")
+        }
+    } else {
         SpringSecurityLdapGrailsPlugin.metaClass.getDoWithSpring = {->
             logger.info "Skipped LDAP Grails plugin initialization"
             return {}
