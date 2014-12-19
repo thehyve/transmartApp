@@ -29,6 +29,7 @@ import i2b2.SampleInfo;
 
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.querytool.QtQueryResultInstance
 
 import java.sql.ResultSet;
@@ -772,97 +773,87 @@ class I2b2HelperService {
 					row.put(columnid, "N");
 				}
 			}
-		}
-		else {
-			// If a folder is dragged in, we want the contents of the folder to be added to the data
-			// That is possible if the folder contains only categorical values and no subfolders.
-			
-			// Check whether the folder is valid: first find all children of the current code
-			def item = conceptsResourceService.getByKey( concept_key )
-			
-			if( !item.children ) {
-				log.debug( "Can not show data in gridview for empty node: " + concept_key )
-			}
-			
-			// All children should be leaf categorical values
-			if( item.children.any { 
-				return !it.cVisualattributes.contains( "L" ) || nodeXmlRepresentsValueConcept( it.metadataxml )  
-			}) {
-				log.debug( "Can not show data in gridview for foldernodes with mixed type of children" )
-				return tablein
-			}
-			
-			// Find the concept names
-			String columnid=getShortNameFromKey(concept_key).replace(" ", "_").replace("...", "");
-			String columnname=getColumnNameFromKey(concept_key).replace(" ", "_");
-			
-			/*add the column to the table if its not there*/
-			if(tablein.getColumn("subject")==null)
-			{
-				tablein.putColumn("subject", new ExportColumn("subject", "Subject", "", "string"));
-			}
-			if(tablein.getColumn(columnid)==null) {
-				tablein.putColumn(columnid, new ExportColumn(columnid, columnname, "", "string"));
-			}
-			
-			// Store the concept paths to query
-			def paths = item.children*.fullName
-			
-			// Find the concept codes for the given children
-			def conceptCriteria = ConceptDimension.createCriteria()
-			def concepts = conceptCriteria.list {
-				'in'( "conceptPath", paths )
-			}
-			
-			// Determine the patients to query
-			def queryResultInstance = QtQueryResultInstance.read( result_instance_id )
-			def patientSet = queryResultInstance.patientSet
-			def patientIds =  patientSet.collect { BigDecimal.valueOf( it.patient.id ) }
-
-			// If nothing is found, return
-			if( !concepts || !patientSet ) {
-				return
-			}
-			// After that, retrieve all data entries for the children
-			def c  = ObservationFact.createCriteria()
-			def results = c.list {
-				or {
-					eq( "modifierCd", "@" )
-					eqProperty( "modifierCd", "sourcesystemCd" )
-				}
-				'in'( "conceptCode", concepts*.conceptCode )
-				'in'( "patient", patientIds )
-			}
-			results.each { row ->
-				
-				/*If I already have this subject mark it in the subset column as belonging to both subsets*/
-				String subject=row.patientNum
-				String value=row.tvalChar
-				if(value==null){
-					value="Y";
-				}
-				if(tablein.containsRow(subject)) /*should contain all subjects already if I ran the demographics first*/ {
-					tablein.getRow(subject).put(columnid, value.toString());
-				}
-				else /*fill the row*/ {
-					ExportRowNew newrow=new ExportRowNew();
-					newrow.put("subject", subject);
-					newrow.put(columnid, value.toString());
-					tablein.putRow(subject, newrow);
-				}
-			}
-			
-			//pad all the empty values for this column
-			for(ExportRowNew row: tablein.getRows())
-			{
-				if(!row.containsColumn(columnid)) {
-					row.put(columnid, "N");
-				}
-			}
-			
-			log.trace("must be a folder dont add to grid");
-		}
-		return tablein;
+        } else {
+            // If a folder is dragged in, we want the contents of the folder to be added to the data
+            // That is possible if the folder contains only categorical values and no subfolders.
+    
+            // Check whether the folder is valid: first find all children of the current code
+            def item = conceptsResourceService.getByKey( concept_key )
+    
+            if( !item.children ) {
+                log.debug( "Can not show data in gridview for empty node: " + concept_key )
+            }
+    
+            // All children should be leaf categorical values
+            if( item.children.any {
+                return !it.cVisualattributes.contains( "L" ) || nodeXmlRepresentsValueConcept( it.metadataxml )
+            }) {
+                log.debug( "Can not show data in gridview for foldernodes with mixed type of children" )
+                return tablein
+            }
+    
+            // Find the concept names
+            String columnid=getShortNameFromKey(concept_key).replace(" ", "_").replace("...", "");
+            String columnname=getColumnNameFromKey(concept_key).replace(" ", "_");
+    
+            /*add the column to the table if its not there*/
+            if(tablein.getColumn("subject")==null)
+            {
+                tablein.putColumn("subject", new ExportColumn("subject", "Subject", "", "string"));
+            }
+            if(tablein.getColumn(columnid)==null) {
+                tablein.putColumn(columnid, new ExportColumn(columnid, columnname, "", "string"));
+            }
+    
+            // Store the concept paths to query
+            def paths = item.children*.fullName
+            
+            // Find the concept codes for the given children
+            def conceptCriteria = ConceptDimension.createCriteria()
+            def concepts = conceptCriteria.list {
+                'in'( "conceptPath", paths )
+            }
+    
+            // Determine the patients to query
+            def patientIds = QtPatientSetCollection.executeQuery( "SELECT q.patient.id FROM QtPatientSetCollection q WHERE q.resultInstance.id = ?", result_instance_id.toLong() )
+            patientIds = patientIds.collect { BigDecimal.valueOf( it ) }
+    
+            // If nothing is found, return
+            if( !concepts || !patientIds ) {
+                return
+            }
+            
+            // After that, retrieve all data entries for the children
+            def results = ObservationFact.executeQuery( "SELECT o.patient.id, o.textValue FROM ObservationFact o WHERE conceptCode IN (:conceptCodes) AND o.patient.id in (:patientNums)", [ conceptCodes: concepts*.conceptCode, patientNums: patientIds.collect { it?.toLong() } ] )
+    
+            results.each { row ->
+        
+                /*If I already have this subject mark it in the subset column as belonging to both subsets*/
+                String subject=row[ 0 ]
+                String value=row[ 1 ]
+                if(value==null){
+                    value="Y";
+                }
+                if(tablein.containsRow(subject)) /*should contain all subjects already if I ran the demographics first*/ {
+                    tablein.getRow(subject).put(columnid, value.toString());
+                }
+                else /*fill the row*/ {
+                    ExportRowNew newrow=new ExportRowNew();
+                    newrow.put("subject", subject);
+                    newrow.put(columnid, value.toString());
+                    tablein.putRow(subject, newrow);
+                }
+            }
+    
+            //pad all the empty values for this column
+            for(ExportRowNew row: tablein.getRows())
+            {
+                if(!row.containsColumn(columnid)) {
+                    row.put(columnid, "N");
+                }
+            }
+        }
+        return tablein;
 	}
 	
 	/**
