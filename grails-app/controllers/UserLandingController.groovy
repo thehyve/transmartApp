@@ -12,7 +12,10 @@ class UserLandingController {
                 accesstime: new Date()).save()
         def skip_disclaimer = grailsApplication.config.com.recomdata?.skipdisclaimer ?: false;
         if (skip_disclaimer) {
-            redirect(uri: '/RWG');
+            if (grailsApplication.config.com.recomdata?.defaults?.containsKey("landing"))
+                redirect(uri: grailsApplication.config.com.recomdata.defaults.landing);
+            else
+                redirect(uri: '/RWG');
         } else {
             redirect(uri: '/userLanding/disclaimer.gsp')
         }
@@ -27,9 +30,9 @@ class UserLandingController {
         new AccessLog(username: springSecurityService.getPrincipal().username, event: "Disclaimer not accepted",
                 accesstime: new Date()).save()
         redirect(uri: '/logout')
-	}
+    }
 
     def checkHeartBeat = {
-        render(text:"OK")
+        render(text: "OK")
     }
 }

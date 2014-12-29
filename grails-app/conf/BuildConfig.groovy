@@ -1,22 +1,22 @@
 def forkSettingsRun = [
         minMemory: 1536,
         maxMemory: 4096,
-        maxPerm:   384,
-        debug:     false,
+        maxPerm  : 384,
+        debug    : false,
 ]
 def forkSettingsOther = [
         minMemory: 256,
         maxMemory: 1024,
-        maxPerm:   384,
-        debug:     false,
+        maxPerm  : 384,
+        debug    : false,
 ]
 
 //grails.plugin.location.'rdc-rmodules' = "../Rmodules"
 
 grails.project.fork = [
-        test:    forkSettingsOther,
-        run:     forkSettingsRun,
-        war:     false,
+        test   : forkSettingsOther,
+        run    : forkSettingsRun,
+        war    : false,
         console: forkSettingsOther]
 
 grails.project.war.file = "target/${appName}.war"
@@ -30,7 +30,8 @@ def dm, dmClass
 try {
     dmClass = new GroovyClassLoader().parseClass(
             new File('../transmart-dev/DependencyManagement.groovy'))
-} catch (Exception e) {}
+} catch (Exception e) {
+}
 if (dmClass) {
     dm = dmClass.newInstance()
 }
@@ -95,7 +96,7 @@ grails.project.dependency.resolution = {
 
         test('junit:junit:4.11') {
             transitive = false /* don't bring hamcrest */
-            export     = false
+            export = false
         }
 
         test 'org.hamcrest:hamcrest-core:1.3',
@@ -104,8 +105,7 @@ grails.project.dependency.resolution = {
         test 'org.gmock:gmock:0.9.0-r435-hyve2', {
             transitive = false
         }
-        test 'org.hamcrest:hamcrest-library:1.3',
-                'org.hamcrest:hamcrest-core:1.3'
+
     }
 
     plugins {
@@ -113,7 +113,6 @@ grails.project.dependency.resolution = {
         build ':rest-client-builder:2.0.1'
         build ':tomcat:7.0.52.1'
 
-        compile ':build-info:1.2.5'
         compile ':hibernate:3.6.10.10'
         compile ':quartz:1.0-RC2'
         //compile ':spring-security-kerberos:0.1'
@@ -123,7 +122,6 @@ grails.project.dependency.resolution = {
 
         runtime ':prototype:1.0'
         runtime ':jquery:1.7.1'
-
         runtime ':resources:1.2.1'
 
         // support for static code analysis - see codenarc.reports property below
@@ -145,9 +143,8 @@ grails.project.dependency.resolution = {
             //// already included in biomart-domain
             //compile ':transmart-java:1.2.2-SNAPSHOT'
             runtime ':dalliance-plugin:0.2-SNAPSHOT'
-            //runtime ':transmart-metacore-plugin:1.2.2-SNAPSHOT'
             runtime ':transmart-mydas:0.1-SNAPSHOT'
-            runtime ':transmart-rest-api:0.1-SNAPSHOT'
+            runtime ':transmart-rest-api:1.2.2-SNAPSHOT'
             runtime ':blend4j-plugin:1.2.2-SNAPSHOT'
             runtime ':transmart-metacore-plugin:1.2.2-SNAPSHOT'
 
@@ -164,7 +161,7 @@ grails.project.dependency.resolution = {
 dm?.with {
     configureInternalPlugin 'compile', 'rdc-rmodules'
     configureInternalPlugin 'runtime', 'transmart-core'
-    configureInternalPlugin 'test',    'transmart-core-db-tests'
+    configureInternalPlugin 'test', 'transmart-core-db-tests'
     configureInternalPlugin 'compile', 'transmart-gwas'
     configureInternalPlugin 'compile', 'transmart-java'
     configureInternalPlugin 'compile', 'biomart-domain'
@@ -174,6 +171,8 @@ dm?.with {
     configureInternalPlugin 'runtime', 'dalliance-plugin'
     configureInternalPlugin 'runtime', 'transmart-mydas'
     configureInternalPlugin 'runtime', 'transmart-rest-api'
+    configureInternalPlugin 'runtime', 'blend4j-plugin'
+    configureInternalPlugin 'runtime', 'transmart-metacore-plugin'
 }
 
 dm?.inlineInternalDependencies grails, grailsSettings
