@@ -20,7 +20,7 @@ line, though it will most likely work on others.
 
 In addition, a PostgreSQL database installed with the proper schema and data is
 required. As of this moment, The Hyveʼs development branches require this to be
-propared with the [transmart-data][5] repository. This project also handles
+prepared with the [transmart-data][5] repository. This project also handles
 the required configuration, running the Solr instances and, for development
 purposes, running an R server and installing sample data.
 
