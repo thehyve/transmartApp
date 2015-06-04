@@ -7,8 +7,6 @@ import java.text.SimpleDateFormat;
 
 class AccessLogController {
 
-    def searchService
-
     def index = { redirect(action: "list", params: params) }
 
     // the delete, save and update actions only accept POST requests
@@ -45,7 +43,7 @@ class AccessLogController {
             filter.enddate = new Date()
         }
 
-        def pageMap = searchService.createPagingParamMap(params, grailsApplication.config.com.recomdata.admin.paginate.max, 0)
+        def pageMap = createPagingParamMap(params, grailsApplication.config.com.recomdata.admin.paginate.max, 0)
         pageMap['sort'] = 'accesstime'
         pageMap['order'] = 'desc'
 
@@ -183,5 +181,12 @@ class AccessLogController {
         } else {
             render(view: 'create', model: [accessLogInstance: accessLogInstance])
         }
+    }
+
+    private Map<String, Integer> createPagingParamMap(params, defaultMax, defaultOffset) {
+        [
+                max: (params.max ?: defaultMax) as int,
+                offset: (params.offset ?: defaultOffset) as int,
+        ]
     }
 }

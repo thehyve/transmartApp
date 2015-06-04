@@ -147,24 +147,6 @@
     </div>
 </div>
 
-<div class='navbarBox'>
-    <div class="navcontainer1">
-        <h1 class="panelHeader">
-            RequestMap Setup
-        </h1>
-        <ul class="navlist">
-            <li>
-                <span class="adminMenuButton"><g:link class="list" controller="requestmap"
-                                                      action="list">Requestmap List</g:link></span>
-            </li>
-            <li>
-                <span class="adminMenuButton"><g:link class="create" controller="requestmap"
-                                                      action="create">Requestmap Create</g:link></span>
-            </li>
-        </ul>
-    </div>
-</div>
-
 <g:if test="${!!grailsApplication.getControllerClass('ImportXnatController')}">
     <g:if test="${grailsApplication.config.org.transmart.xnatImporterEnabled}">
         <div class='navbarBox'>

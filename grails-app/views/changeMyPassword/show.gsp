@@ -2,15 +2,12 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <r:require module="main_mod"/>
-    <r:require module="jqueryui"/>
+    <r:require module="jquery-ui"/>
     <title>Change My Password</title>
     <r:layoutResources/>
 </head>
 
 <body>
-<div id="header-div">
-    <g:render template="/layouts/commonheader" model="['app': 'changeMyPassword']"/>
-</div>
 
 <div class="body" style="padding-left: 15%">
     <h1>Change My Password</h1>

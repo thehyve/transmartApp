@@ -1,23 +1,17 @@
-import com.google.common.collect.ImmutableMap
 import org.apache.log4j.Logger
 import org.codehaus.groovy.grails.commons.spring.DefaultBeanConfiguration
-import org.springframework.beans.factory.config.CustomScopeConfigurer
 import org.springframework.security.core.session.SessionRegistryImpl
 import org.springframework.security.web.DefaultRedirectStrategy
 import org.springframework.security.web.access.AccessDeniedHandlerImpl
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 
 // plugin is not functional at this point
 //import org.springframework.security.extensions.kerberos.web.SpnegoAuthenticationProcessingFilter
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy
 import org.springframework.security.web.session.ConcurrentSessionFilter
 import org.transmart.authorization.CurrentUserBeanFactoryBean
 import org.transmart.authorization.CurrentUserBeanProxyFactory
 import org.transmart.authorization.QueriesResourceAuthorizationDecorator
-import org.transmart.marshallers.MarshallerRegistrarService
-import org.transmart.spring.QuartzSpringScope
-import org.transmartproject.core.users.User
-import org.transmartproject.export.HighDimExporter
 import org.transmartproject.security.AuthSuccessEventListener
 import org.transmartproject.security.BadCredentialsEventListener
 import org.transmartproject.security.BruteForceLoginLockService
@@ -37,29 +31,14 @@ beans = {
             bean.beanDefinition.autowireCandidate = false
     }
 
-    quartzSpringScope(QuartzSpringScope)
-    quartzScopeConfigurer(CustomScopeConfigurer) {
-        scopes = ImmutableMap.of('quartz', ref('quartzSpringScope'))
-    }
-
     "${CurrentUserBeanProxyFactory.BEAN_BAME}"(CurrentUserBeanProxyFactory)
     "${CurrentUserBeanProxyFactory.SUB_BEAN_REQUEST}"(CurrentUserBeanFactoryBean) { bean ->
         bean.scope = 'request'
-    }
-    "${CurrentUserBeanProxyFactory.SUB_BEAN_QUARTZ}"(User) { bean ->
-        // Spring never actually creates this bean
-        bean.scope = 'quartz'
     }
 
     legacyQueryResultAccessCheckRequestCache(
             QueriesResourceAuthorizationDecorator.LegacyQueryResultAccessCheckRequestCache) { bean ->
         bean.scope = 'request'
-    }
-
-    context.'component-scan'('base-package': 'org.transmartproject.export') {
-        context.'include-filter'(
-                type: 'assignable',
-                expression: HighDimExporter.canonicalName)
     }
 
     sessionRegistry(SessionRegistryImpl)
@@ -81,8 +60,6 @@ beans = {
 
     //overrides bean implementing GormUserDetailsService?
     userDetailsService(com.recomdata.security.AuthUserDetailsService)
-
-    marshallerRegistrarService(MarshallerRegistrarService)
 
     if (grailsApplication.config.org.transmart.security.spnegoEnabled) {
         // plugin is not functional at this point
@@ -129,9 +106,4 @@ beans = {
     badCredentialsEventListener(BadCredentialsEventListener) {
         bruteForceLoginLockService = ref('bruteForceLoginLockService')
     }
-
-    acghBedExporterRgbColorScheme(org.springframework.beans.factory.config.MapFactoryBean) {
-        sourceMap = grailsApplication.config.dataExport.bed.acgh.rgbColorScheme
-    }
-
 }

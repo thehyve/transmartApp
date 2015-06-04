@@ -10,9 +10,7 @@ import org.transmart.searchapp.UserGroup
 
 class UserGroupController {
 
-    def dataSource
     def springSecurityService
-
 
     def index = { redirect(action: "list", params: params) }
 

@@ -13,15 +13,6 @@ eventCreateWarStart = { warname, stagingDir ->
     event("BuildInfoAddPropertiesEnd", [warname, stagingDir])
 }
 
-eventCompileStart = { kind ->
-    // Unfortunately during "run-app", the application metadata file loaded is not the one of the staging directory
-    // We do not want to modify the local metadata file do avoid SCM mess.
-    // We might still want these info displayed into the console at compile time for the main application
-    getEnvProperties().each { k, v ->
-        println(k + ' : ' + v)
-    }
-}
-
 private void writeProperties(Map properties, String propertyFile) {
     Ant.propertyfile(file: propertyFile) {
         properties.each { k, v ->
