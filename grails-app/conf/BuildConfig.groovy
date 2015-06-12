@@ -99,8 +99,8 @@ grails.project.dependency.resolution = {
         // Not compatible with spring security 3.2 yet
         //compile ':spring-security-kerberos:0.1'
         compile ':spring-security-ldap:2.0-RC2'
-        compile ':spring-security-core:2.0-RC4'
-        compile ':spring-security-oauth2-provider:1.0.5.2'
+        compile ':spring-security-core:2.0-RC5'
+        compile ':spring-security-oauth2-provider:2.0-RC4'
 
         runtime ':jquery:1.11.1'
         runtime ':jquery-ui:1.10.4'

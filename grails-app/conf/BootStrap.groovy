@@ -11,6 +11,8 @@ class BootStrap {
 
     def grailsApplication
 
+    def OAuth2SyncService
+
     def init = { servletContext ->
         securityContextPersistenceFilter.forceEagerSessionCreation = true
 
@@ -37,6 +39,11 @@ class BootStrap {
                     "\$GRAILS_HOME/scripts/log4j.properties, adding a proper appender and log " +
                     "org.codehaus.groovy.grails.commons.cfg.ConfigurationHelper at level WARN")
             throw new GrailsConfigurationException("Configuration magic setting not found")
+        }
+
+        if ('clientCredentialsAuthenticationProvider' in
+                grailsApplication.config.grails.plugin.springsecurity.providerNames) {
+            OAuth2SyncService.syncOAuth2Clients()
         }
     }
 }
