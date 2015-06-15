@@ -104,6 +104,9 @@ com.recomdata.search.paginate.max = 20
 com.recomdata.search.paginate.maxsteps = 5
 com.recomdata.admin.paginate.max = 20
 
+// Used as a default by the out-of-tree Config.groovy
+org.transmart.defaultLoginRedirect = '/'
+
 org.transmart.security.spnegoEnabled = false
 grails.plugin.springsecurity.useSecurityEventListener = true
 bruteForceLoginLock {
