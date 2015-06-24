@@ -57,6 +57,8 @@ grails.project.dependency.resolution = {
 
         compile 'org.transmartproject:transmart-core-api:1.2.2-SNAPSHOT'
 
+        compile 'net.sf.ehcache:ehcache:2.9.0'
+
         /* we need at least servlet-api 2.4 because of HttpServletResponse::setCharacterEncoding */
         compile "javax.servlet:servlet-api:$grails.servlet.version" /* delete from the WAR afterwards */
 
@@ -96,6 +98,7 @@ grails.project.dependency.resolution = {
         build ':tomcat:7.0.52.1'
 
         compile ':hibernate:3.6.10.16'
+        compile ':cache-ehcache:1.0.5'
         // Not compatible with spring security 3.2 yet
         //compile ':spring-security-kerberos:0.1'
         compile ':spring-security-ldap:2.0-RC2'

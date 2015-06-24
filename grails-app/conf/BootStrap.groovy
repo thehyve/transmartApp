@@ -41,6 +41,7 @@ class BootStrap {
             throw new GrailsConfigurationException("Configuration magic setting not found")
         }
 
+
         if ('clientCredentialsAuthenticationProvider' in
                 grailsApplication.config.grails.plugin.springsecurity.providerNames) {
             OAuth2SyncService.syncOAuth2Clients()

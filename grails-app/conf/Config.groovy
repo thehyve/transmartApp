@@ -131,6 +131,16 @@ log4j = {
 
 grails.resources.modules = {} // modules defined in grails-app/conf
 
+grails {
+    cache {
+        enabled = true
+        ehcache {
+            ehcacheXmlLocation = 'classpath:ehcache.xml'
+            reloadable = false
+        }
+    }
+}
+
 // Added by the Spring Security OAuth2 Provider plugin:
 grails.plugin.springsecurity.oauthProvider.clientLookup.className = 'org.transmart.oauth2.Client'
 grails.plugin.springsecurity.oauthProvider.authorizationCodeLookup.className = 'org.transmart.oauth2.AuthorizationCode'
