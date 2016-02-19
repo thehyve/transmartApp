@@ -22,6 +22,8 @@
     <r:require module="analyseTab" />
     <r:layoutResources/>
     <tmpl:/RWG/urls/>
+    <link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'folderManagement.css', plugin: 'folder-management')}">
+    <script type="text/javascript" src="${resource(dir:'js', file:'folderManagementDE.js', plugin: 'folder-management')}"></script>
 
     <script type="text/javascript">
 
@@ -94,10 +96,7 @@
             currentReportStudy: [],
             currentSubsetsStudy: '',
             isGridViewLoaded: false,
-            galaxyEnabled: '${grailsApplication.config.com.galaxy.blend4j.galaxyEnabled}',
-            galaxyUrl: "${grailsApplication.config.com.galaxy.blend4j.galaxyURL}",
-            analysisTabExtensions: ${grailsApplication.mainContext.getBean('transmartExtensionsRegistry').analysisTabExtensions as JSON},
-            smartREnabled: ${!grailsApplication.config.ui.analyzetabs.smartR.hide}
+            analysisTabExtensions: ${grailsApplication.mainContext.getBean('transmartExtensionsRegistry').analysisTabExtensions as JSON}
         };
 
         var sessionSearch = "${rwgSearchFilter}";
