@@ -90,8 +90,9 @@ grails.project.dependency.resolution = {
         }
         // spring security version should be in sync with that brought with
         // grails-spring-security-core
-        runtime 'org.springframework.security:spring-security-config:3.2.3.RELEASE',
-                'org.springframework.security:spring-security-web:3.2.3.RELEASE', {
+        def springSecurityVersion = '3.2.9.RELEASE'
+        runtime "org.springframework.security:spring-security-config:$springSecurityVersion",
+                "org.springframework.security:spring-security-web:$springSecurityVersion", {
             transitive = false
         }
 
@@ -120,7 +121,7 @@ grails.project.dependency.resolution = {
         // Not compatible with spring security 3.2 yet
         //compile ':spring-security-kerberos:0.1'
         compile ':spring-security-ldap:2.0-RC2'
-        compile ':spring-security-core:2.0-RC5'
+        compile ':spring-security-core:2.0.0'
         compile ':spring-security-oauth2-provider:2.0-RC5'
 
         runtime ':prototype:1.0'
