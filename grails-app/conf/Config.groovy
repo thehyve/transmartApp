@@ -241,3 +241,6 @@ grails.plugin.springsecurity.oauthProvider.refreshTokenLookup.className = 'org.t
 grails.plugin.springsecurity.ldap.active = false
 org.transmart.security.ldap.mappedUsernameProperty = 'username'
 org.transmart.security.ldap.inheritPassword = true
+
+// Url to request access to a study
+// requestStudyAccessUrl = 'mailto:support@thehyve.nl?subject=Request for access to study&body=Please give me, user {userId}, access to study {studyId}.'
