@@ -31,23 +31,17 @@ function addSelectCategories()	{
 	});
 	
 	jQuery.getJSON(getCategoriesURL, function(json) {
-		for (var i=0; i<json.length; i++)	{
-			var category = json[i].category;
-			var catText = convertCategory(category);
-			jQuery("#search-categories").append(jQuery("<option></option>").attr("value", category).text(catText));
+		for (category in json) {
+			jQuery("#search-categories")
+				.append(
+					jQuery("<option></option>")
+						.attr("value", category)
+						.text(json[category]));
 		}
-		
-		jQuery("#search-categories").html(jQuery("option", jQuery("#search-categories")).sort(function(a, b) { 
-	        return a.text == b.text ? 0 : a.text < b.text ? -1 : 1;
-	    }));
-		
-		jQuery("#allCategory").after(jQuery("<option></option>").attr("value", "text").text("Free Text"));
-		
+
 		jQuery("#search-categories").val(sessionSearchCategory);
 		jQuery('#search-ac').autocomplete('option', 'source', sourceURL + "?category=" + jQuery('#search-categories').val());
-
     });
-	
 }
 
 function addFilterCategories() {
@@ -55,15 +49,18 @@ function addFilterCategories() {
 		for (var i=0; i<json.length; i++)	{
 			var category = json[i].category;
 			var choices = json[i].choices;
-			var titleDiv = jQuery("<div></div>").addClass("filtertitle").attr("name", category.category).text(category.displayName);
-			var contentDiv = jQuery("<div></div>").addClass("filtercontent").attr("name", category.category).attr("style", "display: none");
+			var titleDiv = jQuery("<div></div>").addClass("filtertitle").attr("name", category.field).text(category.displayName);
+			var contentDiv = jQuery("<div></div>").addClass("filtercontent").attr("name", category.field).attr("style", "display: none");
 			for (var j=0; j < choices.length; j++) {
 				var choice = choices[j];
 				
-				var newItem = jQuery("<div></div>").addClass("filteritem").attr("name", category.category).attr("id", choice.uid).text(choice.name);
+				var newItem = jQuery("<div></div>")
+					.addClass("filteritem")
+					.attr("name", category.field)
+					.text(choice.value + ' (' + choice.count + ')');
 				
 				//If this has been selected, highlight it
-				var idString = '[id="' + category.displayName + "|" + category.category + ";" + choice.name + ";" + choice.uid + '"]';
+				var idString = '[id="' + category.displayName + "|" + category.field + ";" + choice.value + '"]';
 				idString = idString.replace(/,/g, "%44").replace(/&/g, "%26"); //Replace commas and ampersands
 				var element = jQuery(idString);
 				if (element.size() > 0) {
@@ -129,20 +126,6 @@ function addSearchAutoComplete()	{
 		}
 	});
 	return false;
-}
-
-//Helper method to only capitalize the first letter of each word
-function convertCategory(valueToConvert)	{
-	var convertedValue = valueToConvert.toLowerCase();
-	if (convertedValue == "genesig") {
-		return "Gene Signature";
-	}if (convertedValue == "genelist") {
-		return "Gene List";
-	}
-	if (convertedValue == "species") {
-		return "Organism";
-	}
-	return convertedValue.slice(0,1).toUpperCase() + convertedValue.slice(1);
 }
 
 //Add the search term to the array and show it in the panel.

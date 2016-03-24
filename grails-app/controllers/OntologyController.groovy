@@ -1,12 +1,11 @@
 import annotation.AmTagItem
 import annotation.AmTagTemplate
-import fm.FmFolder
-import fm.FmFolderAssociation
+import org.transmartproject.browse.fm.FmFolder
+import org.transmartproject.browse.fm.FmFolderAssociation
 import grails.converters.JSON
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.AuthUser
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
-import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm

@@ -1,7 +1,7 @@
 package transmartapp
 
-import fm.FmFolder
-import fm.FmFolderAssociation
+import org.transmartproject.browse.fm.FmFolder
+import org.transmartproject.browse.fm.FmFolderAssociation
 import grails.util.Holders
 import groovy.util.slurpersupport.NoChildren
 import groovy.util.slurpersupport.NodeChild

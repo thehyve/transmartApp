@@ -1,5 +1,5 @@
-import fm.FmFile
-import fm.FmFolder
+import org.transmartproject.browse.fm.FmFile
+import org.transmartproject.browse.fm.FmFolder
 import grails.converters.JSON
 import groovy.time.TimeCategory
 import groovy.xml.StreamingMarkupBuilder
@@ -10,6 +10,7 @@ import org.transmart.searchapp.AccessLog
 import org.transmart.searchapp.AuthUser
 import org.transmart.searchapp.SearchKeyword
 import org.transmart.searchapp.SearchTaxonomy
+import org.transmartproject.search.indexing.FacetsQueryingService
 
 //import bio.BioAnalysisAttribute
 //import RWGVisualizationDAO
@@ -23,6 +24,7 @@ class RWGController {
     def ontologyService
     def solrFacetService
     def geneSignatureService
+    FacetsQueryingService facetsQueryingService
 
     def index = {
 
@@ -524,12 +526,30 @@ class RWGController {
     }
 
     // Return search categories for the drop down
-    def getSearchCategories = {
-        render searchKeywordService.findSearchCategories() as JSON
+    def getSearchCategories() {
+        render facetsQueryingService.allDisplaySettings.findAll { e ->
+            !e.value.hideFromListings
+        }.collectEntries { e ->
+            [e.key, e.value.displayName]
+        } as JSON
     }
 
-    def getFilterCategories = {
-        render searchKeywordService.findFilterCategories() as JSON
+    def getFilterCategories() {
+        def displaySettings = facetsQueryingService.allDisplaySettings
+        render facetsQueryingService.topTerms.collect { e ->
+            [
+                    category: [
+                            field: e.key,
+                            displayName: displaySettings[e.key].displayName,
+                    ],
+                    choices: e.value.collect {
+                        [
+                                value: it.term,
+                                count: it.count
+                        ]
+                    },
+            ]
+        } as JSON
     }
 
     // Return search keywords
