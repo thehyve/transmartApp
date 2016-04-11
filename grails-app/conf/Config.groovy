@@ -243,4 +243,4 @@ org.transmart.security.ldap.mappedUsernameProperty = 'username'
 org.transmart.security.ldap.inheritPassword = true
 
 // Url to request access to a study
-// requestStudyAccessUrl = 'mailto:support@thehyve.nl?subject=Request for access to study&body=Please give me, user {userId}, access to study {studyId}.'
+// requestStudyAccessUrl = 'mailto:support@thehyve.nl?subject=Request for access to study&body=Please give me, user {userName} ({userId}), access to study {studyName} ({studyId}).'
