@@ -27,7 +27,7 @@ install:
 script:
     - grails refresh-dependencies --non-interactive
     - grails test-app --non-interactive --stacktrace 'unit:' 'integration:'
-    - grails war
+    - grails war --non-interactive
 
 notifications:
   hipchat:
