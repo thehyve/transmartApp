@@ -12,8 +12,12 @@ import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTagsResource
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.users.User
+
+import javax.annotation.Resource
 
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.HIGH_DIMENSIONAL
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
 
 class OntologyController {
 
@@ -27,6 +31,9 @@ class OntologyController {
     OntologyTermTagsResource ontologyTermTagsResourceService
     HighDimensionResource highDimensionResourceService
     def exportMetadataService
+
+    @Resource
+    User currentUserBean
 
     def showOntTagFilter = {
         def tagtypesc = []
@@ -108,13 +115,18 @@ class OntologyController {
 
         //data type info of all descendants
         def dataTypeInfo = exportMetadataService.getHighDimMetaData(term)
-        model.dataTypeInfo = dataTypeInfo.dataTypes
+        model.dataTypes = dataTypeInfo.dataTypes
 
         //study info
         model.studyId = term.study.id;
+        model.studyName = term.name;
 
         //user
         model.userId = springSecurityService.principal.id;
+        model.userName = springSecurityService.principal.username;
+
+        //access
+        model.hasAccess = currentUserBean.canPerform(READ, term.study)
 
         render template: 'showDefinition', model: model
     }
