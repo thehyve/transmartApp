@@ -78,6 +78,16 @@
     var removeNodeDseURL = "${createLink([controller:'RWG', action:'removeOpenedNodeDSE'])}";
 
     var uploadFilesURL = "${createLink([controller:'uploadFiles',action:'displayUpload'])}";
-    var uploadActionURL = "${createLink([controller:'uploadFiles',action:'upload'])}"; 
+    var uploadActionURL = "${createLink([controller:'uploadFiles',action:'upload'])}";
+
+    //
+    window.rwgURLs = {
+        rwgAutoComplete: "${createLink([controller:'RWGNew', action:'autocomplete'])}",
+        getSearchCategories: "${createLink([controller: 'RWGNew', action: 'getSearchCategories'])}",
+        getFilterCategories: "${createLink([controller: 'RWGNew', action: 'getFilterCategories'])}",
+        getFacetResults: "${createLink([controller: 'RWGNew', action: 'getFacetResults'])}",
+
+        crossImage: "${resource([dir:'images', file:'small_cross.png'])}",
+    };
 
 </script>

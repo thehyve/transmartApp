@@ -12,8 +12,8 @@
 
 <g:javascript library="jquery" />
 <r:require module="browseTab" />
-<r:layoutResources/>
 <tmpl:/RWG/urls/>
+<r:layoutResources/>
 
 <script type="text/javascript" charset="utf-8">
     var mouse_inside_options_div = false;
