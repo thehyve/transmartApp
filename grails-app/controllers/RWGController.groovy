@@ -1,5 +1,5 @@
-import fm.FmFile
-import fm.FmFolder
+import org.transmartproject.browse.fm.FmFile
+import org.transmartproject.browse.fm.FmFolder
 import grails.converters.JSON
 import groovy.time.TimeCategory
 import groovy.xml.StreamingMarkupBuilder
