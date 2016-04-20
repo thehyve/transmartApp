@@ -100,6 +100,7 @@
         };
 
         window.rwgSearchConfig = {
+            requiredField: 'CONCEPT_PATH',
             onConceptsListChanges: function() { window.datasetExplorer_conceptsListChanges.apply(this, arguments); },
         };
         var dseOpenedNodes = "${dseOpenedNodes}";
