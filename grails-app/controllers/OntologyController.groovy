@@ -16,7 +16,7 @@ import org.transmartproject.core.users.User
 import javax.annotation.Resource
 
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.HIGH_DIMENSIONAL
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
 
 class OntologyController {
 
@@ -125,10 +125,7 @@ class OntologyController {
         model.userName = springSecurityService.principal.username;
 
         //access
-        def user = AuthUser.findByUsername(springSecurityService.principal.username)
-        def parentKey = term.key.split("\\\\")[0..-2].join("\\")
-        def access = i2b2HelperService.getChildrenWithAccessForUserNew(parentKey, user)
-        model.hasAccess = access[term.fullName] != 'Locked'
+        model.hasAccess = currentUserBean.canPerform(BUILD_COHORT, term.study)
 
         render template: 'showDefinition', model: model
     }
