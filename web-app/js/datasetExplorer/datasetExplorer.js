@@ -1205,8 +1205,8 @@ function projectDialogComplete() {
     jQuery('#box-search').prependTo(jQuery('#westPanel')).show();
     jQuery('#noAnalyzeResults').prependTo(jQuery('#navigateTermsPanel .x-panel-body'));
 
-    //Now that the ont tree has been set up, call the initial search
-    showSearchResults();
+//    //Now that the ont tree has been set up, call the initial search
+//    showSearchResults();
 
     if (GLOBAL.Tokens.indexOf("EXPORT") === -1 && !GLOBAL.IsAdmin) {
         //Ext.getCmp("exportbutton").disable();
@@ -1269,42 +1269,14 @@ function setupOntTree(id_in, title_in) {
             }
         }
     });
-    
-    ontTree.on('beforecollapsenode', function (node, deep, anim) {
-        Ext.Ajax.request({
-            url: removeNodeDseURL + "?node=" + node.id,
-            method: 'POST',
-            success: function (result, request) {
-            },
-            failure: function (result, request) {
-                console.error(result);
-            },
-            timeout: '600000'
-        });
-    });
 
     var firstExpandProgram = [];
 
     ontTree.on('beforeexpandnode', function (node, deep, anim) {
-        var expand = true;
         if (GLOBAL.PathToExpand !== undefined && GLOBAL.PathToExpand.indexOf(node.id) > -1 && node.parentNode.id === "treeRoot" && !contains(dseClosedNodes, node.id)) {
             if (firstExpandProgram.indexOf(node.id) === -1) {
                 firstExpandProgram.push(node.id);
-                expand = false;
             }
-        }
-
-        if (expand) {
-            Ext.Ajax.request({
-                url: addNodeDseURL + "?node=" + node.id,
-                method: 'POST',
-                success: function (result, request) {
-                },
-                failure: function (result, request) {
-                    console.log(result);
-                },
-                timeout: '600000'
-            });
         }
     });
 
@@ -3288,4 +3260,38 @@ function contains(a, obj) {
         }
     }
     return false;
+}
+
+/* hook for rwgView */
+function datasetExplorer_conceptsListChanges(newList) {
+    // clear tree
+    if (Ext.getCmp('navigateTermsPanel')) {
+        var treeRoot = Ext.getCmp('navigateTermsPanel').getRootNode();
+        for (var c = treeRoot.childNodes.length - 1; c >= 0; c--) {
+            treeRoot.childNodes[c].remove();
+        }
+    }
+
+    if (newList === undefined) {
+        this.noResultsEl.hide();
+        window.getCategories();
+    } else if (newList.length > 0) {
+        this.noResultsEl.hide();
+
+        // create new list with concepts that are a prefix of some other
+        // this is called 'unique leaves' in the codebase, even though
+        // they are not necessarily leaves
+        var uniqueLeaves = newList.filter(function(el) {
+            // keep only if there's no other element for which this is a prefix
+            return !newList.find(function(it) { return el != it && it.startsWith(el); });
+        });
+        if (window.searchByTagComplete) {
+            searchByTagComplete({
+                searchResults: newList,
+                uniqueLeaves: uniqueLeaves,
+            });
+        }
+    } else { /* no results */
+        this.noResultsEl.show();
+    }
 }
