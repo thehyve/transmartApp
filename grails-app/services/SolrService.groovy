@@ -92,40 +92,6 @@ class SolrService {
     }
 
     /**
-     * This method takes a hashmap in an expected solr layout category:[item:count] and reorders it so that the item specified by the second parameter is on top of that categories list.
-     * @param mapToModify A hashmap in the expected solr format category:[item:count,item:count]
-     * @param termToFloat A string representing the name of the item that should be preserved on top.
-     * @return
-     */
-    def floatTopValue(mapToModify, termToFloat) {
-        //For each category in the hash, we attempt to remove a term, if succesful we put it back on top.
-        mapToModify.each
-                {
-                    termList ->
-
-                        //Attempt to remove a term. null is returned if the term was not found.
-                        def valueRemoved = termList.value.remove(termToFloat)
-
-                        //If a value is removed, the value returned is the value of the term.
-                        if (valueRemoved) {
-                            //The new map with the desired ordering.
-                            def newMap = [:]
-
-                            //Add our item first.
-                            newMap[termToFloat] = valueRemoved
-                            //Put the rest of the items back in the list.
-                            newMap.putAll(termList.value)
-
-                            //Assign the map back to the category list.
-                            termList.value = newMap
-                        }
-
-                }
-
-        return mapToModify
-    }
-
-    /**
      * This method will pull "documents" from solr based on the passed in JSON Criteria.
      * @param solrServer Base URL for the solr server.
      * @param JSONObject An object that looks like {"SearchJSON":{"Pathology":["Liver, Cancer of","Colorectal Cancer"]}}* @param resultColumns The list of columns we want returned.
@@ -358,41 +324,6 @@ class SolrService {
 
         //Return the list of ID's.
         return IdList;
-    }
-
-    /**
-     * Gets a list of all the available fields from Solr.
-     */
-    def getCategoryList(String fieldExclusionList, coreName) {
-        //Get the URL from the config file.
-        String solrServerUrl = grailsApplication.config.com.recomdata.solr.baseURL
-
-        //Create the http object we will use to retrieve the field list.
-        def http = new HTTPBuilder(solrServerUrl)
-
-        def resultList = []
-
-        System.out.println(solrServerUrl);
-        //System.err.println(solrServerUrl)
-        //The luke request handler returns schema data.
-        def html = http.get(path: '/solr/' + coreName + '/schema?wt=xml')
-                {
-                    resp, xml ->
-
-                        //For each lst we look for the "fields" node.
-                        xml.schema.fields.each
-                                {
-                                    xmlField ->
-                                        //We don't want to return the fields in the exclusion list.
-                                        if (!(fieldExclusionList.contains(xmlField.name.toString() + "|"))) {
-                                            //Add the mapping to our master map.
-                                            resultList.add(xmlField.name.toString())
-                                        }
-                                }
-
-                        return resultList
-                }
-
     }
 
     /**
