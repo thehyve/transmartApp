@@ -144,8 +144,6 @@ grails.project.dependency.resolution = {
             runtime ':dalliance-plugin:0.2-SNAPSHOT'
             runtime ':transmart-mydas:0.1-SNAPSHOT'
             runtime ':transmart-rest-api:1.2.2-SNAPSHOT'
-            runtime ':blend4j-plugin:1.2.2-SNAPSHOT'
-            runtime ':transmart-metacore-plugin:1.2.2-SNAPSHOT'
 
             test ':transmart-core-db-tests:1.2.2-SNAPSHOT'
         } else {
@@ -170,8 +168,6 @@ dm?.with {
     configureInternalPlugin 'runtime', 'dalliance-plugin'
     configureInternalPlugin 'runtime', 'transmart-mydas'
     configureInternalPlugin 'runtime', 'transmart-rest-api'
-    configureInternalPlugin 'runtime', 'blend4j-plugin'
-    configureInternalPlugin 'runtime', 'transmart-metacore-plugin'
 }
 
 dm?.inlineInternalDependencies grails, grailsSettings
