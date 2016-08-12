@@ -127,7 +127,7 @@ grails.project.dependency.resolution = {
 
         // support for static code analysis - see codenarc.reports property below
         compile ":codenarc:0.21"
-
+        runtime ':smart-r:1.0.RC1-SNAPSHOT' // outside DM for a reason. We want only release.
         if (!dm) {
             compile ':rdc-rmodules:1.2.2-SNAPSHOT'
             runtime ':transmart-core:1.2.2-SNAPSHOT'
