@@ -29,7 +29,9 @@ class ACGHDataService {
                      File studyDir,
                      String fileName,
                      String jobName,
-                     resultInstanceId) {
+                     resultInstanceId,
+                     String selectedAcghConcept) {
+
         def assayConstraints = [
                 acghResource.createAssayConstraint(
                         AssayConstraint.TRIAL_NAME_CONSTRAINT,
@@ -38,6 +40,28 @@ class ACGHDataService {
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
                         result_instance_id: resultInstanceId as Long),
         ]
+
+	String conceptkey = selectedAcghConcept
+	//define matcher which matches a starting \ followed by 1 or more non-\ characters
+	def matcher = (conceptkey =~ '\\\\[^\\\\]+' )
+        if (matcher) {
+                /* null, empty or for other reasons non matching concept strings are ignored */
+
+                /* repeat matched part as table code prefixed with an extra \
+                 * e.g. \Private Studies\Biomarker Data\Acgh\ becomes  \\Private Studies\Private Studies\Biomarker Data\Acgh\
+                 */
+		conceptkey = '\\' + matcher[0] + conceptkey
+
+                /* extend the assay constraints with an ontology term constraint thereby
+                 * restricting the set of assays to those that are associated with the given high dimensional concept
+                 */
+                assayConstraints.add(
+                        acghResource.createAssayConstraint(
+                            AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
+                            concept_key: conceptkey)
+                )
+	}
+
         def projection = acghResource.createProjection([:], 'acgh_values')
 
         def result,

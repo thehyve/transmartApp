@@ -186,12 +186,18 @@ class DataExportService {
 									                    "allowed per analysis; list given" +
 									                    " was : " + studyList);
 								}
+
+								//We need to grab some inputs from the jobs data map.
+								String selectedAcghConcept = jobDataMap.get("regionVariable")
+								if(selectedAcghConcept == ",") selectedAcghConcept = ""
+
 								this.ACGHDataService.writeRegions(
 									studyList[0],
 									studyDir,
 									'regions.txt',
 									jobDataMap.get("jobName"),
-									resultInstanceIdMap[subset]
+									resultInstanceIdMap[subset],
+                                                                        selectedAcghConcept
 									/* currently the interface does not allow filtering,
 									   so don't implement it here was well
 									 */
@@ -203,12 +209,18 @@ class DataExportService {
 									                    "allowed per analysis; list given" +
 									                    " was : " + studyList);
 								}
+
+								//We need to grab some inputs from the jobs data map.
+								String selectedRnaseqConcept = jobDataMap.get("regionVariable")
+								if(selectedRnaseqConcept == ",") selectedRnaseqConcept = ""
+
 								this.RNASeqDataService.writeRegions(
 									studyList[0],
 									studyDir,
 									'RNASeq.txt',
 									jobDataMap.get("jobName"),
-									resultInstanceIdMap[subset]
+									resultInstanceIdMap[subset],
+									selectedRnaseqConcept
 									/* currently the interface does not allow filtering,
 									   so don't implement it here was well
 									 */
