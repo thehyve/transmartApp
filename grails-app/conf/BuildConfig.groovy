@@ -47,6 +47,8 @@ grails.project.dependency.resolution = {
 
             mavenRepo "https://repo.transmartfoundation.org/content/repositories/public/"
             mavenRepo "https://repo.transmartfoundation.org/content/repositories/releases/"
+            mavenRepo "https://repo.thehyve.nl/content/repositories/public/"
+            mavenRepo "https://repo.thehyve.nl/content/repositories/releases/"
         }
     } else {
         dm.configureRepositories delegate
@@ -92,6 +94,7 @@ grails.project.dependency.resolution = {
             //also remove xercesImpl because it breaks tomcat and is not otherwise needed
             excludes 'spring-security-config', 'spring-security-core', 'spring-security-web', 'xercesImpl'
         }
+        compile 'org.anarres.lzo:lzo-core:1.0.5'
         // spring security version should be in sync with that brought with
         // grails-spring-security-core
         runtime 'org.springframework.security:spring-security-config:3.2.3.RELEASE',
@@ -139,7 +142,7 @@ grails.project.dependency.resolution = {
             compile ':rdc-rmodules:16.2-EMIF-1'
             runtime ':transmart-core:16.2'
             compile ':transmart-gwas:16.2'
-            compile ':transmart-gwas-plink:16.2'
+            compile ':transmart-gwas-plink:16.2-HYVE-1'
             //// already included in transmart-gwas
             //compile ':transmart-legacy-db:16.2'
             //// already included in transmart-gwas
