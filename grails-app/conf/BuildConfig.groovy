@@ -142,7 +142,7 @@ grails.project.dependency.resolution = {
             compile ':rdc-rmodules:16.2-EMIF-1'
             runtime ':transmart-core:16.2'
             compile ':transmart-gwas:16.2'
-            compile ':transmart-gwas-plink:16.2-HYVE-2'
+            compile ':transmart-gwas-plink:16.2-HYVE-4'
             //// already included in transmart-gwas
             //compile ':transmart-legacy-db:16.2'
             //// already included in transmart-gwas
