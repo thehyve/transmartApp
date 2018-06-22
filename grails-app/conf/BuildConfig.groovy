@@ -139,10 +139,10 @@ grails.project.dependency.resolution = {
 
         if (!dm) {
             runtime ':smart-r:16.2-STABLE'
-            compile ':rdc-rmodules:16.2-EMIF-1'
+            compile ':rdc-rmodules:16.2-EMIF-1-RC1'
             runtime ':transmart-core:16.2'
             compile ':transmart-gwas:16.2'
-            compile ':transmart-gwas-plink:16.2-HYVE-4'
+            compile ':transmart-gwas-plink:16.2-EMIF-1-RC1'
             //// already included in transmart-gwas
             //compile ':transmart-legacy-db:16.2'
             //// already included in transmart-gwas
