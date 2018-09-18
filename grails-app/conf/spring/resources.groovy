@@ -21,6 +21,7 @@ import org.transmart.spring.QuartzSpringScope
 
 import org.transmartproject.core.users.User
 import org.transmartproject.export.HighDimExporter
+import org.transmartproject.export.ProteomicsBedExporter
 import org.transmartproject.security.AuthSuccessEventListener
 import org.transmartproject.security.BadCredentialsEventListener
 import org.transmartproject.security.BruteForceLoginLockService
@@ -72,10 +73,16 @@ beans = {
         bean.scope = 'request'
     }
 
+    boolean enableProteomicsBedExporter = grailsApplication.config.dataExport.bed.proteomics.enabled
     context.'component-scan'('base-package': 'org.transmartproject.export') {
         context.'include-filter'(
                 type: 'assignable',
                 expression: HighDimExporter.canonicalName)
+        if (!enableProteomicsBedExporter) {
+            context.'exclude-filter'(
+                    type: 'assignable',
+                    expression: ProteomicsBedExporter.canonicalName)
+        }
     }
 
 
